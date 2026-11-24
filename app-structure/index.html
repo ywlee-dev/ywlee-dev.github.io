@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>앱 구조 기초 — 뇌 · 배선과 룰 · 몸(장비)</title>
+<style>
+  :root {
+    --bg: #15171c; --fg: #e8e6df; --muted: #9a988f; --line: #3a3d45; --card: #1c1f25;
+    --wire: #c08a3e; --wire-bg: #2a2117;
+    --rule: #4f9be0; --rule-bg: #142636;
+    --mech: #3fb39a; --mech-bg: #12302b;
+    --hot: #f0a040; --ok: #5dca8a; --bad: #e24b4a;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f7f6f2; --fg: #2a2a28; --muted: #6b6a64; --line: #cfcdc4; --card: #ffffff;
+      --wire: #8a5a14; --wire-bg: #fbf3e6;
+      --rule: #185fa5; --rule-bg: #e6f1fb;
+      --mech: #0f6e56; --mech-bg: #e1f5ee;
+      --hot: #c25e00; --ok: #2f7d4f; --bad: #c0392b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 22px 26px 60px; background: var(--bg); color: var(--fg); max-width: 900px;
+         font: 16px/1.7 "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
+  h1 { font-size: 21px; margin: 0 0 2px; }
+  .sub { color: var(--muted); font-size: 13.5px; }
+  a { color: inherit; }
+  code { font: 13.5px Consolas, "D2Coding", monospace; }
+  section { border: 1px solid var(--line); background: var(--card); border-radius: 14px; padding: 16px 20px 18px; margin: 16px 0; }
+  h2 { font-size: 18px; margin: 0 0 6px; }
+  h2 .no { color: var(--hot); margin-right: 6px; }
+  p { margin: 6px 0; }
+  .key { font-size: 17px; font-weight: 700; margin: 2px 0 8px; }
+  svg { display: block; width: 100%; height: auto; margin: 10px 0 6px; }
+  svg text { fill: var(--fg); font: 14px "Malgun Gothic", sans-serif; text-anchor: middle; dominant-baseline: central; }
+  svg text.b { font-weight: 700; }
+  svg text.s { font-size: 12px; fill: var(--muted); }
+  svg text.c { font: 12px Consolas, "D2Coding", monospace; fill: var(--muted); }
+  svg text.l { text-anchor: start; }
+  .g-wire { fill: var(--wire-bg); stroke: var(--wire); stroke-width: 2; }
+  .g-rule { fill: var(--rule-bg); stroke: var(--rule); stroke-width: 1.5; }
+  .g-mech { fill: var(--mech-bg); stroke: var(--mech); stroke-width: 2; }
+  .g-room { fill: none; stroke: var(--line); stroke-width: 1.2; }
+  .g-chip { fill: var(--card); stroke: var(--mech); stroke-width: 1.2; }
+  .ln-wire { stroke: var(--wire); stroke-width: 2; fill: none; }
+  .ln-up { stroke: var(--hot); stroke-width: 2; fill: none; }
+  .ln-down { stroke: var(--mech); stroke-width: 2; fill: none; }
+  .ln-ask { stroke: var(--rule); stroke-width: 2; fill: none; }
+  .ln-call { stroke: var(--fg); stroke-width: 1.6; fill: none; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0; font-size: 15px; }
+  td, th { border-bottom: 1px solid var(--line); padding: 6px 10px 6px 0; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 400; font-size: 13px; }
+  .codes { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; margin-top: 8px; }
+  @media (max-width: 720px) { .codes { grid-template-columns: 1fr; } }
+  pre { margin: 0; padding: 8px 12px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line);
+        font: 13px/1.55 Consolas, "D2Coding", monospace; white-space: pre-wrap; }
+  pre.ok { border-color: var(--ok); } pre.bad { border-color: var(--bad); }
+  pre .t { font-family: "Malgun Gothic", sans-serif; font-weight: 700; font-size: 13px; }
+  pre.ok .t { color: var(--ok); } pre.bad .t { color: var(--bad); }
+  pre .m { color: var(--muted); }
+  .w { color: var(--wire); font-weight: 700; } .r { color: var(--rule); font-weight: 700; } .e { color: var(--mech); font-weight: 700; }
+  .motto { margin: 14px 0 4px; padding: 10px 16px; border: 2px solid var(--hot); border-radius: 12px; font-size: 16.5px; line-height: 1.8; }
+  .motto b { color: var(--hot); }
+  .sig td:first-child { white-space: nowrap; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1L9 5L1 9z" fill="context-stroke"/></marker>
+</defs></svg>
+
+<p class="sub" style="margin:0 0 6px"><a href="../">← 개념 그림 모음</a></p>
+<h1>앱 구조 기초 — 뇌 · 배선과 룰 · 몸(장비)</h1>
+<div class="sub">위에서 아래로 여섯 칸. 예시는 Electron · Vue 앱이지만 Flutter · React 든 같은 모양이다. 그림 속 파일 이름은 설명용 예시.</div>
+
+<div class="motto"><b>한 줄로:</b> 🧠 뇌는 한 번 깨우고 쉰다 · 🖐 일은 팀마다 자기 안에서 끝낸다 · 🚧 팀 경계를 넘어 엉키는 흐름은 피한다 — 넘어야 하면 보관함 · 창구 같은 장비를 사이에 두고 만난다.</div>
+
+<!-- 1 -->
+<section>
+  <h2><span class="no">1</span>한 장 — 뇌에서 내려오는 흐름</h2>
+  <p class="key">뇌 자리도 방과 같은 모양 — 배선 하나 + 룰 하나. 기능마다도 배선 + 룰. 그 아래 <span style="color:var(--mech)">청록</span>은 <b>팀마다 자기 몸(장비)</b>.</p>
+  <svg viewBox="0 0 680 466" role="img" aria-label="맨 위 배선(뇌)이 기능마다 배선과 룰을 켜고, 맨 아래 몸은 라이브러리와 우리 태그 모두 장비">
+    <rect class="g-room" x="150" y="4" width="380" height="76" rx="12" style="stroke:var(--fg);stroke-width:1.5"/>
+    <text class="b" x="340" y="17">🧠 뇌 자리 — 앱 전체</text>
+    <rect class="g-wire" x="162" y="30" width="176" height="42" rx="8"/>
+    <text class="b" x="250" y="43">🔌 맨 위 배선</text><text class="c" x="250" y="61" style="fill:var(--fg)">main.js · App.vue</text>
+    <path class="ln-ask" d="M338 51 L348 51" marker-end="url(#ah)"/>
+    <rect class="g-rule" x="352" y="30" width="166" height="42" rx="18"/>
+    <text class="b" x="435" y="43">📘 앱 전체 룰</text><text class="c" x="435" y="61" style="fill:var(--fg)">app.rules · 첫 화면</text>
+    <path class="ln-wire" style="stroke-dasharray:7 5" d="M250 72 L250 92 M100 92 L595 92 M100 92 L100 120 M265 92 L265 120 M430 92 L430 120 M595 92 L595 120"/>
+    <text class="s" x="605" y="30" style="fill:var(--hot)">☀️ 켤 때 한 번 깨움</text>
+    <text class="s" x="605" y="52">💤 그 뒤 뇌는 쉼</text>
+    <text class="s" x="630" y="82">깨우기 (한 번)</text>
+
+    <rect class="g-room" x="30" y="124" width="140" height="124" rx="10"/>
+    <text class="b l" x="40" y="142">설정 방</text><circle cx="156" cy="142" r="6" style="fill:var(--ok)"><animate attributeName="opacity" values="1;.35;1" dur="1.6s" repeatCount="indefinite"/></circle>
+    <rect class="g-wire" x="40" y="156" width="120" height="34" rx="6"/><text class="c" x="100" y="173" style="fill:var(--fg)">config.wiring</text>
+    <rect class="g-rule" x="40" y="202" width="120" height="34" rx="16"/><text class="c" x="100" y="219" style="fill:var(--fg)">config.rules</text>
+
+    <rect class="g-room" x="195" y="124" width="140" height="124" rx="10"/>
+    <text class="b l" x="205" y="142">펌프</text><circle cx="321" cy="142" r="6" style="fill:var(--ok)"><animate attributeName="opacity" values="1;.35;1" dur="1.6s" repeatCount="indefinite"/></circle>
+    <rect class="g-wire" x="205" y="156" width="120" height="34" rx="6"/><text class="c" x="265" y="173" style="fill:var(--fg)">ipc-pump.wiring</text>
+    <text class="s" x="265" y="219">룰 없음 (그대로 담기)</text>
+
+    <rect class="g-room" x="360" y="124" width="140" height="124" rx="10"/>
+    <text class="b l" x="370" y="142">머리줄 방</text><circle cx="486" cy="142" r="6" style="fill:var(--ok)"><animate attributeName="opacity" values="1;.35;1" dur="1.6s" repeatCount="indefinite"/></circle>
+    <rect class="g-wire" x="370" y="156" width="120" height="34" rx="6"/><text class="c" x="430" y="173" style="fill:var(--fg)">header.wiring</text>
+    <rect class="g-rule" x="370" y="202" width="120" height="34" rx="16"/><text class="c" x="430" y="219" style="fill:var(--fg)">header.rules</text>
+
+    <rect class="g-room" x="525" y="124" width="140" height="124" rx="10" style="stroke-dasharray:5 4"/>
+    <text class="b l" x="535" y="142">통신 방</text><circle cx="651" cy="142" r="6" style="fill:none;stroke:var(--muted);stroke-width:1.5"/>
+    <rect class="g-wire" x="535" y="156" width="120" height="34" rx="6" style="stroke-dasharray:4 3"/><text class="c" x="595" y="173" style="fill:var(--fg)">socket.wiring</text>
+    <rect class="g-rule" x="535" y="202" width="120" height="34" rx="16" style="stroke-dasharray:4 3"/><text class="c" x="595" y="219" style="fill:var(--fg)">socket.rules</text>
+
+    <g>
+      <path class="ln-up" d="M80 290 L80 254" marker-end="url(#ah)"/><path class="ln-down" d="M120 252 L120 288" marker-end="url(#ah)"/>
+      <path class="ln-up" d="M245 290 L245 254" marker-end="url(#ah)"/><path class="ln-down" d="M285 252 L285 288" marker-end="url(#ah)"/>
+      <path class="ln-up" d="M410 290 L410 254" marker-end="url(#ah)"/><path class="ln-down" d="M450 252 L450 288" marker-end="url(#ah)"/>
+      <path class="ln-up" d="M575 290 L575 254" marker-end="url(#ah)" style="stroke-dasharray:4 3"/><path class="ln-down" d="M615 252 L615 288" marker-end="url(#ah)" style="stroke-dasharray:4 3"/>
+    </g>
+
+    <rect class="g-mech" x="30" y="294" width="140" height="50" rx="4"/>
+    <text class="b" x="100" y="311">📄 서류함</text><text class="c" x="100" y="331">config-file.mech</text>
+    <rect class="g-mech" x="195" y="294" width="140" height="50" rx="4"/>
+    <text class="b" x="265" y="311">☎️ 창구로 전화</text><text class="c" x="265" y="331">electronAPI</text>
+    <rect class="g-mech" x="360" y="294" width="140" height="50" rx="4"/>
+    <text class="b" x="430" y="311">🖼️ 머리줄 화면</text><text class="c" x="430" y="331">&lt;HeaderBar&gt;</text>
+    <rect class="g-mech" x="525" y="294" width="140" height="50" rx="4" style="stroke-dasharray:4 3"/>
+    <text class="b" x="595" y="311">☎️ 바깥 전화기</text><text class="c" x="595" y="331">socket · 다음 기능</text>
+    <path class="ln-down" d="M285 344 L285 352" marker-end="url(#ah)"/>
+    <path class="ln-up" d="M410 356 L410 347" marker-end="url(#ah)"/>
+    <rect class="g-mech" x="195" y="354" width="305" height="40" rx="4"/>
+    <text class="b" x="347" y="367">🗄️ 보관함 — 펌프가 담고, 머리줄이 지켜봄</text><text class="c" x="347" y="384">config-store.mech · 두 팀이 만나는 곳</text>
+    <rect class="g-chip" x="20" y="404" width="640" height="28" rx="6"/>
+    <text class="s l" x="36" y="418">🧰 공용 — 가져온 라이브러리: Electron · ipcMain · Node fs · Vue · Pinia (팀들이 꺼내 씀)</text>
+
+    <text class="s" x="340" y="450">🩸 혈관 · 심장 = Electron · Node 실행 환경 — 이 모두가 돌게 해 주는 바탕</text>
+  </svg>
+  <p class="sub"><span style="color:var(--mech)">청록 상자</span> 그 팀의 손발 — 설정 방은 서류함, 머리줄 방은 머리줄 화면. 보관함은 두 팀이 만나는 곳, 라이브러리는 모두가 꺼내 쓰는 공용. <span style="color:var(--hot)">주황 ↑</span> 몸에서 신호가 올라옴(울림) · <span style="color:var(--mech)">청록 ↓</span> 배선이 몸을 움직임(부름) · <span style="color:var(--ok)">●</span> 깨어 있는 팀 (○ 아직 없음, 다음 기능). <b>한 파일은 한 가지만</b> — 맨 위 배선은 켜고 잇고 묻기만, 판단은 룰이 한다. 앱 전체 판단(첫 화면 등)은 앱 전체 룰, 기능 판단은 그 기능의 룰 — 척수 반사처럼 그 자리에서.</p>
+  <p><b>뇌는 아침에 한 번 팀들의 눈을 뜨게 하고 "이제 너희가 알아서 해" 하고 쉰다.</b> 그 뒤 주황 ↑ · 청록 ↓ 는 각 팀이 <b>스스로</b> 도는 것 — 뇌로 다시 올라가지 않는다. 로그아웃처럼 앱 전체에 영향이 가는 일도, 그 일을 맡은 팀(예: 로그인 팀)이 자기 센서로 알아채 처리한다.</p>
+</section>
+
+<!-- 2 -->
+<section>
+  <h2><span class="no">2</span>셋이 하는 일</h2>
+  <p class="key">가르는 질문 하나 — "혼자 떼어 놓으면 뭘 하나?"</p>
+  <table>
+    <tr><th></th><th>하는 일</th><th>예</th></tr>
+    <tr><td class="e">⚙️ 장비 (몸)</td><td>시키면 한 가지만. 맞는지 틀린지 모름</td><td>라이브러리 · 화면 태그 · 버튼 · <code>.mech</code></td></tr>
+    <tr><td class="r">📘 룰 (지침서)</td><td>기준 · 숫자. 물으면 답만, 아무것도 안 바꿈</td><td><code>validateConfig</code> · <code>portToShow</code></td></tr>
+    <tr><td class="w">🔌 배선 (신경)</td><td>잇기만 — 📞 부르기 · 🔔 센서에 콜백 걸기 · 📘 룰에 묻기</td><td><code>startConfigRoom</code> · <code>header.wiring</code></td></tr>
+    <tr><td class="w">🧠 뇌 자리 · 🔌 맨 위 배선</td><td>켤 때 기능마다 배선을 켜고 빠짐. 판단은 앱 전체 룰에 묻기만</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code></td></tr>
+    <tr><td class="r">🧠 뇌 자리 · 📘 앱 전체 룰</td><td>앱 전체에 걸친 판단만 (첫 화면은 어디?)</td><td><code>app.rules</code> — 생기면 (예: 로그인돼 있으면 <code>/home</code>)</td></tr>
+  </table>
+  <p class="sub">배선 안에 <code>if</code> · 숫자가 생기면 → 룰로 옮길 신호.</p>
+</section>
+
+<!-- 3 -->
+<section>
+  <h2><span class="no">3</span>화면은 한 줄만 건다</h2>
+  <p class="key">버튼에 콜백을 거는 한 줄은 화면에. 콜백 안의 내용은 배선에.</p>
+  <svg viewBox="0 0 680 200" role="img" aria-label="화면의 버튼이 한 줄로 배선의 함수를 부르고, 배선이 룰에 묻고 전화기를 부르고 다음 화면으로 보낸다">
+    <rect class="g-mech" x="20" y="30" width="200" height="140" rx="4"/>
+    <text class="b" x="120" y="54">🖼️ 로그인 화면 (장비)</text>
+    <rect x="60" y="86" width="120" height="34" rx="8" style="fill:var(--card);stroke:var(--hot);stroke-width:2"/>
+    <text class="b" x="120" y="103">로그인</text>
+    <text class="c" x="120" y="146">@click · onPressed</text>
+
+    <path class="ln-up" d="M182 103 L256 103" marker-end="url(#ah)"/>
+    <text class="s" x="240" y="86" style="fill:var(--hot)">한 줄</text>
+
+    <rect class="g-wire" x="260" y="58" width="170" height="90" rx="8"/>
+    <text class="b" x="345" y="80">🔌 login.wiring</text>
+    <text class="c" x="345" y="103" style="fill:var(--fg)">submit()</text>
+    <text class="s" x="345" y="126">콜백 안의 내용은 여기</text>
+
+    <path class="ln-ask" d="M430 78 L450 78 L450 40 L466 40" marker-end="url(#ah)"/>
+    <path class="ln-call" d="M430 103 L466 103" marker-end="url(#ah)"/>
+    <path class="ln-call" d="M430 128 L450 128 L450 166 L466 166" marker-end="url(#ah)"/>
+    <rect class="g-rule" x="470" y="20" width="190" height="40" rx="18"/><text x="565" y="40">📘 canLogin? — 룰</text>
+    <rect class="g-mech" x="470" y="83" width="190" height="40" rx="3"/><text x="565" y="103">☎️ signIn — 전화기</text>
+    <rect class="g-mech" x="470" y="146" width="190" height="40" rx="3"/><text x="565" y="166">🖼️ 다음 화면으로</text>
+  </svg>
+  <div class="codes">
+    <pre class="ok"><span class="t">✅ 이렇게 — 화면엔 한 줄</span>
+<span class="m">&lt;!-- Vue --&gt;</span>
+&lt;button @click="login.submit()"&gt;로그인&lt;/button&gt;
+
+<span class="m">// Flutter</span>
+onPressed: () =&gt; loginWiring.submit(email, pw)</pre>
+    <pre class="bad"><span class="t">✕ 이렇게 말고 — 화면 안에 흐름</span>
+onPressed: () async {
+  if (!LoginRules.canLogin(e, p)) return;  <span class="m">// 판단</span>
+  await server.signIn(…);                  <span class="m">// 전화</span>
+  if (…) showDialog(…);                    <span class="m">// 판단 + 그리기</span>
+  router.go('/home');                      <span class="m">// 이동</span>
+}</pre>
+  </div>
+  <p class="sub">그래서 화면을 갈아 끼워도 흐름은 배선에 그대로 남는다. 어느 버튼에 무엇이 걸렸는지는 화면 파일만 열어도 보인다.</p>
+</section>
+
+<!-- 4 -->
+<section>
+  <h2><span class="no">4</span>일이 생기면 한 바퀴 — 그 팀 안에서 끝난다</h2>
+  <p class="key">울린 몸의 주인 팀이, 그 팀 안에서: 몸이 울림 → 그 팀 배선 → 그 팀 룰 → 몸이 움직임. 오른손 신호는 오른손 교차로에서.</p>
+  <svg viewBox="0 0 680 200" role="img" aria-label="머리줄 방 안에서 보관함이 울리고 머리줄 배선이 머리줄 룰에 물어 머리줄 화면을 그린다. 옆 설정 방은 이 신호를 처리하지 않는다">
+    <rect class="g-room" x="10" y="24" width="500" height="166" rx="12" style="stroke:var(--wire);stroke-width:2"/>
+    <text class="b l" x="22" y="40">🖐 머리줄 방 안에서 끝남 — 오른손은 오른손 교차로에서</text>
+    <rect class="g-mech" x="22" y="54" width="110" height="84" rx="4" style="stroke:var(--hot)"/>
+    <text class="b" x="77" y="72">⚙️ 울림</text><text class="s" x="77" y="96">보관함 바뀜</text><text class="c" x="77" y="118">config-store</text>
+    <path class="ln-up" d="M132 96 L141 96" marker-end="url(#ah)"/>
+    <rect class="g-wire" x="144" y="54" width="110" height="84" rx="8"/>
+    <text class="b" x="199" y="72">🔌 배선</text><text class="s" x="199" y="96">걸어 둔 콜백</text><text class="c" x="199" y="118">header.wiring</text>
+    <path class="ln-ask" d="M254 96 L263 96" marker-end="url(#ah)"/>
+    <rect class="g-rule" x="266" y="54" width="110" height="84" rx="18"/>
+    <text class="b" x="321" y="72">📘 룰</text><text class="s" x="321" y="96">기준대로 정함</text><text class="c" x="321" y="118">portToShow</text>
+    <path class="ln-call" d="M376 96 L385 96" marker-end="url(#ah)"/>
+    <rect class="g-mech" x="388" y="54" width="110" height="84" rx="4"/>
+    <text class="b" x="443" y="72">⚙️ 움직임</text><text class="s" x="443" y="96">머리줄 그리기</text><text class="c" x="443" y="118">HeaderBar</text>
+    <path class="ln-up" d="M443 140 C443 166, 77 166, 77 142" marker-end="url(#ah)" style="stroke-dasharray:6 4"/>
+    <text class="s" x="260" y="178">끝나면 다시 기다림</text>
+
+    <path d="M512 96 L526 96" style="stroke:var(--bad);stroke-width:2;fill:none;stroke-dasharray:4 3" marker-end="url(#ah)"/>
+    <text class="b" x="519" y="80" style="fill:var(--bad)">✕</text>
+    <rect class="g-room" x="530" y="24" width="140" height="166" rx="12" style="stroke-dasharray:5 4"/>
+    <text class="b" x="600" y="44">🦵 설정 방</text><text class="s" x="600" y="64">= 무릎 쪽 교차로</text>
+    <text class="s" x="600" y="120" style="fill:var(--bad)">✕ 남의 몸 신호는</text><text class="s" x="600" y="138" style="fill:var(--bad)">처리 안 함</text>
+  </svg>
+  <p class="sub"><b>센서를 단 팀이 처리한다.</b> 보관함 센서는 머리줄 배선이 달았으니, 보관함이 바뀌면 머리줄 방 안에서 끝난다 — 설정 방이나 뇌로 넘어가지 않는다. 그래서 "이 신호는 어디서 처리하나?"는 "이 장비에 누가 센서를 달았나?"로 찾는다. 물을 것이 없으면 📘 칸은 건너뛴다.</p>
+</section>
+
+<!-- 5 -->
+<section>
+  <h2><span class="no">5</span>무엇이 바뀌면 어디를 고치나</h2>
+  <table>
+    <tr><th>바뀐 것</th><th>고칠 곳</th></tr>
+    <tr><td>기준 · 숫자 (기본 포트, 끊김 3초 → 5초)</td><td class="r">📘 룰만</td></tr>
+    <tr><td>바깥 방식 · 화면 모양 (파일 형식, 통신, 버튼 위치)</td><td class="e">⚙️ 장비만</td></tr>
+    <tr><td>새 일 (머리줄에 사용자 이름도)</td><td><span class="e">⚙️ 장비</span> + <span class="w">🔌 배선 한 줄</span> (+ 필요하면 <span class="r">📘</span>)</td></tr>
+    <tr><td>새 기능 (방 하나 더)</td><td><span class="w">🔌 배선</span> + <span class="r">📘 룰</span> 한 벌, 그리고 <span class="w">🧠 뇌</span>에 켜는 줄 하나</td></tr>
+  </table>
+  <p>코드를 읽을 때: <b>흐름</b>이 궁금하면 배선 → <b>왜 이 값</b>은 룰 → <b>어떻게 읽고 그리나</b>는 장비.</p>
+  <p style="margin-top:10px"><b>읽는 법:</b> 기능 하나에서 값 하나(예: 포트 숫자)를 들고, 몸 → 배선 → 룰 → 몸을 줄마다 "부르기 · 센서 · 묻기"라고 말하며 따라간다.</p>
+</section>
+
+<!-- 6 -->
+<section>
+  <h2><span class="no">6</span>경계가 무너지는 세 가지 신호</h2>
+  <p class="key">코드를 볼 때 셋 중 하나가 보이면 "경계가 무너지는 중"이다.</p>
+  <svg viewBox="0 0 680 210" role="img" aria-label="세 가지 신호: 뇌에 if가 는다, 남의 팀 안쪽을 import 한다, 화면 안에 전화 판단 이동이 다 있다">
+    <rect class="g-room" x="10" y="6" width="208" height="198" rx="12" style="stroke:var(--bad)"/>
+    <text class="b" x="114" y="24" style="fill:var(--bad)">① 뇌에 if 가 는다</text>
+    <rect class="g-wire" x="40" y="42" width="148" height="88" rx="8"/>
+    <text class="c" x="114" y="62" style="fill:var(--bad)">if (로그인) …</text>
+    <text class="c" x="114" y="84" style="fill:var(--bad)">if (포트) …</text>
+    <text class="c" x="114" y="106" style="fill:var(--bad)">if (끊김) …</text>
+    <text class="s" x="114" y="152">→ 그 기능의 룰로 옮긴다</text>
+    <text class="s" x="114" y="174">뇌는 켜고 잇고 묻기만</text>
+
+    <rect class="g-room" x="236" y="6" width="208" height="198" rx="12" style="stroke:var(--bad)"/>
+    <text class="b" x="340" y="24" style="fill:var(--bad)">② 남의 팀 속을 import</text>
+    <rect class="g-room" x="252" y="42" width="66" height="54" rx="8" style="stroke:var(--wire);stroke-width:2"/><text class="b" x="285" y="69">A 팀</text>
+    <rect class="g-room" x="362" y="42" width="66" height="54" rx="8" style="stroke:var(--wire);stroke-width:2"/><text class="b" x="395" y="69">B 팀</text>
+    <path d="M320 69 L358 69" style="stroke:var(--bad);stroke-width:2;fill:none;stroke-dasharray:4 3" marker-end="url(#ah)"/>
+    <text class="b" x="340" y="56" style="fill:var(--bad)">✕</text>
+    <rect class="g-mech" x="300" y="110" width="80" height="28" rx="4"/><text x="340" y="124">🗄️ 보관함</text>
+    <path class="ln-down" d="M285 98 L285 124 L297 124" marker-end="url(#ah)" style="stroke:var(--ok)"/>
+    <path class="ln-up" d="M383 124 L395 124 L395 100" marker-end="url(#ah)" style="stroke:var(--ok)"/>
+    <text class="s" x="340" y="160">→ 보관함 · 창구에서 만난다</text>
+    <text class="s" x="340" y="182">팀끼리는 서로 모른다</text>
+
+    <rect class="g-room" x="462" y="6" width="208" height="198" rx="12" style="stroke:var(--bad)"/>
+    <text class="b" x="566" y="24" style="fill:var(--bad)">③ 화면에 전화 · 판단 · 이동</text>
+    <rect class="g-mech" x="492" y="42" width="148" height="88" rx="4"/>
+    <text class="s" x="566" y="62" style="fill:var(--bad)">☎️ server.signIn</text>
+    <text class="s" x="566" y="84" style="fill:var(--bad)">📘 if (…) showDialog</text>
+    <text class="s" x="566" y="106" style="fill:var(--bad)">🧭 router.go</text>
+    <text class="s" x="566" y="152">→ 화면엔 한 줄, 내용은 배선</text>
+    <text class="c" x="566" y="174">onPressed: () =&gt; w.submit()</text>
+  </svg>
+  <table class="sig">
+    <tr><th>신호</th><th>이렇게 찾는다</th><th>이렇게 고친다</th></tr>
+    <tr><td>① 뇌에 <code>if</code> 가 는다</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code> 에 기능 이름 · 기준 숫자가 보인다</td><td>그 기능의 룰로 (앱 전체 판단이면 앱 전체 룰로)</td></tr>
+    <tr><td>② 남의 팀 속을 <code>import</code></td><td>A 팀 파일이 B 팀의 <code>.mech</code> · <code>.rules</code> 를 직접 가져온다</td><td>B 가 보관함에 담고 A 는 그 보관함에 센서를 단다</td></tr>
+    <tr><td>③ 화면에 전화 · 판단 · 이동</td><td>화면 파일 안에 서버 호출 · <code>if</code> · 화면 이동이 같이 있다</td><td>그 팀 <code>.wiring</code> 의 함수 하나로 옮기고, 화면엔 거는 한 줄만</td></tr>
+  </table>
+  <p class="sub">한꺼번에 뜯지 않는다 — 새 코드부터 지키고, 이미 있는 코드는 그 파일을 고칠 일이 생겼을 때 나눈다.</p>
+</section>
+</body>
+</html>
