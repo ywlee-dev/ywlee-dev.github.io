@@ -73,9 +73,27 @@
 
 <p class="sub" style="margin:0 0 6px"><a href="../">← 개념 그림 모음</a></p>
 <h1>앱 구조 기초 — 뇌 · 배선과 룰 · 몸(장비)</h1>
-<div class="sub">위에서 아래로 여섯 칸. 예시는 Electron · Vue 앱이지만 Flutter · React 든 같은 모양이다. 그림 속 파일 이름은 설명용 예시.</div>
+<div class="sub">위에서 아래로 — 0칸(말 정리) 다음 여섯 칸. 예시는 Electron · Vue 앱이지만 Flutter · React 든 같은 모양이다. 그림 속 파일 이름은 설명용 예시.</div>
 
 <div class="motto"><b>한 줄로:</b> 🧠 뇌는 한 번 깨우고 쉰다 · 🖐 일은 팀마다 자기 안에서 끝낸다 · 🚧 팀 경계를 넘어 엉키는 흐름은 피한다 — 넘어야 하면 보관함 · 창구 같은 장비를 사이에 두고 만난다.</div>
+
+<!-- 0 -->
+<section>
+  <h2><span class="no">0</span>시작 전에 — 예시 앱과 이 페이지의 말</h2>
+  <p><b>예시 앱</b> — 설정 파일(<code>config.json</code>)의 포트 숫자를 읽어, 화면 맨 위 줄(머리줄)에 "수신 포트: 8080" 을 보여 주는 작은 데스크톱 앱(Electron + Vue). 그림 속 파일 이름은 모두 이 앱 기준의 예시다.</p>
+  <table class="sig">
+    <tr><th>이 페이지의 말</th><th>뜻</th><th>개발자 말로</th><th>파일에서</th></tr>
+    <tr><td class="w">🧠 뇌 (맨 위 배선)</td><td>켤 때 기능들을 만들고 잇는 맨 위 코드. 그 뒤로는 쉰다</td><td>진입점 · composition root</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code></td></tr>
+    <tr><td>방 (= 팀)</td><td>기능 하나를 담은 폴더. 이 페이지에서 "방"과 "팀"은 같은 말</td><td>기능 모듈 · feature folder</td><td><code>config/</code> · <code>header/</code></td></tr>
+    <tr><td class="w">🔌 배선</td><td>장비와 룰을 가져와 <b>잇기만</b> 하는 코드 — 부르기 · 센서 걸기 · 묻기</td><td>연결 코드 · glue · wiring</td><td><code>○○.wiring.js</code></td></tr>
+    <tr><td class="r">📘 룰</td><td>기준 · 숫자로 <b>판단만</b>. 아무것도 바꾸지 않는다</td><td>순수 함수 · 정책 · domain rule</td><td><code>○○.rules.js</code></td></tr>
+    <tr><td class="e">⚙️ 장비 (몸)</td><td>시키면 <b>한 가지만</b> — 파일 읽기 · 통신 · 화면 그리기. 가져온 라이브러리도 장비</td><td>입출력 부품 · adapter · UI 컴포넌트</td><td><code>○○.mech.js</code> · <code>○○.vue</code></td></tr>
+    <tr><td class="e">🗄️ 보관함</td><td>값을 담아 두고, 바뀌면 알려 주는 장비</td><td>store (Pinia · Rx …)</td><td><code>○○-store.mech.js</code></td></tr>
+    <tr><td>🚪 창구</td><td>두 프로세스(main · 화면) 사이의 문</td><td>preload · IPC 다리</td><td><code>preload.js</code></td></tr>
+    <tr><td>🔔 센서 · 콜백</td><td>"이 일이 생기면 이걸 불러" 하고 걸어 두는 것</td><td>이벤트 리스너 · 콜백 · 반응형</td><td><code>on(…)</code> · <code>watch</code> · <code>@click</code></td></tr>
+  </table>
+  <p class="sub">끝말 <code>.mech</code> · <code>.rules</code> · <code>.wiring</code> 은 이 페이지가 정한 <b>이름 약속</b>이다 — 언어나 프레임워크의 규칙이 아니다. 파일 이름만 보고 그 파일이 무슨 종류인지 알게 하려고 붙인다.</p>
+</section>
 
 <!-- 1 -->
 <section>
