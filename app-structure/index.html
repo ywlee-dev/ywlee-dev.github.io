@@ -83,9 +83,9 @@
 
 <p class="sub" style="margin:0 0 6px"><a href="../">← 개념 그림 모음</a></p>
 <h1>앱 구조 기초 — 뇌 · 배선과 룰 · 몸(장비)</h1>
-<div class="sub">위에서 아래로 — 0칸(말 정리) 다음 아홉 칸. 예시는 Electron · Vue 앱이지만 Flutter · React 든 같은 모양이다. 그림 속 파일 이름은 설명용 예시.</div>
+<div class="sub">위에서 아래로 — 0칸(말 정리) 다음 열 칸. 예시는 Electron · Vue 앱이지만 Flutter · React 든 같은 모양이다. 그림 속 파일 이름은 설명용 예시.</div>
 
-<div class="motto"><b>한 줄로:</b> 🧠 뇌는 한 번 깨우고 쉰다 · 🖐 일은 팀마다 자기 안에서 끝낸다 · 🚧 팀 경계를 넘어 엉키는 흐름은 피한다 — 넘어야 하면 보관함 · 창구 같은 장비를 사이에 두고 만난다 · 🗄️ 같이 쓰는 장비는 바꾸는 주인이 한 팀.</div>
+<div class="motto"><b>한 줄로:</b> 🧠 뇌는 팀 배선만 한 번 깨우고 쉰다(장비는 팀 배선이 깨운다) · 🖐 일은 팀마다 자기 안에서 끝낸다 · 🚧 팀 경계를 넘어 엉키는 흐름은 피한다 — 넘어야 하면 보관함 · 창구 같은 장비를 사이에 두고 만난다 · 🗄️ 같이 쓰는 장비는 바꾸는 주인이 한 팀.</div>
 
 <!-- 0 -->
 <section>
@@ -93,9 +93,9 @@
   <p><b>예시 앱</b> — 설정 파일(<code>config.json</code>)의 포트 숫자를 읽어, 화면 맨 위 줄(머리줄)에 "수신 포트: 8080" 을 보여 주는 작은 데스크톱 앱(Electron + Vue). 그림 속 파일 이름은 모두 이 앱 기준의 예시다.</p>
   <div class="tbl"><table class="sig">
     <tr><th>이 페이지의 말</th><th>뜻</th><th>개발자 말로</th><th>파일에서</th></tr>
-    <tr><td class="w">🧠 뇌 (맨 위 배선)</td><td>켤 때 기능들을 만들고 잇는 맨 위 코드. 그 뒤로는 쉰다</td><td>진입점 · composition root</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code></td></tr>
+    <tr><td class="w">🧠 뇌 (맨 위 배선)</td><td>켤 때 팀 배선의 켜는 손잡이를 당기는 맨 위 코드. 그 뒤로는 쉰다</td><td>진입점 · composition root</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code></td></tr>
     <tr><td>방 (= 팀)</td><td>기능 하나를 담은 폴더. 이 페이지에서 "방"과 "팀"은 같은 말</td><td>기능 모듈 · feature folder</td><td><code>config/</code> · <code>header/</code></td></tr>
-    <tr><td class="w">🔌 배선</td><td>장비와 룰을 가져와 <b>잇기만</b> 하는 코드 — 부르기 · 센서 걸기 · 묻기</td><td>연결 코드 · glue · wiring</td><td><code>○○.wiring.js</code></td></tr>
+    <tr><td class="w">🔌 배선</td><td>장비와 룰을 가져와 <b>잇기만</b> 하는 코드 — 부르기 · 센서 걸기 · 묻기. 켤 때 자기 장비를 깨우는 것도 배선</td><td>연결 코드 · glue · wiring</td><td><code>○○.wiring.js</code></td></tr>
     <tr><td class="r">📘 룰</td><td>기준 · 숫자로 <b>판단만</b>. 아무것도 바꾸지 않는다</td><td>순수 함수 · 정책 · domain rule</td><td><code>○○.rules.js</code></td></tr>
     <tr><td class="e">⚙️ 장비 (몸)</td><td>시키면 <b>한 가지만</b> — 파일 읽기 · 통신 · 화면 그리기. 가져온 라이브러리도 장비</td><td>입출력 부품 · adapter · UI 컴포넌트</td><td><code>○○.mech.js</code> · <code>○○.vue</code></td></tr>
     <tr><td class="e">🗄️ 보관함</td><td>값을 담아 두고, 바뀌면 알려 주는 장비</td><td>store (Pinia · Rx …)</td><td><code>○○-store.mech.js</code></td></tr>
@@ -171,16 +171,52 @@
   <p><b>뇌는 아침에 한 번 팀들의 눈을 뜨게 하고 "이제 너희가 알아서 해" 하고 쉰다.</b> 그 뒤 주황 ↑ · 청록 ↓ 는 각 팀이 <b>스스로</b> 도는 것 — 뇌로 다시 올라가지 않는다. 로그아웃처럼 앱 전체에 영향이 가는 일도, 그 일을 맡은 팀(예: 로그인 팀)이 자기 센서로 알아채 처리한다.</p>
 </section>
 
-<!-- 2 -->
+<!-- 2 깨우기 -->
 <section>
-  <h2><span class="no">2</span>셋이 하는 일</h2>
+  <h2><span class="no">2</span>켤 때 — 깨우기는 두 단계</h2>
+  <p class="key">뇌는 팀 배선의 켜는 손잡이만 당긴다. 그 팀의 장비는 팀 배선이 깨운다 — 배선은 "잇는 사람"이라 자기 장비를 준비시키는 것도 배선의 일.</p>
+  <div class="fig"><svg viewBox="0 0 680 222" role="img" aria-label="뇌가 팀 배선의 손잡이를 당기고, 팀 배선이 자기 장비를 부르고 센서를 달고 꺼내 둔다. 뇌가 팀 장비를 바로 깨우는 길은 금지">
+    <rect class="g-wire" x="200" y="10" width="280" height="40" rx="10" style="stroke-width:2.5"/>
+    <text class="b" x="340" y="30">🧠 뇌 — 팀 배선의 손잡이만 당김</text>
+    <path class="ln-wire" d="M340 50 L340 78" marker-end="url(#ah)"/>
+    <text class="c l" x="350" y="64" style="fill:var(--wire)">startConfigRoom()</text>
+
+    <rect class="g-wire" x="150" y="82" width="380" height="44" rx="8"/>
+    <text class="b" x="340" y="104">🔌 팀 배선 — 손잡이 안에서 자기 장비를 깨움</text>
+    <path class="ln-call" d="M190 126 L190 152" marker-end="url(#ah)"/>
+    <path class="ln-up" d="M340 126 L340 152" marker-end="url(#ah)"/>
+    <path class="ln-call" d="M490 126 L490 152" marker-end="url(#ah)"/>
+
+    <rect class="g-mech" x="125" y="156" width="130" height="50" rx="4"/>
+    <text class="b" x="190" y="173">📄 서류함</text><text class="s" x="190" y="193">📞 "읽어"</text>
+    <rect class="g-mech" x="275" y="156" width="130" height="50" rx="4"/>
+    <text class="b" x="340" y="173">📡 망 감지기</text><text class="s" x="340" y="193">🔔 센서 달기</text>
+    <rect class="g-mech" x="425" y="156" width="130" height="50" rx="4"/>
+    <text class="b" x="490" y="173">🗄️ 보관함</text><text class="s" x="490" y="193">꺼내 두기</text>
+
+    <path d="M480 30 L622 30 L622 181 L559 181" style="stroke:var(--bad);stroke-width:2;fill:none;stroke-dasharray:5 4" marker-end="url(#ah)"/>
+    <text class="s" x="551" y="20" style="fill:var(--bad)">✕ 장비를 바로 깨우기</text>
+  </svg></div>
+  <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
+  <div class="tbl"><table class="sig">
+    <tr><th>팀 배선의 켜는 손잡이</th><th>그 안에서 깨우는 것</th></tr>
+    <tr><td><code>startConfigRoom()</code></td><td>서류함에 "읽어"(📞) → 룰에 확인(📘) → 들고 있기</td></tr>
+    <tr><td><code>startIpcPump()</code></td><td>창구에 "설정 줘" 전화(📞) → 답에 센서 <code>.then</code>(🔔)</td></tr>
+    <tr><td>광고 팀 <code>onInit()</code></td><td>전화기에 "내 IP?"(📞) → 망 감지기에 센서 <code>listen</code>(🔔)</td></tr>
+  </table></div>
+  <p class="sub">✕ 예: 뇌(<code>main</code>)가 광고 SDK 준비 장비를 <b>직접</b> 부른다 — 한 줄이라 당장 꼬이진 않지만, 그 팀에 켤 때 할 일이 늘면 그 팀 배선의 손잡이 안으로 옮긴다.</p>
+</section>
+
+<!-- 3 -->
+<section>
+  <h2><span class="no">3</span>셋이 하는 일</h2>
   <p class="key">가르는 질문 하나 — "혼자 떼어 놓으면 뭘 하나?"</p>
   <div class="tbl"><table>
     <tr><th></th><th>하는 일</th><th>예</th></tr>
     <tr><td class="e">⚙️ 장비 (몸)</td><td>시키면 한 가지만. 맞는지 틀린지 모름</td><td>라이브러리 · 화면 태그 · 버튼 · <code>.mech</code></td></tr>
     <tr><td class="r">📘 룰 (지침서)</td><td>기준 · 숫자. 물으면 답만, 아무것도 안 바꿈</td><td><code>validateConfig</code> · <code>portToShow</code></td></tr>
     <tr><td class="w">🔌 배선 (신경)</td><td>잇기만 — 📞 부르기 · 🔔 센서에 콜백 걸기 · 📘 룰에 묻기</td><td><code>startConfigRoom</code> · <code>header.wiring</code></td></tr>
-    <tr><td class="w">🧠 뇌 자리 · 🔌 맨 위 배선</td><td>켤 때 기능마다 배선을 켜고 빠짐. 판단은 앱 전체 룰에 묻기만</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code></td></tr>
+    <tr><td class="w">🧠 뇌 자리 · 🔌 맨 위 배선</td><td>켤 때 팀 배선의 손잡이만 당기고 빠짐. 판단은 앱 전체 룰에 묻기만</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code></td></tr>
     <tr><td class="r">🧠 뇌 자리 · 📘 앱 전체 룰</td><td>앱 전체에 걸친 판단만 (첫 화면은 어디?)</td><td><code>app.rules</code> — 생기면 (예: 로그인돼 있으면 <code>/home</code>)</td></tr>
   </table></div>
   <p class="sub">배선 안에 <code>if</code> · 숫자가 생기면 → 룰로 옮길 신호.</p>
@@ -188,7 +224,7 @@
 
 <!-- 3 -->
 <section>
-  <h2><span class="no">3</span>화면은 한 줄만 건다</h2>
+  <h2><span class="no">4</span>화면은 한 줄만 건다</h2>
   <p class="key">버튼에 콜백을 거는 한 줄은 화면에. 콜백 안의 내용은 배선에.</p>
   <div class="fig"><svg viewBox="0 0 680 200" role="img" aria-label="화면의 버튼이 한 줄로 배선의 함수를 부르고, 배선이 룰에 묻고 전화기를 부르고 다음 화면으로 보낸다">
     <rect class="g-mech" x="20" y="30" width="200" height="140" rx="4"/>
@@ -233,7 +269,7 @@ onPressed: () async {
 
 <!-- 4 장비에 붙은 작은 배선 -->
 <section>
-  <h2><span class="no">4</span>장비에 붙은 작은 배선 — 괜찮은 선</h2>
+  <h2><span class="no">5</span>장비에 붙은 작은 배선 — 괜찮은 선</h2>
   <p class="key">요즘 장비는 센서와 작은 배선을 달고 나온다(<code>Obx</code> · <code>setState</code> · <code>computed</code> · <code>watch</code>). 억지로 떼지 않아도 된다 — 세 가지만 지키면.</p>
   <div class="fig"><svg viewBox="0 0 680 212" role="img" aria-label="장비 안의 작은 배선은 판단을 룰에 묻고, 다른 팀 장비는 움직이지 않는다">
     <rect class="g-mech" x="20" y="26" width="300" height="164" rx="6" style="stroke-width:2.5"/>
@@ -267,7 +303,7 @@ onPressed: () async {
 
 <!-- 5 -->
 <section>
-  <h2><span class="no">5</span>일이 생기면 한 바퀴 — 그 팀 안에서 끝난다</h2>
+  <h2><span class="no">6</span>일이 생기면 한 바퀴 — 그 팀 안에서 끝난다</h2>
   <p class="key">울린 몸의 주인 팀이, 그 팀 안에서: 몸이 울림 → 그 팀 배선 → 그 팀 룰 → 몸이 움직임. 오른손 신호는 오른손 교차로에서.</p>
   <div class="fig"><svg viewBox="0 0 680 200" role="img" aria-label="머리줄 방 안에서 보관함이 울리고 머리줄 배선이 머리줄 룰에 물어 머리줄 화면을 그린다. 옆 설정 방은 이 신호를 처리하지 않는다">
     <rect class="g-room" x="10" y="24" width="500" height="166" rx="12" style="stroke:var(--wire);stroke-width:2"/>
@@ -299,7 +335,7 @@ onPressed: () async {
 
 <!-- 5 팀에서 팀으로 -->
 <section>
-  <h2><span class="no">6</span>팀에서 팀으로 — 만나는 장비에 내려놓는다</h2>
+  <h2><span class="no">7</span>팀에서 팀으로 — 만나는 장비에 내려놓는다</h2>
   <p class="key">한 바퀴는 같은 팀 안에서 묶는다. 팀 밖으로 갈 땐 바로 잇지 않고, 보관함 · 창구 같은 만나는 장비에 내려놓고 끝낸다.</p>
   <div class="fig"><svg viewBox="0 0 680 222" role="img" aria-label="펌프 팀 한 바퀴가 보관함에 담고, 머리줄 팀이 보관함 센서로 집어 가 자기 한 바퀴를 돈다. 펌프 팀이 머리줄 화면을 바로 움직이는 길은 금지">
     <path d="M135 40 L135 22 L545 22 L545 38" style="stroke:var(--bad);stroke-width:2;fill:none;stroke-dasharray:5 4" marker-end="url(#ah)"/>
@@ -332,7 +368,7 @@ onPressed: () async {
 
 <!-- 6 같이 쓰는 장비 -->
 <section>
-  <h2><span class="no">7</span>여러 팀이 같이 쓰는 장비</h2>
+  <h2><span class="no">8</span>여러 팀이 같이 쓰는 장비</h2>
   <p class="key">있어도 된다 — 단, 바꾸는 주인은 한 팀. 나머지는 읽거나 불러 쓰기만.</p>
   <div class="fig"><svg viewBox="0 0 680 214" role="img" aria-label="만나는 장비는 쓰기 주인 한 팀, 공용 도구는 각 팀이 불러 씀, 여러 팀이 같은 장비를 바꾸면 꼬인다">
     <rect class="g-room" x="10" y="6" width="208" height="198" rx="12" style="stroke:var(--ok);stroke-width:1.8"/>
@@ -365,7 +401,7 @@ onPressed: () async {
 
 <!-- 7 -->
 <section>
-  <h2><span class="no">8</span>무엇이 바뀌면 어디를 고치나</h2>
+  <h2><span class="no">9</span>무엇이 바뀌면 어디를 고치나</h2>
   <div class="tbl"><table>
     <tr><th>바뀐 것</th><th>고칠 곳</th></tr>
     <tr><td>기준 · 숫자 (기본 포트, 끊김 3초 → 5초)</td><td class="r">📘 룰만</td></tr>
@@ -380,8 +416,8 @@ onPressed: () async {
 
 <!-- 8 -->
 <section>
-  <h2><span class="no">9</span>경계가 무너지는 네 가지 신호</h2>
-  <p class="key">코드를 볼 때 넷 중 하나가 보이면 "경계가 무너지는 중"이다.</p>
+  <h2><span class="no">10</span>경계가 무너지는 다섯 가지 신호</h2>
+  <p class="key">코드를 볼 때 다섯 중 하나가 보이면 "경계가 무너지는 중"이다.</p>
   <div class="fig"><svg viewBox="0 0 680 210" role="img" aria-label="세 가지 신호: 뇌에 if가 는다, 남의 팀 안쪽을 import 한다, 화면 안에 전화 판단 이동이 다 있다">
     <rect class="g-room" x="10" y="6" width="208" height="198" rx="12" style="stroke:var(--bad)"/>
     <text class="b" x="114" y="24" style="fill:var(--bad)">① 뇌에 if 가 는다</text>
@@ -419,7 +455,8 @@ onPressed: () async {
     <tr><td>① 뇌에 <code>if</code> 가 는다</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code> 에 기능 이름 · 기준 숫자가 보인다</td><td>그 기능의 룰로 (앱 전체 판단이면 앱 전체 룰로)</td></tr>
     <tr><td>② 남의 팀 속을 <code>import</code></td><td>A 팀 파일이 B 팀의 <code>.mech</code> · <code>.rules</code> 를 직접 가져온다</td><td>B 가 보관함에 담고 A 는 그 보관함에 센서를 단다</td></tr>
     <tr><td>③ 화면에 전화 · 판단 · 이동</td><td>화면 파일 안에 서버 호출 · <code>if</code> · 화면 이동이 같이 있다</td><td>그 팀 <code>.wiring</code> 의 함수 하나로 옮기고, 화면엔 거는 한 줄만</td></tr>
-    <tr><td>④ 여러 팀이 같은 장비를 바꾼다</td><td>두 팀 파일이 같은 보관함에 쓰거나 같은 화면을 그린다</td><td>바꾸는 주인을 한 팀으로 — 나머지는 센서 · 읽기만 (7칸)</td></tr>
+    <tr><td>④ 여러 팀이 같은 장비를 바꾼다</td><td>두 팀 파일이 같은 보관함에 쓰거나 같은 화면을 그린다</td><td>바꾸는 주인을 한 팀으로 — 나머지는 센서 · 읽기만 (8칸)</td></tr>
+    <tr><td>⑤ 뇌가 팀 장비를 직접 깨운다</td><td>뇌 파일(<code>main</code>)에 팀의 <code>.mech</code> 이름이 보인다</td><td>그 팀 배선의 켜는 손잡이 안으로 (2칸)</td></tr>
   </table></div>
   <p class="sub">한꺼번에 뜯지 않는다 — 새 코드부터 지키고, 이미 있는 코드는 그 파일을 고칠 일이 생겼을 때 나눈다.</p>
 </section>
