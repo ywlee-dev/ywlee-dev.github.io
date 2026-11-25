@@ -114,6 +114,7 @@
   @media (max-width: 720px) { .tryrow .cap { width: 100%; } }
   :root { --inner:#2c2b28; --copper:#d08a4e; --gold:#d4a52a; --pcb:#1f3a2a; --chip:#111316; --chiptx:#f2f0ea; }
   @media (prefers-color-scheme: light) { :root { --inner:#f7f5ee; --copper:#b8672c; --gold:#c9962a; --pcb:#d5e6d8; --chip:#3a3d42; --chiptx:#f2f0ea; } }
+  .nowline { font-size: 16px; font-weight: 700; border-color: var(--hot); margin: 8px 0; min-height: 3.7em; display: flex; align-items: center; }
   .pair { display: block; font-size: 15px; } .pair i { font-style: normal; color: var(--muted); margin-right: 8px; white-space: nowrap; }
   .trysay { font-size: 16px; } .mach { color: var(--muted); border-left: 3px solid var(--line); padding-left: 10px; }
   .hit, .trycode span[id] { cursor: pointer; }
@@ -134,13 +135,14 @@
 <h1>앱 구조 기초 — 기계를 뜯어 보나, 코드를 뜯어 보나</h1>
 <div class="sub">예시는 Electron · Vue 앱이지만 Flutter · React 든 같은 모양이다. 그림 속 파일 이름은 설명용 예시.</div>
 
-<p class="hook">기계 뚜껑을 열면 늘 세 가지가 보인다 — <b>움직이는 부품</b>, 사이를 <b>잇는 회로</b>, 언제 움직일지 적힌 <b>기준</b>. 코드를 열어도 <b>똑같이 세 가지</b>다. 그래서 기계를 따라가듯 코드를 따라갈 수 있다.</p>
+<p class="hook">기계 뚜껑을 열면 보통 세 가지가 보인다 — <b>움직이는 부품</b>, 사이를 <b>잇는 회로</b>, 언제 움직일지 적힌 <b>기준</b>. 코드를 열어도 <b>똑같이 세 가지</b>다. 그래서 기계를 따라가듯 코드를 따라갈 수 있다.</p>
 
 <section class="top" id="try">
   <h2><span class="no">1</span>뚜껑을 열고 버튼을 눌러 보자</h2>
-  <p>더우면 선풍기, 추우면 난로를 켜는 기계다. <b>다음 걸음</b>을 누르면 <b>위의 기계와 아래의 코드가 같이</b> 켜진다. 기계 부품이나 코드 줄을 직접 눌러도 된다.</p>
+  <p>더우면 선풍기, 추우면 난로를 켜는 기계다. <b>다음 걸음</b>을 누르면 <b>기계와, 그 자리의 코드 줄이 같이</b> 켜진다. 기계 부품이나 코드 줄을 직접 눌러도 된다.</p>
   <div class="fig"><svg viewBox="0 0 680 424" role="img" aria-label="버튼이 눌리면 배선이 룰에 온도를 묻고, 더움 적당 추움이라는 답대로 이어 선풍기 표시등 난로 중 하나를 켠다"><rect width="680" height="424" rx="12" fill="var(--sea)"/><g id="rg"></g></svg></div>
   <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
+  <pre class="nowline" id="nowline"></pre>
   <p class="trysay" id="trysay" aria-live="polite"></p>
   <div class="tryrow"><button id="trynext" type="button">다음 걸음 ▶</button></div>
   <div class="tryrow" id="stepW"><span class="cap">☀️ 깨움 (한 번)</span></div>
@@ -244,10 +246,45 @@
     <li>보관함이 바뀌어 <b>화면 팀</b> <span class="tw">배선</span>으로 울린다 → <span class="tr">📘 룰</span>에 "무슨 글자로?" 묻는다.</li>
     <li><span class="te">🖼️ 화면</span>이 "지금: 선풍기"를 그린다. 버튼이 있는 줄도 모른다.</li>
   </ol>
+  <div class="codes">
+    <pre><b class="w">🔌 방 팀 배선 — ① 넣음</b>
+fan.on();
+store.set('선풍기 켜짐');</pre>
+    <pre><b class="w">🔌 화면 팀 배선 — ② 울림</b>
+store.onChange((now) =&gt; {
+  screen.draw(<span class="r">labelOf(now)</span>);  <span class="m">// 📘 룰에 묻고 그림</span>
+});</pre>
+  </div>
+  <p class="sub">두 코드 어디에도 상대 팀 이름이 없다. 둘 다 아는 것은 단자대인 <code>store</code> 뿐이다.</p>
 </section>
 
 <section>
-  <h2><span class="no">5</span>고치는 법도 같다</h2>
+  <h2><span class="no">5</span>답이 돌아오는 선도 있다 — 전화기</h2>
+  <p>버튼은 누르면 <b>한쪽으로 흐르고 끝</b>난다. 전화기는 <b>물으면 같은 선으로 답이 돌아온다.</b> 꽂아 두고 기다리는 것은 똑같다.</p>
+  <div class="fig"><svg viewBox="0 0 680 196" role="img" aria-label="화면이 전화를 걸면 전화기가 울리고 배선이 설정 팀에 값을 물어 같은 선으로 답을 돌려준다">
+    <rect class="g-mech" x="14" y="56" width="140" height="84" rx="6"/><text class="b" x="84" y="84">🖼️ 화면</text><text class="s" x="84" y="110">묻는 쪽</text>
+    <rect class="g-mech" x="226" y="56" width="120" height="84" rx="6"/><text class="b" x="286" y="84">☎️ 전화기</text><text class="s" x="286" y="110">울리는 장비</text>
+    <rect class="g-wire" x="394" y="56" width="120" height="84" rx="8"/><text class="b" x="454" y="84">🔌 배선</text><text class="s" x="454" y="110">이어 둔 선</text>
+    <rect class="g-mech" x="562" y="56" width="104" height="84" rx="6"/><text class="b" x="614" y="84">설정 팀</text><text class="s" x="614" y="110">8080 보관</text>
+    <path class="ln-up" d="M154 80 L222 80" marker-end="url(#ah)"/><path class="ln-up" d="M346 80 L390 80" marker-end="url(#ah)"/><path class="ln-call" d="M514 80 L558 80" marker-end="url(#ah)"/>
+    <path class="ln-down" d="M562 118 L518 118" marker-end="url(#ah)"/><path class="ln-down" d="M394 118 L350 118" marker-end="url(#ah)"/><path class="ln-down" d="M226 118 L158 118" marker-end="url(#ah)"/>
+    <text class="s" x="188" y="38" style="fill:var(--hot)">① "설정 줘"</text><text class="s" x="368" y="38" style="fill:var(--hot)">② 울림</text><text class="s" x="536" y="38">③ 부름</text>
+    <text class="s" x="536" y="162" style="fill:var(--mech)">④ 답 8080</text><text class="s" x="188" y="162" style="fill:var(--mech)">⑤ 답이 돌아옴</text>
+  </svg></div>
+  <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
+  <div class="codes">
+    <pre><b>켤 때 — 전화기에 선을 꽂음</b>
+ipcMain.handle('get-config',
+  () =&gt; configRoom.get());  <span class="m">// 돌려줄 답</span></pre>
+    <pre><b>나중에 — 화면이 물음</b>
+const config =
+  await ipcRenderer.invoke('get-config');</pre>
+  </div>
+  <p class="sub"><code>() =&gt; configRoom.get()</code> 도 꽂아 둔 선이다. 다른 점은 끝에서 나온 값이 되돌아온다는 것. Electron 을 예로 들었고, 화면 쪽 코드는 짧게 줄였다.</p>
+</section>
+
+<section>
+  <h2><span class="no">6</span>고치는 법도 같다</h2>
   <div class="tbl"><table>
     <tr><th>하고 싶은 일</th><th>🔧 기계에서</th><th>💻 코드에서</th></tr>
     <tr><td>28° → 30° 부터 덥다고</td><td>설정값만 바꾼다</td><td class="r">📘 룰만</td></tr>
@@ -259,7 +296,7 @@
 </section>
 
 <section>
-  <h2><span class="no">6</span>그래서 코드는 기계 뜯듯이 읽는다</h2>
+  <h2><span class="no">7</span>그래서 코드는 기계 뜯듯이 읽는다</h2>
   <ol class="walk">
     <li><b>뚜껑을 연다</b> — 팀 폴더를 연다. 파일 이름만 봐도 무엇이 든 상자인지 안다.</li>
     <li><b>선부터 따라간다</b> — <span class="tw">🔌 .wiring</span> 을 연다. 어느 장비에서 울려 어느 장비로 가나.</li>
@@ -673,6 +710,8 @@ function draw() {
   $('r1').textContent=`  if (temp >= ${hi}) return '더움';`; $('r2').textContent=`  if (temp < ${lo}) return '추움';`;
   const on = { [-1]:['q0','q1'], 0:['q2','l0','l6'], 6:[], 1:['l0'], 2:['l1','l2','r0'], 3:['l2',['r1','r3','r2'][w]], 4:['l'+(3+w)], 5:['l'+(3+w)] }[n];
   document.querySelectorAll('.trycode span').forEach(e=>e.classList.toggle('on',on.includes(e.id)));
+  $('nowline').textContent = S.st===2 ? '() => { … }   ← 이 안쪽이 돈다' : S.st===7 ? '// 다시 기다림' : S.st===5 ? `if (feel === '${WAYS[w]}')` : S.st===6 ? DEV[dev][0]+'.on();' : ({0:['q1'],1:['l0'],3:['l1','l2']}[S.st]||[...document.querySelectorAll('.trycode span.on')].map(x=>x.id).filter(x=>S.st!==4||x[0]==='r')).map(i=>$(i).textContent.trim()).join('\n');
+  const fg=$('rg').closest('.fig'); fg.scrollLeft=(fg.scrollWidth-fg.clientWidth)*[0,0,0,.35,.5,.8,1,1][S.st];
   $('trysay').innerHTML = [
     ['부품과 기준을 상자에 넣었다. 선이 없어서 눌러도 조용하다.','<code>require</code> 로 장비와 룰을 가져왔다.'],
     ['버튼 선을 이음쇠에 꽂았다. 전기는 아직 안 흐른다.','<code>startRoom()</code> 이 <code>onPress(</code> 로 이었다. <code>{ … }</code> 안쪽은 아직 안 돈다.'],
