@@ -165,7 +165,7 @@
   <div class="three">
     <div><span class="te">⚙️ 장비</span><b>움직인다</b><span class="pair"><i>🔧</i>버튼 · 온도계 · 선풍기</span><span class="pair"><i>💻</i>화면 · 파일 읽기 · 통신</span><span class="sub">왜 움직이는지는 모른다.</span><code>room.mech</code></div>
     <div><span class="tw">🔌 배선</span><b>잇는다</b><span class="pair"><i>🔧</i>전선과 이음쇠(릴레이)</span><span class="pair"><i>💻</i><code>onPress(() =&gt; …)</code> 와 부르는 줄</span><span class="sub">더운지는 스스로 정하지 않는다.</span><code>room.wiring</code></div>
-    <div><span class="tr">📘 룰</span><b>정한다</b><span class="pair"><i>🔧</i>기준을 적어 넣은 설정</span><span class="pair"><i>💻</i><code>temp &gt;= 28</code> 같은 판단</span><span class="sub">"더움"이라고 답만 한다. 무엇을 켤지는 모른다.</span><code>room.rules</code></div>
+    <div><span class="tr">📘 룰</span><b>정한다</b><span class="pair"><i>🔧</i>기준을 적어 넣은 설정</span><span class="pair"><i>💻</i><code>temp &gt;= 28</code> 같은 판단</span><span class="sub">"더움"이라고 답만 한다. 무엇을 켤지는 모른다. 쓰는 사람이 바꾸는 숫자는 보관함에(펼쳐 보기 8번).</span><code>room.rules</code></div>
   </div>
   <p>셋을 담은 <b>상자 하나가 팀</b>이다. 코드에서는 폴더 하나, 기능 하나.</p>
   <p>처음부터 <b>완벽히 나누지 않아도 된다.</b> 실제 부품에도 센서와 작은 회로가 붙어 나온다(펼쳐 보기 6번). 섞여 있으면 고칠 일이 생겼을 때 나누면 된다.</p>
@@ -288,6 +288,7 @@ const config =
   <div class="tbl"><table>
     <tr><th>하고 싶은 일</th><th>🔧 기계에서</th><th>💻 코드에서</th></tr>
     <tr><td>28° → 30° 부터 덥다고</td><td>설정값만 바꾼다</td><td class="r">📘 룰만</td></tr>
+    <tr><td>쓰는 사람이 28° 를 바꾸게</td><td>인쇄된 숫자를 다이얼로</td><td>숫자만 <span class="te">🗄️ 보관함</span>으로 (펼쳐 보기 8번)</td></tr>
     <tr><td>더 좋은 선풍기로</td><td>부품만 갈아 끼운다</td><td class="e">⚙️ 장비만</td></tr>
     <tr><td>더울 때 선풍기 대신 에어컨</td><td>에어컨을 놓고 선을 옮겨 꽂는다</td><td><span class="e">⚙️ 장비</span> + <span class="w">🔌 배선 한 줄</span></td></tr>
     <tr><td>기능 하나 더</td><td>상자 하나를 더 단다</td><td>팀 하나 + 🧠 뇌에 한 줄</td></tr>
@@ -636,7 +637,53 @@ onPressed: () async {
   <p class="sub">한꺼번에 뜯지 않는다. 그 파일을 고칠 일이 생겼을 때 나눈다.</p>
 </div></details>
 
-<details class="more"><summary><span class="no">8</span>개발자 말로는<span class="why">이 페이지의 말 ↔ 흔히 쓰는 말</span></summary><div class="in">
+<details class="more"><summary><span class="no">8</span>숫자는 어디에 두나 — 룰? 보관함?<span class="why">안 바뀌면 룰, 바뀌면 보관함. 판단은 늘 룰</span></summary><div class="in">
+  <p class="mach">🔧 설명서에 인쇄된 숫자면 룰, 다이얼로 돌리는 숫자면 보관함.</p>
+  <div class="fig"><svg viewBox="0 0 680 250" role="img" aria-label="왼쪽은 숫자 28이 룰에 인쇄돼 있고, 오른쪽은 다이얼처럼 보관함에 숫자가 있어 배선이 꺼내 룰에 건네준다. 판단은 둘 다 룰에 있다">
+    <rect class="g-room" x="8" y="6" width="270" height="236" rx="12"/><text class="b" x="143" y="26">안 바뀌는 숫자</text>
+    <rect class="g-rule" x="44" y="46" width="198" height="72" rx="20"/><text class="b" x="143" y="68">📘 룰 — 인쇄됨</text><text class="s" x="143" y="94">"28° 이상이면 더움"</text>
+    <path class="ln-ask" d="M118 168 L118 122" marker-end="url(#ah)"/><path class="ln-ask" d="M168 118 L168 164" marker-end="url(#ah)"/>
+    <text class="s l" x="62" y="146">32° 는?</text><text class="s l" x="178" y="146">더움</text>
+    <rect class="g-wire" x="44" y="170" width="198" height="50" rx="8"/><text class="b" x="143" y="195">🔌 배선</text>
+
+    <rect class="g-room" x="292" y="6" width="380" height="236" rx="12"/><text class="b" x="482" y="26">바뀌는 숫자</text>
+    <rect class="g-rule" x="440" y="46" width="212" height="72" rx="20"/><text class="b" x="546" y="68">📘 룰 — 읽는 법만</text><text class="s" x="546" y="94">"그 숫자 이상이면 더움"</text>
+    <path class="ln-ask" d="M520 168 L520 122" marker-end="url(#ah)"/><path class="ln-ask" d="M580 118 L580 164" marker-end="url(#ah)"/>
+    <text class="s" x="466" y="146">32°, 기준 30</text><text class="s l" x="590" y="146">더움</text>
+    <rect class="g-wire" x="440" y="170" width="212" height="50" rx="8"/><text class="b" x="546" y="195">🔌 배선</text>
+    <rect class="g-mech" x="306" y="132" width="104" height="98" rx="6"/><text class="b" x="358" y="148">🗄️ 보관함</text>
+    <circle cx="358" cy="184" r="20" style="fill:var(--metal);stroke:var(--off)"/><path d="M358 184 L370 170" style="stroke:var(--fg);stroke-width:3"/><text class="b" x="358" y="217">30°</text>
+    <path class="ln-up" d="M410 195 L436 195" marker-end="url(#ah)"/><text class="s" x="358" y="114">쓰는 사람이 돌림</text>
+  </svg></div>
+  <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
+  <div class="codes">
+    <pre><b>안 바뀔 때</b>
+<span class="m">// 📘 룰</span>
+const LIMIT = 28;
+const feelOf = (temp) =&gt;
+  temp &gt;= LIMIT ? '더움' : '적당';</pre>
+    <pre><b>바뀔 때</b>
+<span class="m">// 🔌 배선 — 꺼내서 건넴</span>
+const limit = store.get('limit');
+const feel = feelOf(temp, limit);
+<span class="m">// 📘 룰 — 읽는 법은 그대로</span>
+const feelOf = (temp, limit) =&gt;
+  temp &gt;= limit ? '더움' : '적당';</pre>
+  </div>
+  <div class="tbl"><table>
+    <tr><th>무엇</th><th>어디에</th></tr>
+    <tr><td>안 바뀌는 숫자 · <b>판단</b> · 기본값 · 허용 범위</td><td class="r">📘 룰</td></tr>
+    <tr><td>앱이 도는 동안 바뀌는 값 (30°, 절전 모드)</td><td class="e">🗄️ 보관함</td></tr>
+    <tr><td>껐다 켜도 남아야 하는 값</td><td><span class="e">📄 파일</span> — 켤 때 읽어 온다</td></tr>
+  </table></div>
+  <p><b>두 가지만 조심.</b></p>
+  <ul class="good">
+    <li>룰이 보관함을 직접 읽지 않는다. <b>배선이 꺼내 건네준다.</b> 같은 값을 주면 늘 같은 답이 나와야 하니까.</li>
+    <li>보관함이 바뀌어 도는 배선이 <b>그 값을 또 바꾸면</b> 자기를 계속 울린다. 스위치가 스스로를 누르는 셈이다.</li>
+  </ul>
+</div></details>
+
+<details class="more"><summary><span class="no">9</span>개발자 말로는<span class="why">이 페이지의 말 ↔ 흔히 쓰는 말</span></summary><div class="in">
   <div class="tbl"><table class="sig">
     <tr><th>이 페이지</th><th>개발자 말</th><th>코드에서</th></tr>
     <tr><td>🧠 뇌</td><td>진입점 · composition root</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code></td></tr>
