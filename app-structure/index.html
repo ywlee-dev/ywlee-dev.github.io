@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>앱 구조 기초 — 뇌 · 배선과 룰 · 몸(장비)</title>
+<title>앱 구조 기초 — 기계를 뜯어 보나, 코드를 뜯어 보나</title>
 <style>
   :root {
     --bg: #15171c; --fg: #e8e6df; --muted: #9a988f; --line: #3a3d45; --card: #1c1f25;
@@ -99,6 +99,30 @@
   details > summary .why { display: block; font-size: 13.5px; font-weight: 400; color: var(--muted); margin: 2px 0 0 22px; }
   details > .in { padding: 0 20px 16px; }
   .openall { font: 13px sans-serif; padding: 4px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--fg); cursor: pointer; float: right; }
+  :root { --sea: #101216; --off: #77746c; --metal: #77746a; --hi: #57491c; }
+  @media (prefers-color-scheme: light) { :root { --sea: #eef1f3; --off: #a5a299; --metal: #b8b4a8; --hi: #ffe9a8; } }
+  .tryrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  .tryrow .cap { min-width: 9em; color: var(--muted); font-size: 14px; }
+  .tryrow button { font: inherit; font-size: 14px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--fg); cursor: pointer; }
+  .tryrow button[aria-pressed="true"] { border-color: var(--hot); background: var(--hi); font-weight: 700; }
+  .tryrow #trynext { border-color: var(--hot); color: var(--hot); font-weight: 700; padding: 8px 18px; }
+  .trysay { border-left: 3px solid var(--hot); padding: 8px 12px; background: var(--bg); font-size: 17px; min-height: 3.6em; }
+  .trycode span { display: block; border-radius: 4px; padding: 0 4px; } .trycode span.on { background: var(--hi); } .trycode pre { font-size: 12.5px; }
+  details.sub2 > summary { font-size: 15px; padding: 10px 14px; }
+  .flow { stroke-dasharray: 8 5; animation: flw .7s linear infinite; } @keyframes flw { to { stroke-dashoffset: -13; } }
+  @media (prefers-reduced-motion: reduce) { .flow { animation: none; } }
+  @media (max-width: 720px) { .tryrow .cap { width: 100%; } }
+  :root { --inner:#2c2b28; --copper:#d08a4e; --gold:#d4a52a; --pcb:#1f3a2a; --chip:#111316; --chiptx:#f2f0ea; }
+  @media (prefers-color-scheme: light) { :root { --inner:#f7f5ee; --copper:#b8672c; --gold:#c9962a; --pcb:#d5e6d8; --chip:#3a3d42; --chiptx:#f2f0ea; } }
+  .pair { display: block; font-size: 15px; } .pair i { font-style: normal; color: var(--muted); margin-right: 8px; white-space: nowrap; }
+  .trysay { font-size: 16px; } .mach { color: var(--muted); border-left: 3px solid var(--line); padding-left: 10px; }
+  .hit, .trycode span[id] { cursor: pointer; }
+  h3 { font-size: 16px; margin: 16px 0 4px; }
+  .three { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin: 10px 0; }
+  .three > div { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+  .motto b.r { color: var(--rule); } .motto b.w { color: var(--wire); } .motto b.e { color: var(--mech); }
+  .motto { text-align: center; font-size: 18px; }
+  @media (max-width: 720px) { .three { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -107,15 +131,49 @@
 </defs></svg>
 
 <p class="sub" style="margin:0 0 6px"><a href="../">← 개념 그림 모음</a></p>
-<h1>앱 구조 기초 — 뇌 · 팀 · 몸</h1>
+<h1>앱 구조 기초 — 기계를 뜯어 보나, 코드를 뜯어 보나</h1>
 <div class="sub">예시는 Electron · Vue 앱이지만 Flutter · React 든 같은 모양이다. 그림 속 파일 이름은 설명용 예시.</div>
 
-<p class="hook">앱 코드가 커지면 <b>"이거 고치면 어디가 깨지지?"</b>가 무서워진다. 이 페이지는 그 걱정을 줄이는 <b>틀 하나</b>를 몸에 빗대어 보여 준다. 처음이면 바로 아래 칸만 읽어도 된다 — 3분.</p>
+<p class="hook">기계 뚜껑을 열면 늘 세 가지가 보인다 — <b>움직이는 부품</b>, 사이를 <b>잇는 회로</b>, 언제 움직일지 적힌 <b>기준</b>. 코드를 열어도 <b>똑같이 세 가지</b>다. 그래서 기계를 따라가듯 코드를 따라갈 수 있다.</p>
 
-<section class="top">
-  <h2>먼저 이것 하나 — 깨움은 내려가고, 울림은 올라온다</h2>
-  <p>등장하는 것은 넷. <b>🧠 뇌</b>(앱의 맨 위 코드), 팀마다 있는 <span class="tw">🔌 배선</span>(잇는 코드)과 <span class="tr">📘 룰</span>(판단하는 코드), 그리고 <span class="te">⚙️ 장비</span>(일하는 부품 = 몸).</p>
-  <div class="fig"><svg viewBox="0 0 680 306" role="img" aria-label="켤 때는 뇌가 팀 배선을, 팀 배선이 장비를 깨우고 콜백을 건다. 일이 생기면 장비가 걸린 콜백을 울려 팀 배선으로 올라오고, 룰에 물어 장비를 움직인다. 뇌까지는 가지 않는다">
+<section class="top" id="try">
+  <h2><span class="no">1</span>뚜껑을 열고 버튼을 눌러 보자</h2>
+  <p>더우면 선풍기, 추우면 난로를 켜는 기계다. <b>다음 걸음</b>을 누르면 <b>위의 기계와 아래의 코드가 같이</b> 켜진다. 기계 부품이나 코드 줄을 직접 눌러도 된다.</p>
+  <div class="fig"><svg viewBox="0 0 680 424" role="img" aria-label="버튼이 눌리면 배선이 룰에 온도를 묻고, 더움 적당 추움이라는 답대로 이어 선풍기 표시등 난로 중 하나를 켠다"><rect width="680" height="424" rx="12" fill="var(--sea)"/><g id="rg"></g></svg></div>
+  <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
+  <p class="trysay" id="trysay" aria-live="polite"></p>
+  <div class="tryrow"><button id="trynext" type="button">다음 걸음 ▶</button></div>
+  <div class="tryrow" id="stepW"><span class="cap">☀️ 깨움 (한 번)</span></div>
+  <div class="tryrow" id="stepR"><span class="cap">🔔 울림 (그때마다)</span></div>
+  <div class="codes trycode"><pre><b class="w">🔌 room.wiring</b><span id="q0">const { button, thermo, fan,
+        light, heater } = require('./room.mech');</span><span id="q1">const { feelOf } = require('./room.rules');</span><span id="q2">function startRoom() {</span><span id="l0">  button.onPress(() =&gt; {</span><span id="l1">    const temp = thermo.read();</span><span id="l2">    const feel = feelOf(temp);</span><span id="l3">    if (feel === '더움') <i id="d0"></i>.on();</span><span id="l4">    if (feel === '적당') <i id="d1"></i>.on();</span><span id="l5">    if (feel === '추움') <i id="d2"></i>.on();</span><span id="l6">  });</span><span>}</span></pre><pre><b class="r">📘 room.rules</b><span id="r0">function feelOf(temp) {</span><span id="r1"></span><span id="r2"></span><span id="r3">  return '적당';</span><span>}</span></pre></div>
+  <p class="motto"><b class="r">룰</b>이 정하고, <b class="w">배선</b>이 잇고, <b class="e">장비</b>가 움직인다.</p>
+  <details class="sub2"><summary>하나만 바꿔 보기</summary><div class="in">
+    <div class="tryrow"><span class="cap">🌡️ 온도</span><button data-k="t" data-v="32">32°</button><button data-k="t" data-v="22">22°</button><button data-k="t" data-v="8">8°</button></div>
+    <div class="tryrow"><span class="cap">📘 룰 바꾸기</span><button data-k="c" data-v="0">28° · 15°</button><button data-k="c" data-v="1">20° · 5°</button></div>
+    <div class="tryrow"><span class="cap">🔌 선 바꾸기</span><button data-k="s" data-v="0">그대로</button><button data-k="s" data-v="1">더움 ↔ 추움</button></div>
+    <p class="sub">기준을 바꾸면 룰 파일만, 선을 바꾸면 배선 파일만 바뀐다.</p>
+  </div></details>
+  
+  <p class="sub">설명을 돕기 위한 단순한 그림이다. 온도 · 파일 이름은 그림용. 실제 제어함에서는 릴레이와 PLC 가 이런 일을 한다. 장비를 끄는 길은 뺐다.</p>
+</section>
+
+<section>
+  <h2><span class="no">2</span>뜯어 보면 세 가지 — 기계도, 코드도</h2>
+  <div class="three">
+    <div><span class="te">⚙️ 장비</span><b>움직인다</b><span class="pair"><i>🔧</i>버튼 · 온도계 · 선풍기</span><span class="pair"><i>💻</i>화면 · 파일 읽기 · 통신</span><span class="sub">왜 움직이는지는 모른다.</span><code>room.mech</code></div>
+    <div><span class="tw">🔌 배선</span><b>잇는다</b><span class="pair"><i>🔧</i>전선과 이음쇠(릴레이)</span><span class="pair"><i>💻</i><code>onPress(() =&gt; …)</code> 와 부르는 줄</span><span class="sub">더운지는 스스로 정하지 않는다.</span><code>room.wiring</code></div>
+    <div><span class="tr">📘 룰</span><b>정한다</b><span class="pair"><i>🔧</i>기준을 적어 넣은 설정</span><span class="pair"><i>💻</i><code>temp &gt;= 28</code> 같은 판단</span><span class="sub">"더움"이라고 답만 한다. 무엇을 켤지는 모른다.</span><code>room.rules</code></div>
+  </div>
+  <p>셋을 담은 <b>상자 하나가 팀</b>이다. 코드에서는 폴더 하나, 기능 하나.</p>
+  <p>처음부터 <b>완벽히 나누지 않아도 된다.</b> 실제 부품에도 센서와 작은 회로가 붙어 나온다(펼쳐 보기 6번). 섞여 있으면 고칠 일이 생겼을 때 나누면 된다.</p>
+  <p class="sub"><code>.mech</code> · <code>.rules</code> · <code>.wiring</code> 은 이 페이지가 정한 이름 약속이다. 언어나 프레임워크의 규칙이 아니다.</p>
+</section>
+
+<section>
+  <h2><span class="no">3</span>선을 꽂는 때와 전기가 흐르는 때는 다르다</h2>
+  <p>기계는 <b>조립할 때 선을 한 번 꽂고</b>, 그다음엔 버튼을 누를 때마다 전기만 흐른다. 코드도 <b>켤 때 한 번 잇고</b>, 그다음엔 일이 생길 때마다 이어 둔 곳만 돈다.</p>
+  <div class="fig"><svg viewBox="0 0 680 306" role="img" aria-label="켤 때는 뇌가 팀 배선을, 팀 배선이 장비를 깨우고 선을 잇는다. 일이 생기면 장비가 이어 둔 선으로 울려 팀 배선으로 올라오고, 룰에 물어 장비를 움직인다. 뇌까지는 가지 않는다">
     <rect class="g-room" x="8" y="6" width="322" height="292" rx="12"/>
     <text class="b" x="169" y="25">☀️ 켤 때 — 깨움 ↓ (한 번)</text>
     <rect class="g-wire" x="44" y="46" width="170" height="40" rx="10"/><text class="b" x="129" y="66">🧠 뇌</text>
@@ -124,15 +182,15 @@
     <rect class="g-wire" x="44" y="131" width="170" height="44" rx="8"/><text class="b" x="129" y="153">🔌 팀 배선</text>
     <path class="ln-wire" d="M129 175 L129 230" marker-end="url(#ah)"/>
     <text class="s l" x="141" y="194">② "울리면 나한테 와"</text>
-    <text class="s l" x="141" y="212">하고 🔔 번호를 적어 둠</text>
+    <text class="s l" x="141" y="212">하고 선을 이어 둠</text>
     <rect class="g-mech" x="44" y="234" width="170" height="48" rx="4"/><text class="b" x="122" y="258">⚙️ 장비</text>
-    <rect x="196" y="244" width="112" height="28" rx="14" style="fill:var(--card);stroke:var(--hot);stroke-width:1.6"/><text class="s" x="252" y="258" style="fill:var(--hot)">🔔 번호(콜백)</text>
+    <rect x="196" y="244" width="112" height="28" rx="14" style="fill:var(--card);stroke:var(--hot);stroke-width:1.6"/><text class="s" x="252" y="258" style="fill:var(--hot)">🔔 이어 둔 선</text>
 
     <rect class="g-room" x="350" y="6" width="322" height="292" rx="12"/>
     <text class="b" x="511" y="25">🔔 일이 생기면 — 울림 ↑ (그때마다)</text>
     <rect class="g-room" x="366" y="46" width="130" height="40" rx="10" style="stroke-dasharray:5 4"/><text class="s" x="431" y="66">🧠 뇌 💤 쉼</text>
     <text class="s l" x="506" y="66">여기까지 안 올라옴</text>
-    <rect class="g-wire" x="366" y="131" width="130" height="44" rx="8"/><text class="b" x="431" y="145">🔌 팀 배선</text><text class="s" x="431" y="163">걸어 둔 콜백만 돎</text>
+    <rect class="g-wire" x="366" y="131" width="130" height="44" rx="8"/><text class="b" x="431" y="145">🔌 팀 배선</text><text class="s" x="431" y="163">이어 둔 곳만 돎</text>
     <path class="ln-ask" d="M496 153 L554 153" marker-end="url(#ah)"/>
     <text class="s" x="525" y="119">② "괜찮아?"</text>
     <rect class="g-rule" x="558" y="131" width="102" height="44" rx="18"/><text class="b" x="609" y="153">📘 룰</text>
@@ -144,10 +202,93 @@
     <text class="s l" x="508" y="258">끝나면 다시 기다림</text>
   </svg></div>
   <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
-  <p><b>초인종으로 생각하면</b> — 켤 때 반장(배선)이 초인종(장비)에 자기 번호를 적어 둔다. 초인종은 반장이 무슨 일을 할지 모른다. 눌리면 적힌 번호로 울릴 뿐이고, 판단할 것은 반장이 지침서(룰)에 묻는다.</p> <p>👉 <a href="relay.html"><b>눌러 보는 그림 — 배선은 릴레이, 룰은 카드</b></a> : 선을 꽂고 → 울리고 → 묻고 → 붙이는 걸음을 코드 줄과 함께 하나씩 본다.</p>
+  <div class="tbl"><table>
+    <tr><th></th><th>🔧 기계</th><th>💻 코드</th></tr>
+    <tr><td><b>깨움 ↓</b><br><span class="sub">켤 때 한 번</span></td><td>선을 꽂는다. 전기는 아직</td><td>🧠 뇌가 <code>startRoom()</code> → 배선이 <code>onPress(…)</code> 로 잇는다</td></tr>
+    <tr><td><b>울림 ↑</b><br><span class="sub">그때마다</span></td><td>누르면 전기가 흐른다. 선을 다시 꽂지 않는다</td><td><code>() =&gt; { … }</code> 안쪽만 돈다. 뇌까지 안 간다</td></tr>
+  </table></div>
+  <p class="sub"><code>() =&gt; { … }</code> 는 "지금 하라"가 아니라 꽂아 둔 선이다. 개발자는 이것을 <b>콜백</b>이라고 부른다.</p>
+</section>
 
-  <h2>앱 하나에 그리면 — 팀이 여럿이어도 같은 모양</h2>
-  <div class="fig"><svg viewBox="0 0 680 466" role="img" aria-label="맨 위 배선(뇌)이 기능마다 배선과 룰을 켜고, 맨 아래 몸은 라이브러리와 우리 태그 모두 장비">
+<section>
+  <h2><span class="no">4</span>팀이 여럿이어도 같은 모양</h2>
+  <p>큰 기계는 작은 상자 여러 개를 <b>단자대</b>에서 만나게 한다. 남의 상자 속에 선을 직접 꽂지 않는다. 코드도 팀끼리 <span class="te">🗄️ 보관함</span>에서 만난다. "지금 무엇이 켜졌나"를 보여 주는 <b>화면 팀</b>을 더해 보자.</p>
+  <div class="fig"><svg viewBox="0 0 680 392" role="img" aria-label="뇌가 방 팀과 화면 팀을 깨우고, 방 팀 배선이 보관함에 선풍기 켜짐을 넣으면 화면 팀 배선으로 울려 화면에 지금 선풍기라고 그린다">
+    <rect class="g-wire" x="230" y="10" width="200" height="46" rx="10"/><text class="b" x="330" y="26">🧠 뇌</text><text class="c" x="330" y="45">main.js · App.vue</text>
+    <text class="s l" x="446" y="24" style="fill:var(--hot)">☀️ 켤 때 한 번 깨움</text><text class="s l" x="446" y="44">💤 그 뒤 쉼</text>
+    <path class="ln-wire" style="stroke-dasharray:7 5" d="M330 56 L330 78 M100 78 L604 78 M100 78 L100 92 M425 78 L425 92 M604 78 L604 92"/>
+    <rect class="g-room" x="10" y="96" width="180" height="262" rx="12" style="stroke:var(--wire);stroke-width:1.8"/><text class="b" x="100" y="116">방 팀</text>
+    <rect class="g-room" x="340" y="96" width="180" height="262" rx="12" style="stroke:var(--wire);stroke-width:1.8"/><text class="b" x="430" y="116">화면 팀</text>
+    <rect class="g-room" x="540" y="96" width="130" height="262" rx="12" style="stroke-dasharray:5 4"/><text class="b" x="605" y="116">기록 팀</text><text class="s" x="605" y="206">나중에 더할 팀</text><text class="s" x="605" y="226">(같은 모양)</text>
+    <rect class="g-rule" x="26" y="134" width="148" height="46" rx="20"/><text class="b" x="100" y="149">📘 룰</text><text class="s" x="100" y="168">28° 이상 → 더움</text>
+    <rect class="g-wire" x="26" y="208" width="148" height="46" rx="8"/><text class="b" x="100" y="223">🔌 배선</text><text class="s" x="100" y="242">묻고, 답대로 잇는다</text>
+    <rect class="g-mech" x="26" y="286" width="148" height="56" rx="4"/><text class="b" x="100" y="304">⚙️ 장비</text><text class="s" x="100" y="326">버튼 · 선풍기 · 난로</text>
+    <rect class="g-rule" x="356" y="134" width="148" height="46" rx="20"/><text class="b" x="430" y="149">📘 룰</text><text class="s" x="430" y="168">무슨 글자로?</text>
+    <rect class="g-wire" x="356" y="208" width="148" height="46" rx="8"/><text class="b" x="430" y="223">🔌 배선</text><text class="s" x="430" y="242">묻고, 답대로 잇는다</text>
+    <rect class="g-mech" x="356" y="286" width="148" height="56" rx="4"/><text class="b" x="430" y="304">🖼️ 화면</text><text class="s" x="430" y="326">"지금: 선풍기"</text>
+    <path class="ln-ask" d="M80 208 L80 184" marker-end="url(#ah)"/><path class="ln-ask" d="M120 180 L120 204" marker-end="url(#ah)"/>
+    <path class="ln-ask" d="M410 208 L410 184" marker-end="url(#ah)"/><path class="ln-ask" d="M450 180 L450 204" marker-end="url(#ah)"/>
+    <path class="ln-up" d="M80 286 L80 258" marker-end="url(#ah)"/><path class="ln-down" d="M120 254 L120 282" marker-end="url(#ah)"/>
+    <path class="ln-down" d="M430 254 L430 282" marker-end="url(#ah)"/>
+    <rect class="g-mech" x="212" y="200" width="106" height="62" rx="4" style="stroke-width:2.5"/><text class="b" x="265" y="220">🗄️ 보관함</text><text class="s" x="265" y="243">선풍기 켜짐</text>
+    <path class="ln-down" d="M174 231 L208 231" marker-end="url(#ah)"/><path class="ln-up" d="M318 231 L352 231" marker-end="url(#ah)"/>
+    <text class="s" x="201" y="190" style="fill:var(--mech)">① 넣음</text><text class="s" x="312" y="190" style="fill:var(--hot)">② 울림</text>
+    <text class="s" x="265" y="288">팀이 만나는 곳</text><text class="s" x="340" y="378">방 팀과 화면 팀은 서로 모른다 — 보관함만 안다</text>
+  </svg></div>
+  <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
+  <p class="sub"><span style="color:var(--wire)">갈색</span> 배선 · <span style="color:var(--rule)">파랑</span> 룰 · <span style="color:var(--mech)">청록</span> 장비. <span style="color:var(--hot)">주황 ↑</span> 답이나 울림이 올라옴 · <span style="color:var(--mech)">청록 ↓</span> 장비를 움직임.</p>
+  <ol class="walk">
+    <li>앱을 켜면 🧠 뇌가 방 팀 · 화면 팀의 <span class="tw">배선</span>을 깨우고 쉰다. 화면 팀 배선은 보관함에 선을 잇는다.</li>
+    <li>버튼을 누르면 <b>방 팀</b> 안에서 한 바퀴 — <span class="tr">📘 룰</span>이 "더움", <span class="tw">배선</span>이 선풍기를 켠다.</li>
+    <li>방 팀 <span class="tw">배선</span>이 <span class="te">🗄️ 보관함</span>에 "선풍기 켜짐"을 넣는다. 누가 볼지는 모른다.</li>
+    <li>보관함이 바뀌어 <b>화면 팀</b> <span class="tw">배선</span>으로 울린다 → <span class="tr">📘 룰</span>에 "무슨 글자로?" 묻는다.</li>
+    <li><span class="te">🖼️ 화면</span>이 "지금: 선풍기"를 그린다. 버튼이 있는 줄도 모른다.</li>
+  </ol>
+</section>
+
+<section>
+  <h2><span class="no">5</span>고치는 법도 같다</h2>
+  <div class="tbl"><table>
+    <tr><th>하고 싶은 일</th><th>🔧 기계에서</th><th>💻 코드에서</th></tr>
+    <tr><td>28° → 30° 부터 덥다고</td><td>설정값만 바꾼다</td><td class="r">📘 룰만</td></tr>
+    <tr><td>더 좋은 선풍기로</td><td>부품만 갈아 끼운다</td><td class="e">⚙️ 장비만</td></tr>
+    <tr><td>더울 때 선풍기 대신 에어컨</td><td>에어컨을 놓고 선을 옮겨 꽂는다</td><td><span class="e">⚙️ 장비</span> + <span class="w">🔌 배선 한 줄</span></td></tr>
+    <tr><td>기능 하나 더</td><td>상자 하나를 더 단다</td><td>팀 하나 + 🧠 뇌에 한 줄</td></tr>
+    <tr><td>이상하게 움직인다</td><td>그 부품에 꽂힌 선을 따라간다</td><td>그 장비에 <b>선을 이은 팀</b>을 연다</td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="no">6</span>그래서 코드는 기계 뜯듯이 읽는다</h2>
+  <ol class="walk">
+    <li><b>뚜껑을 연다</b> — 팀 폴더를 연다. 파일 이름만 봐도 무엇이 든 상자인지 안다.</li>
+    <li><b>선부터 따라간다</b> — <span class="tw">🔌 .wiring</span> 을 연다. 어느 장비에서 울려 어느 장비로 가나.</li>
+    <li><b>왜 그쪽으로 갔나</b> — 이음쇠가 물어본 <span class="tr">📘 .rules</span> 를 연다.</li>
+    <li><b>부품이 어떻게 움직이나</b> — 마지막에 <span class="te">⚙️ .mech</span> 를 연다.</li>
+  </ol>
+  <p><b>다른 점도 있다.</b> 전기는 붙어 있는 동안 계속 흐르지만, 코드의 <code>fan.on()</code> 은 한 번 부르고 끝난다. 진짜 릴레이에는 기준이 없고, 기준은 다이얼이나 PLC 프로그램처럼 따로 있다 — 우리가 룰을 따로 두는 것과 같다.</p>
+</section>
+
+<p class="divider"><b>여기까지면 충분하다.</b> 아래는 코드를 쓰다 궁금할 때 하나씩. <button class="openall" type="button" onclick="document.querySelectorAll('details.more').forEach(d=>d.open=!this.dataset.o);this.dataset.o=this.dataset.o?'':'1';this.textContent=this.dataset.o?'모두 접기':'모두 펼치기'">모두 펼치기</button></p>
+
+<details class="more" id="real"><summary><span class="no">🔧</span>진짜 부품도 열어 보기<span class="why">릴레이 속 · 컴퓨터 속에도 같은 흐름이 있다</span></summary><div class="in">
+  <p class="key">릴레이 — 선이 실제로 붙고 떨어지는 자리</p>
+  <div class="fig"><svg viewBox="0 0 680 316" role="img" aria-label="릴레이 속: 코일에 전류가 흐르면 쇠막대를 당겨 접점이 붙는다"><rect width="680" height="316" rx="12" fill="var(--sea)"/><g id="f1"></g></svg></div>
+  <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
+  <div class="tryrow"><button data-h="coil" data-v="0">전류 없음</button><button data-h="coil" data-v="1">⚡ 전류 흐름</button></div>
+  <p class="trysay" id="say1"></p>
+  <p class="key" style="margin-top:18px">컴퓨터 — 장비가 울리면 이어 둔 함수로 간다</p>
+  <div class="fig"><svg viewBox="0 0 680 340" role="img" aria-label="메인보드: 랜 칩이나 USB 칩이 울리면 CPU 가 켤 때 적어 둔 표에서 함수를 찾아 돌린다"><rect width="680" height="340" rx="12" fill="var(--pcb)"/><g id="f2"></g></svg></div>
+  <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
+  <div class="tryrow"><span class="cap">울리는 장비</span><button data-h="dev" data-v="lan">🌐 랜카드</button><button data-h="dev" data-v="usb">⌨️ 키보드</button></div>
+  <div class="tryrow"><span class="cap">걸음</span><button data-h="step" data-v="0">켤 때</button><button data-h="step" data-v="1">① 울림</button><button data-h="step" data-v="2">② 번호</button><button data-h="step" data-v="3">③ 표 찾기</button><button data-h="step" data-v="4">④ 함수</button></div>
+  <p class="trysay" id="say2"></p>
+  <p class="sub">단순하게 그렸다. 번호(44 · 51)와 부품 자리는 그림용. 요즘 PC 는 신호를 따로 난 선 대신 메시지로 보내기도 한다. 우리 코드의 콜백마다 하드웨어 신호가 하나씩 생기는 것은 아니고, 흐름의 모양이 같다는 뜻이다.</p>
+</div></details>
+
+<details class="more"><summary><span class="no">0</span>실제 앱에 그리면 — 숫자 8080 이 화면에 뜨기까지<span class="why">아래 1~4번 그림이 이 앱을 예로 든다</span></summary><div class="in">
+  <p>설정 파일에 적힌 포트 숫자를 읽어 화면 맨 위 줄(머리줄)에 보여 주는 앱이다. 다른 프로세스에서 값을 받아 오는 일은 <b>펌프 팀</b>이 맡는다.</p>
+  <div class="fig"><svg viewBox="0 0 680 466" role="img" aria-label="맨 위 배선(뇌)이 기능마다 배선과 룰을 켜고, 맨 아래는 라이브러리와 우리 태그 모두 장비">
     <rect class="g-room" x="150" y="4" width="380" height="76" rx="12" style="stroke:var(--fg);stroke-width:1.5"/>
     <text class="b" x="340" y="17">🧠 뇌 자리 — 앱 전체</text>
     <rect class="g-wire" x="162" y="30" width="176" height="42" rx="8"/>
@@ -161,7 +302,7 @@
     <text class="s" x="630" y="82">깨우기 (한 번)</text>
 
     <rect class="g-room" x="30" y="124" width="140" height="124" rx="10"/>
-    <text class="b l" x="40" y="142">설정 방</text><circle cx="156" cy="142" r="6" style="fill:var(--ok)"><animate attributeName="opacity" values="1;.35;1" dur="1.6s" repeatCount="indefinite"/></circle>
+    <text class="b l" x="40" y="142">설정 팀</text><circle cx="156" cy="142" r="6" style="fill:var(--ok)"><animate attributeName="opacity" values="1;.35;1" dur="1.6s" repeatCount="indefinite"/></circle>
     <rect class="g-wire" x="40" y="156" width="120" height="34" rx="6"/><text class="c" x="100" y="173" style="fill:var(--fg)">config.wiring</text>
     <rect class="g-rule" x="40" y="202" width="120" height="34" rx="16"/><text class="c" x="100" y="219" style="fill:var(--fg)">config.rules</text>
 
@@ -171,12 +312,12 @@
     <text class="s" x="265" y="219">룰 없음 (그대로 담기)</text>
 
     <rect class="g-room" x="360" y="124" width="140" height="124" rx="10"/>
-    <text class="b l" x="370" y="142">머리줄 방</text><circle cx="486" cy="142" r="6" style="fill:var(--ok)"><animate attributeName="opacity" values="1;.35;1" dur="1.6s" repeatCount="indefinite"/></circle>
+    <text class="b l" x="370" y="142">머리줄 팀</text><circle cx="486" cy="142" r="6" style="fill:var(--ok)"><animate attributeName="opacity" values="1;.35;1" dur="1.6s" repeatCount="indefinite"/></circle>
     <rect class="g-wire" x="370" y="156" width="120" height="34" rx="6"/><text class="c" x="430" y="173" style="fill:var(--fg)">header.wiring</text>
     <rect class="g-rule" x="370" y="202" width="120" height="34" rx="16"/><text class="c" x="430" y="219" style="fill:var(--fg)">header.rules</text>
 
     <rect class="g-room" x="525" y="124" width="140" height="124" rx="10" style="stroke-dasharray:5 4"/>
-    <text class="b l" x="535" y="142">통신 방</text><circle cx="651" cy="142" r="6" style="fill:none;stroke:var(--muted);stroke-width:1.5"/>
+    <text class="b l" x="535" y="142">통신 팀</text><circle cx="651" cy="142" r="6" style="fill:none;stroke:var(--muted);stroke-width:1.5"/>
     <rect class="g-wire" x="535" y="156" width="120" height="34" rx="6" style="stroke-dasharray:4 3"/><text class="c" x="595" y="173" style="fill:var(--fg)">socket.wiring</text>
     <rect class="g-rule" x="535" y="202" width="120" height="34" rx="16" style="stroke-dasharray:4 3"/><text class="c" x="595" y="219" style="fill:var(--fg)">socket.rules</text>
 
@@ -202,75 +343,20 @@
     <rect class="g-chip" x="20" y="404" width="640" height="28" rx="6"/>
     <text class="s l" x="36" y="418">🧰 공용 — 가져온 라이브러리: Electron · ipcMain · Node fs · Vue · Pinia (팀들이 꺼내 씀)</text>
 
-    <text class="s" x="340" y="450">🩸 혈관 · 심장 = Electron · Node 실행 환경 — 이 모두가 돌게 해 주는 바탕</text>
+    <text class="s" x="340" y="450">🩸 바탕 = Electron · Node 실행 환경 — 이 모두를 돌게 해 준다</text>
   </svg></div>
   <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
-  <p class="sub"><span style="color:var(--wire)">갈색</span> 배선(잇는 코드) · <span style="color:var(--rule)">파랑</span> 룰(판단하는 코드) · <span style="color:var(--mech)">청록</span> 장비(일하는 부품). <span style="color:var(--hot)">주황 ↑</span> 몸에서 답이나 울림이 올라옴 · <span style="color:var(--mech)">청록 ↓</span> 몸을 움직임.</p>
-
-  <h2>네 줄로</h2>
-  <div class="four">
-    <div><span class="i">🧠</span><b>깨움은 내려간다 — 뇌 → 팀 배선 → 장비.</b><br><span class="sub">켤 때 한 번. 그 뒤 뇌(main.js · App.vue)는 쉰다</span></div>
-    <div><span class="i">🖐</span><b>팀마다 <span class="tw">배선</span>이 잇고 · <span class="tr">룰</span>이 판단하고 · <span class="te">장비</span>가 움직인다.</b><br><span class="sub">팀 = 기능 하나의 폴더</span></div>
-    <div><span class="i">🔁</span><b>울림은 올라온다 — 장비 → 자기 팀 배선까지만.</b><br><span class="sub">오른손 신호는 오른손 쪽에서 끝낸다</span></div>
-    <div><span class="i">🗄️</span><b>팀끼리는 보관함에서 만난다.</b><br><span class="sub">남의 팀 몸을 바로 움직이지 않는다</span></div>
-  </div>
-
-  <h2>예 하나 — 숫자 8080 이 화면에 뜨기까지</h2>
-  <p class="sub">설정 파일(<code>config.json</code>)에 적힌 포트 숫자를 읽어, 화면 맨 위 줄에 "수신 포트: 8080" 을 보여 주는 작은 앱.</p>
   <ol class="walk">
-    <li>🧠 앱을 켜면 <b>뇌</b>가 설정 팀 · 펌프 팀 · 머리줄 팀의 <span class="tw">배선</span>을 깨운다. 배선마다 자기 장비를 깨우거나 센서(🔔)를 단다. 그리고 뇌는 쉰다.</li>
-    <li>설정 팀 <span class="tw">배선</span>이 <span class="te">📄 서류함</span>에게 "읽어" → 숫자 8080 → <span class="tr">📘 룰</span>에게 "괜찮아?" → "1~65535 사이, OK".</li>
-    <li>펌프 팀 <span class="tw">배선</span>이 그 숫자를 받아 <span class="te">🗄️ 보관함</span>에 넣는다. 넣기만 하고, 누가 쓸지는 모른다.</li>
-    <li>머리줄 팀 <span class="tw">배선</span>이 켤 때 보관함에 걸어 둔 콜백이 울린다(🔔). 그 콜백이 <span class="tr">📘 룰</span>에게 "뭘 보여 줄까?" → "8080".</li>
-    <li><span class="te">🖼️ 머리줄 화면</span>이 "수신 포트: 8080" 을 그린다. 화면은 받은 대로 그리기만.</li>
+    <li>앱을 켜면 🧠 뇌가 세 팀의 <span class="tw">배선</span>을 깨우고 쉰다.</li>
+    <li><b>설정 팀:</b> <span class="te">📄 서류함</span>에서 8080 을 읽고, <span class="tr">📘 룰</span>에 "써도 돼?" 묻는다 → "돼".</li>
+    <li><b>펌프 팀:</b> 그 숫자를 받아 <span class="te">🗄️ 보관함</span>에 넣는다. 누가 쓸지는 모른다.</li>
+    <li><b>머리줄 팀:</b> 보관함이 바뀌면 울린다 → <span class="tr">📘 룰</span>에 "뭘 보여 줄까?" → "8080".</li>
+    <li><span class="te">🖼️ 화면</span>이 "수신 포트: 8080" 을 그린다.</li>
   </ol>
+</div></details>
 
-  <h2>그래서 좋은 점 — 고칠 때 한 곳만 연다</h2>
-  <ul class="good">
-    <li>기준이 바뀌면 (기본 포트 · 몇 초) → <span class="tr">📘 룰</span> 한 장만</li>
-    <li>화면 모양 · 통신 방식이 바뀌면 → <span class="te">⚙️ 장비</span> 하나만</li>
-    <li>새 기능이 생기면 → <b>🖐 팀 하나</b>를 더하고, 뇌에 깨우는 줄 하나</li>
-    <li>이상하면 → "이 장비에 <b>누가 센서를 달았나?</b>" — 그 팀 하나만 열면 된다</li>
-  </ul>
-</section>
-
-<p class="divider"><b>여기까지가 큰 그림.</b> 아래는 더 알고 싶을 때 하나씩 펼쳐 본다. <button class="openall" type="button" onclick="document.querySelectorAll('details').forEach(d=>d.open=!this.dataset.o);this.dataset.o=this.dataset.o?'':'1';this.textContent=this.dataset.o?'모두 접기':'모두 펼치기'">모두 펼치기</button></p>
-<details>
-  <summary><span class="no">1</span>이 페이지의 말<span class="why">배선 · 룰 · 장비 · 보관함이 개발자 말로는 무엇인가</span></summary>
-  <div class="in">
-  <div class="tbl"><table class="sig">
-    <tr><th>이 페이지의 말</th><th>뜻</th><th>개발자 말로</th><th>파일에서</th></tr>
-    <tr><td class="w">🧠 뇌 (맨 위 배선)</td><td>켤 때 팀 배선의 켜는 손잡이를 당기는 맨 위 코드. 그 뒤로는 쉰다</td><td>진입점 · composition root</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code></td></tr>
-    <tr><td>방 (= 팀)</td><td>기능 하나를 담은 폴더. 이 페이지에서 "방"과 "팀"은 같은 말</td><td>기능 모듈 · feature folder</td><td><code>config/</code> · <code>header/</code></td></tr>
-    <tr><td class="w">🔌 배선</td><td>장비와 룰을 가져와 <b>잇기만</b> 하는 코드 — 부르기 · 센서 걸기 · 묻기. 켤 때 자기 장비를 깨우는 것도 배선</td><td>연결 코드 · glue · wiring</td><td><code>○○.wiring.js</code></td></tr>
-    <tr><td class="r">📘 룰</td><td>기준 · 숫자로 <b>판단만</b>. 아무것도 바꾸지 않는다</td><td>순수 함수 · 정책 · domain rule</td><td><code>○○.rules.js</code></td></tr>
-    <tr><td class="e">⚙️ 장비 (몸)</td><td>시키면 <b>한 가지만</b> — 파일 읽기 · 통신 · 화면 그리기. 가져온 라이브러리도 장비</td><td>입출력 부품 · adapter · UI 컴포넌트</td><td><code>○○.mech.js</code> · <code>○○.vue</code></td></tr>
-    <tr><td class="e">🗄️ 보관함</td><td>값을 담아 두고, 바뀌면 알려 주는 장비</td><td>store (Pinia · Rx …)</td><td><code>○○-store.mech.js</code></td></tr>
-    <tr><td>🚪 창구</td><td>두 프로세스(main · 화면) 사이의 문</td><td>preload · IPC 다리</td><td><code>preload.js</code></td></tr>
-    <tr><td>🔔 센서 · 콜백</td><td>센서 = 일이 생기면 울리는 자리. 콜백 = 거기에 걸어 둔 "울리면 이걸 불러"</td><td>이벤트 리스너 · 콜백 · 반응형</td><td><code>on(…)</code> · <code>watch</code> · <code>@click</code></td></tr>
-  </table></div>
-  <p class="sub">끝말 <code>.mech</code> · <code>.rules</code> · <code>.wiring</code> 은 이 페이지가 정한 <b>이름 약속</b>이다 — 언어나 프레임워크의 규칙이 아니다. 파일 이름만 보고 그 파일이 무슨 종류인지 알게 하려고 붙인다.</p>
-</div>
-</details>
-<details>
-  <summary><span class="no">2</span>셋이 하는 일<span class="why">혼자 떼어 놓으면 뭘 하나? — 가르는 질문 하나</span></summary>
-  <div class="in">
-  <p class="key">가르는 질문 하나 — "혼자 떼어 놓으면 뭘 하나?"</p>
-  <div class="tbl"><table>
-    <tr><th></th><th>하는 일</th><th>예</th></tr>
-    <tr><td class="e">⚙️ 장비 (몸)</td><td>시키면 한 가지만. 맞는지 틀린지 모름</td><td>라이브러리 · 화면 태그 · 버튼 · <code>.mech</code></td></tr>
-    <tr><td class="r">📘 룰 (지침서)</td><td>기준 · 숫자. 물으면 답만, 아무것도 안 바꿈</td><td><code>validateConfig</code> · <code>portToShow</code></td></tr>
-    <tr><td class="w">🔌 배선 (신경)</td><td>잇기만 — 📞 부르기 · 🔔 센서에 콜백 걸기 · 📘 룰에 묻기</td><td><code>startConfigRoom</code> · <code>header.wiring</code></td></tr>
-    <tr><td class="w">🧠 뇌 자리 · 🔌 맨 위 배선</td><td>켤 때 팀 배선의 손잡이만 당기고 빠짐. 판단은 앱 전체 룰에 묻기만</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code></td></tr>
-    <tr><td class="r">🧠 뇌 자리 · 📘 앱 전체 룰</td><td>앱 전체에 걸친 판단만 (첫 화면은 어디?)</td><td><code>app.rules</code> — 생기면 (예: 로그인돼 있으면 <code>/home</code>)</td></tr>
-  </table></div>
-  <p class="sub">배선 안에 <code>if</code> · 숫자가 생기면 → 룰로 옮길 신호.</p>
-</div>
-</details>
-<details>
-  <summary><span class="no">3</span>켤 때 — 깨움은 두 단계로 내려간다<span class="why">뇌는 팀 배선만, 장비는 팀 배선이 깨운다</span></summary>
-  <div class="in">
-  <p class="key">뇌는 팀 배선의 켜는 손잡이만 당긴다. 그 팀의 장비는 팀 배선이 깨운다 — 배선은 "잇는 사람"이라 자기 장비를 준비시키는 것도 배선의 일.</p>
+<details class="more"><summary><span class="no">1</span>켤 때 — 뇌는 배선만 깨운다<span class="why">장비는 그 팀 배선이 깨운다</span></summary><div class="in">
+  <p class="mach">🔧 상자마다 전원 스위치는 하나. 스위치를 켜면 그 안 부품은 그 상자가 켠다.</p>
   <div class="fig"><svg viewBox="0 0 680 222" role="img" aria-label="뇌가 팀 배선의 손잡이를 당기고, 팀 배선이 자기 장비를 부르고 센서를 달고 꺼내 둔다. 뇌가 팀 장비를 바로 깨우는 길은 금지">
     <rect class="g-wire" x="200" y="10" width="280" height="40" rx="10" style="stroke-width:2.5"/>
     <text class="b" x="340" y="30">🧠 뇌 — 팀 배선의 손잡이만 당김</text>
@@ -286,7 +372,7 @@
     <rect class="g-mech" x="125" y="156" width="130" height="50" rx="4"/>
     <text class="b" x="190" y="173">📄 서류함</text><text class="s" x="190" y="193">📞 "읽어"</text>
     <rect class="g-mech" x="275" y="156" width="130" height="50" rx="4"/>
-    <text class="b" x="340" y="173">📡 망 감지기</text><text class="s" x="340" y="193">🔔 센서 달기</text>
+    <text class="b" x="340" y="173">📡 망 감지기</text><text class="s" x="340" y="193">🔔 선 잇기</text>
     <rect class="g-mech" x="425" y="156" width="130" height="50" rx="4"/>
     <text class="b" x="490" y="173">🗄️ 보관함</text><text class="s" x="490" y="193">꺼내 두기</text>
 
@@ -294,29 +380,23 @@
     <text class="s" x="551" y="20" style="fill:var(--bad)">✕ 장비를 바로 깨우기</text>
   </svg></div>
   <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
-  <div class="tbl"><table class="sig">
-    <tr><th>팀 배선의 켜는 손잡이</th><th>그 안에서 깨우는 것</th></tr>
-    <tr><td><code>startConfigRoom()</code></td><td>서류함에 "읽어"(📞) → 룰에 확인(📘) → 들고 있기</td></tr>
-    <tr><td><code>startIpcPump()</code></td><td>창구에 "설정 줘" 전화(📞) → 답에 센서 <code>.then</code>(🔔)</td></tr>
-    <tr><td>광고 팀 <code>onInit()</code></td><td>전화기에 "내 IP?"(📞) → 망 감지기에 센서 <code>listen</code>(🔔)</td></tr>
-  </table></div>
-  <p><b>깨우는 모습은 둘</b> — 📞 <b>한 번 시키고 답을 받아 끝</b>(파일 읽기), 🔔 <b>센서를 달아 두고 기다림</b>(버튼 · 소켓 · 보관함). 바로 받는 답(<code>return</code>)은 울림이 아니고, 나중에 걸어 둔 콜백이 불리는 것이 울림이다.</p>
-  <p><b>📘 룰은 깨우지 않는다.</b> 켜 둘 것이 없는 종이라서, 필요할 때 펼쳐 묻기만 한다.</p>
-  <p class="sub">장비가 서너 개인 팀도 뇌가 당기는 손잡이는 보통 하나다. ✕ 예: 뇌(<code>main</code>)가 광고 SDK 준비 장비를 <b>직접</b> 부른다 — 한 줄이라 당장 꼬이진 않지만, 그 팀에 켤 때 할 일이 늘면 그 팀 배선의 손잡이 안으로 옮긴다.</p>
-</div>
-</details>
-<details>
-  <summary><span class="no">4</span>일이 생기면 — 울림은 자기 팀 배선으로 올라온다<span class="why">울림 → 걸어 둔 콜백 → 룰 → 움직임. 그 팀 안에서 끝</span></summary>
-  <div class="in">
-  <p class="key">울린 몸의 주인 팀이, 그 팀 안에서: 몸이 울림 → 그 팀 배선 → 그 팀 룰 → 몸이 움직임. 오른손 신호는 오른손 교차로에서.</p>
-  <div class="fig"><svg viewBox="0 0 680 200" role="img" aria-label="머리줄 방 안에서 보관함이 울리고 머리줄 배선이 머리줄 룰에 물어 머리줄 화면을 그린다. 옆 설정 방은 이 신호를 처리하지 않는다">
+  <ul class="good">
+    <li>뇌가 팀 장비를 <b>직접</b> 깨우지 않는다. 장비가 서너 개여도 뇌가 부르는 것은 보통 <code>startConfigRoom()</code> 하나.</li>
+    <li>배선이 장비를 깨우는 모습은 둘 — 📞 <b>한 번 시키고 끝</b>(파일 읽기), 🔔 <b>이어 두고 기다림</b>(버튼 · 통신).</li>
+    <li>룰은 깨우지 않는다. 종이라서 필요할 때 펼쳐 묻기만 한다.</li>
+  </ul>
+</div></details>
+
+<details class="more"><summary><span class="no">2</span>일이 생기면 — 그 팀 안에서 끝난다<span class="why">울림 → 배선 → 룰 → 움직임</span></summary><div class="in">
+  <p class="mach">🔧 버튼이 꽂힌 상자가 그 신호를 처리한다. 옆 상자로 새지 않는다.</p>
+  <div class="fig"><svg viewBox="0 0 680 200" role="img" aria-label="머리줄 팀 안에서 보관함이 울리고 머리줄 배선이 머리줄 룰에 물어 머리줄 화면을 그린다. 옆 설정 팀은 이 신호를 처리하지 않는다">
     <rect class="g-room" x="10" y="24" width="500" height="166" rx="12" style="stroke:var(--wire);stroke-width:2"/>
-    <text class="b l" x="22" y="40">🖐 머리줄 방 안에서 끝남 — 오른손은 오른손 교차로에서</text>
+    <text class="b l" x="22" y="40">🖐 머리줄 팀 안에서 끝남</text>
     <rect class="g-mech" x="22" y="54" width="110" height="84" rx="4" style="stroke:var(--hot)"/>
     <text class="b" x="77" y="72">⚙️ 울림</text><text class="s" x="77" y="96">보관함 바뀜</text><text class="c" x="77" y="118">config-store</text>
     <path class="ln-up" d="M132 96 L141 96" marker-end="url(#ah)"/>
     <rect class="g-wire" x="144" y="54" width="110" height="84" rx="8"/>
-    <text class="b" x="199" y="72">🔌 배선</text><text class="s" x="199" y="96">걸어 둔 콜백</text><text class="c" x="199" y="118">header.wiring</text>
+    <text class="b" x="199" y="72">🔌 배선</text><text class="s" x="199" y="96">이어 둔 선</text><text class="c" x="199" y="118">header.wiring</text>
     <path class="ln-ask" d="M254 96 L263 96" marker-end="url(#ah)"/>
     <rect class="g-rule" x="266" y="54" width="110" height="84" rx="18"/>
     <text class="b" x="321" y="72">📘 룰</text><text class="s" x="321" y="96">기준대로 정함</text><text class="c" x="321" y="118">portToShow</text>
@@ -329,35 +409,19 @@
     <path d="M512 96 L526 96" style="stroke:var(--bad);stroke-width:2;fill:none;stroke-dasharray:4 3" marker-end="url(#ah)"/>
     <text class="b" x="519" y="80" style="fill:var(--bad)">✕</text>
     <rect class="g-room" x="530" y="24" width="140" height="166" rx="12" style="stroke-dasharray:5 4"/>
-    <text class="b" x="600" y="44">🦵 설정 방</text><text class="s" x="600" y="64">= 무릎 쪽 교차로</text>
-    <text class="s" x="600" y="120" style="fill:var(--bad)">✕ 남의 몸 신호는</text><text class="s" x="600" y="138" style="fill:var(--bad)">처리 안 함</text>
+    <text class="b" x="600" y="44">🦵 설정 팀</text><text class="s" x="600" y="64">= 다른 팀</text>
+    <text class="s" x="600" y="120" style="fill:var(--bad)">✕ 남의 장비 울림은</text><text class="s" x="600" y="138" style="fill:var(--bad)">처리 안 함</text>
   </svg></div>
   <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
-  <p class="sub"><b>센서를 단 팀이 처리한다.</b> 보관함 센서는 머리줄 배선이 달았으니, 보관함이 바뀌면 머리줄 방 안에서 끝난다 — 설정 방이나 뇌로 넘어가지 않는다. 그래서 "이 신호는 어디서 처리하나?"는 "이 장비에 누가 센서를 달았나?"로 찾는다. 물을 것이 없으면 📘 칸은 건너뛴다.</p>
-  <p class="key" style="margin-top:14px">울리면 배선 파일 전체가 아니라, 걸어 둔 콜백만 돈다.</p>
-  <div class="codes">
-    <pre><span class="t">☀️ 켤 때 한 번 도는 줄</span>
-function startHeader() {
-  <span class="w">store.onChange( … );</span>  <span class="m">// 🔔 번호만 적어 둠</span>
-}                       <span class="m">// 여기서 끝</span></pre>
-    <pre><span class="t">🔔 바뀔 때마다 도는 줄 ( … 자리)</span>
-(port) =&gt; {
-  const text = <span class="r">portToShow(port)</span>;  <span class="m">// 📘 묻고</span>
-  <span class="e">headerBar.draw(text)</span>;          <span class="m">// 📞 움직임</span>
-}</pre>
-  </div>
-  <p class="sub">설명용으로 줄인 코드. <code>startHeader()</code> 는 다시 돌지 않는다. Vue 에서는 <code>computed</code> · <code>watch</code>, Flutter 에서는 <code>Obx</code> · <code>listen</code> 이 이 센서 자리다.</p>
-  <p><b>아는 방향은 한쪽이다.</b> 배선은 장비를 가져오지만(<code>import</code>), 장비는 배선을 가져오지 않는다 — 켤 때 받은 콜백만 부른다. 그래서 장비를 다른 팀 · 다른 앱에 옮겨 써도 된다. 화면만은 예외로, 버튼에 거는 한 줄에서 배선 함수의 이름을 안다(7번).</p>
-  <p><b>다른 장비로 가도 괜찮나?</b> 가르는 질문 하나 — "A 장비에 센서를 단 배선"과 "B 장비를 부르는 배선"이 <b>같은 팀</b>인가? 같은 팀이면 한 교차로 안(손끝 → 팔 근육처럼). 다른 팀이면 아래 5번처럼 만나는 장비를 거친다.</p>
-</div>
-</details>
-<details>
-  <summary><span class="no">5</span>팀에서 팀으로 — 만나는 장비에 내려놓는다<span class="why">팀 밖으로 갈 땐 보관함 · 창구를 거친다</span></summary>
-  <div class="in">
-  <p class="key">한 바퀴는 같은 팀 안에서 묶는다. 팀 밖으로 갈 땐 바로 잇지 않고, 보관함 · 창구 같은 만나는 장비에 내려놓고 끝낸다.</p>
+  <p><b>선을 이은 팀이 처리한다.</b> 보관함에 선을 이은 것은 머리줄 팀이니, 보관함이 바뀌면 머리줄 팀 안에서 끝난다. 물을 것이 없으면 📘 칸은 건너뛴다.</p>
+  <p><b>아는 방향은 한쪽이다.</b> 배선은 장비와 룰을 <code>import</code> 하지만, 장비와 룰은 배선을 <code>import</code> 하지 않는다. 그래서 장비를 다른 앱에 옮겨 써도 된다. 화면에 거는 한 줄만 예외다(펼쳐 보기 5번).</p>
+</div></details>
+
+<details class="more"><summary><span class="no">3</span>팀에서 팀으로 — 보관함에 내려놓는다<span class="why">남의 팀 장비를 바로 움직이지 않는다</span></summary><div class="in">
+  <p class="mach">🔧 상자끼리는 속을 열지 않고 단자대에서만 만난다.</p>
   <div class="fig"><svg viewBox="0 0 680 222" role="img" aria-label="펌프 팀 한 바퀴가 보관함에 담고, 머리줄 팀이 보관함 센서로 집어 가 자기 한 바퀴를 돈다. 펌프 팀이 머리줄 화면을 바로 움직이는 길은 금지">
     <path d="M135 40 L135 22 L545 22 L545 38" style="stroke:var(--bad);stroke-width:2;fill:none;stroke-dasharray:5 4" marker-end="url(#ah)"/>
-    <text class="s" x="340" y="12" style="fill:var(--bad)">✕ 남의 팀 몸을 바로 움직이기</text>
+    <text class="s" x="340" y="12" style="fill:var(--bad)">✕ 남의 팀 장비을 바로 움직이기</text>
 
     <rect class="g-room" x="10" y="42" width="250" height="140" rx="12" style="stroke:var(--wire);stroke-width:2"/>
     <text class="b" x="135" y="60">🖐 펌프 팀 한 바퀴</text>
@@ -381,19 +445,17 @@ function startHeader() {
     <text class="s" x="340" y="206">팀이 바뀌는 곳엔 늘 만나는 장비가 하나 끼어 있다</text>
   </svg></div>
   <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
-  <p class="sub">그래서 앱 전체는 <b>팀 안의 작은 한 바퀴들이 보관함을 사이에 두고 이어진 모양</b>이다. 한 바퀴를 고쳐도 다른 팀의 바퀴는 안 흔들린다.</p>
-</div>
-</details>
-<details>
-  <summary><span class="no">6</span>여러 팀이 같이 쓰는 장비<span class="why">바꾸는 주인은 한 팀</span></summary>
-  <div class="in">
-  <p class="key">있어도 된다 — 단, 바꾸는 주인은 한 팀. 나머지는 읽거나 불러 쓰기만.</p>
+  <p>펌프 팀은 <b>넣고 끝</b>, 머리줄 팀은 <b>바뀌면 시작</b>. 서로 모르니 한 팀을 고쳐도 다른 팀이 안 흔들린다.</p>
+</div></details>
+
+<details class="more"><summary><span class="no">4</span>여러 팀이 같이 쓰는 장비<span class="why">바꾸는 주인은 한 팀</span></summary><div class="in">
+  <p class="mach">🔧 같은 단자를 여럿이 봐도 되지만, 전기를 보내는 쪽은 하나여야 한다.</p>
   <div class="fig"><svg viewBox="0 0 680 214" role="img" aria-label="만나는 장비는 쓰기 주인 한 팀, 공용 도구는 각 팀이 불러 씀, 여러 팀이 같은 장비를 바꾸면 꼬인다">
     <rect class="g-room" x="10" y="6" width="208" height="198" rx="12" style="stroke:var(--ok);stroke-width:1.8"/>
     <text class="b" x="114" y="24" style="fill:var(--ok)">① 만나는 장비</text>
     <rect class="g-mech" x="60" y="42" width="108" height="30" rx="4"/><text x="114" y="57">🗄️ 보관함</text>
     <text class="s" x="114" y="96">✏️ 바꾸기 — 주인 한 팀</text>
-    <text class="s" x="114" y="118">👀 읽기 · 센서 — 여러 팀</text>
+    <text class="s" x="114" y="118">👀 읽기 · 선 잇기 — 여러 팀</text>
     <text class="s" x="114" y="150">예: 보관함 · 창구</text>
     <text class="s" x="114" y="172">누가 바꿨나? → 주인만 보면 됨</text>
 
@@ -414,13 +476,11 @@ function startHeader() {
     <text class="s" x="566" y="172">→ 주인 한 팀으로 고친다</text>
   </svg></div>
   <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
-  <p class="sub">처음엔 한 팀 안에 두고, 두 번째 팀이 <b>실제로</b> 쓰기 시작하면 공용 자리(<code>shared/</code>)로 옮긴다.</p>
-</div>
-</details>
-<details>
-  <summary><span class="no">7</span>화면은 한 줄만 건다<span class="why">버튼엔 거는 한 줄, 내용은 배선</span></summary>
-  <div class="in">
-  <p class="key">버튼에 콜백을 거는 한 줄은 화면에. 콜백 안의 내용은 배선에.</p>
+  <p>같이 써도 된다. 다만 <b>바꾸는 팀은 하나</b>, 나머지는 읽기만. 처음엔 한 팀 안에 두고, 두 번째 팀이 실제로 쓸 때 <code>shared/</code> 로 옮긴다.</p>
+</div></details>
+
+<details class="more"><summary><span class="no">5</span>화면은 한 줄만 건다<span class="why">버튼엔 거는 한 줄, 내용은 배선에</span></summary><div class="in">
+  <p class="mach">🔧 버튼 뒤에는 선 하나만 꽂힌다. 회로를 버튼 속에 넣지 않는다.</p>
   <div class="fig"><svg viewBox="0 0 680 200" role="img" aria-label="화면의 버튼이 한 줄로 배선의 함수를 부르고, 배선이 룰에 묻고 전화기를 부르고 다음 화면으로 보낸다">
     <rect class="g-mech" x="20" y="30" width="200" height="140" rx="4"/>
     <text class="b" x="120" y="54">🖼️ 로그인 화면 (장비)</text>
@@ -434,7 +494,7 @@ function startHeader() {
     <rect class="g-wire" x="260" y="58" width="170" height="90" rx="8"/>
     <text class="b" x="345" y="80">🔌 login.wiring</text>
     <text class="c" x="345" y="103" style="fill:var(--fg)">submit()</text>
-    <text class="s" x="345" y="126">콜백 안의 내용은 여기</text>
+    <text class="s" x="345" y="126">할 일은 여기</text>
 
     <path class="ln-ask" d="M430 78 L450 78 L450 40 L466 40" marker-end="url(#ah)"/>
     <path class="ln-call" d="M430 103 L466 103" marker-end="url(#ah)"/>
@@ -445,33 +505,29 @@ function startHeader() {
   </svg></div>
   <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
   <div class="codes">
-    <pre class="ok"><span class="t">✅ 이렇게 — 화면엔 한 줄</span>
+    <pre class="ok"><span class="t">✅ 화면엔 한 줄</span>
 <span class="m">&lt;!-- Vue --&gt;</span>
 &lt;button @click="login.submit()"&gt;로그인&lt;/button&gt;
-
 <span class="m">// Flutter</span>
 onPressed: () =&gt; loginWiring.submit(email, pw)</pre>
-    <pre class="bad"><span class="t">✕ 이렇게 말고 — 화면 안에 흐름</span>
+    <pre class="bad"><span class="t">✕ 화면 안에 다 있음</span>
 onPressed: () async {
-  if (!LoginRules.canLogin(e, p)) return;  <span class="m">// 판단</span>
-  await server.signIn(…);                  <span class="m">// 전화</span>
-  if (…) showDialog(…);                    <span class="m">// 판단 + 그리기</span>
-  router.go('/home');                      <span class="m">// 이동</span>
+  if (비밀번호가 짧으면) return;  <span class="m">// 판단</span>
+  await server.signIn(…);       <span class="m">// 통신</span>
+  router.go('/home');           <span class="m">// 이동</span>
 }</pre>
   </div>
-  <p class="sub">그래서 화면을 갈아 끼워도 흐름은 배선에 그대로 남는다. 어느 버튼에 무엇이 걸렸는지는 화면 파일만 열어도 보인다.</p>
-</div>
-</details>
-<details>
-  <summary><span class="no">8</span>장비에 붙은 작은 배선 — 괜찮은 선<span class="why">요즘 장비는 센서를 달고 나온다 — 세 가지만 지키면</span></summary>
-  <div class="in">
-  <p class="key">요즘 장비는 센서와 작은 배선을 달고 나온다(<code>Obx</code> · <code>setState</code> · <code>computed</code> · <code>watch</code>). 억지로 떼지 않아도 된다 — 세 가지만 지키면.</p>
+  <p>화면을 갈아 끼워도 흐름은 배선에 그대로 남는다.</p>
+</div></details>
+
+<details class="more"><summary><span class="no">6</span>장비에 붙은 작은 배선<span class="why">computed · watch · Obx 는 떼지 않아도 된다</span></summary><div class="in">
+  <p class="mach">🔧 센서와 작은 회로가 든 부품도 있다. 작으면 그대로 쓴다.</p>
   <div class="fig"><svg viewBox="0 0 680 212" role="img" aria-label="장비 안의 작은 배선은 판단을 룰에 묻고, 다른 팀 장비는 움직이지 않는다">
     <rect class="g-mech" x="20" y="26" width="300" height="164" rx="6" style="stroke-width:2.5"/>
     <text class="b" x="170" y="46">⚙️ 광고 칸 (장비 · 배선 섞임)</text>
     <rect class="g-wire" x="40" y="66" width="260" height="46" rx="8"/>
     <text x="170" y="89">🔌 작은 배선 — 보관함 보고 다시 받기</text>
-    <text class="s" x="170" y="136">⚙️ 몸: 광고 받기 · 그리기</text>
+    <text class="s" x="170" y="136">⚙️ 하는 일: 광고 받기 · 그리기</text>
     <text class="c" x="170" y="166">banner_ad.mech · BannerAdWidget</text>
 
     <path class="ln-ask" d="M300 80 L356 64" marker-end="url(#ah)"/>
@@ -481,40 +537,23 @@ onPressed: () async {
     <text class="s" x="455" y="108" style="fill:var(--ok)">✅ ① 판단은 룰에 묻는다</text>
 
     <path d="M322 150 L536 150" style="stroke:var(--bad);stroke-width:2;fill:none;stroke-dasharray:5 4" marker-end="url(#ah)"/>
-    <text class="s" x="430" y="136" style="fill:var(--bad)">✕ ② 남의 팀 몸은 안 움직임</text>
+    <text class="s" x="430" y="136" style="fill:var(--bad)">✕ ② 남의 팀 장비은 안 움직임</text>
     <rect class="g-room" x="540" y="122" width="130" height="56" rx="10" style="stroke-dasharray:5 4"/>
     <text class="b" x="605" y="150">🦵 다른 팀 장비</text>
     <text class="s" x="430" y="182">③ 커지면 .wiring 으로 뗀다</text>
   </svg></div>
   <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
-  <div class="tbl"><table class="sig">
-    <tr><th>지킬 것</th><th>보는 법</th></tr>
-    <tr><td>① 판단은 룰에 묻는다</td><td>장비 안 <code>if</code> 의 기준 · 숫자가 룰 파일에 있나 — 장비는 <code>Rules.○○()</code> 를 부르기만</td></tr>
-    <tr><td>② 팀 밖 장비는 안 움직인다</td><td>자기 팀 보관함을 보고 자기만 그린다</td></tr>
-    <tr><td>③ 커지면 뗀다</td><td>배선 줄이 길어짐 · 같은 흐름을 다른 장비도 씀 · 시험하기 어려움 → 그 팀 <code>.wiring</code> 으로</td></tr>
-  </table></div>
-  <p>그리고 <b>섞였다는 걸 이름표에 적는다</b> — 파일 맨 위 한 줄: <code>// 장비 · 배선 섞임 — 보관함 보고 다시 받기</code>. 흐름을 찾을 때 "이 장비 안에도 배선이 있구나" 하고 바로 열어 본다.</p>
-</div>
-</details>
-<details>
-  <summary><span class="no">9</span>무엇이 바뀌면 어디를 고치나<span class="why">바뀐 것 → 고칠 곳 표</span></summary>
-  <div class="in">
-  <div class="tbl"><table>
-    <tr><th>바뀐 것</th><th>고칠 곳</th></tr>
-    <tr><td>기준 · 숫자 (기본 포트, 끊김 3초 → 5초)</td><td class="r">📘 룰만</td></tr>
-    <tr><td>바깥 방식 · 화면 모양 (파일 형식, 통신, 버튼 위치)</td><td class="e">⚙️ 장비만</td></tr>
-    <tr><td>새 일 (머리줄에 사용자 이름도)</td><td><span class="e">⚙️ 장비</span> + <span class="w">🔌 배선 한 줄</span> (+ 필요하면 <span class="r">📘</span>)</td></tr>
-    <tr><td>새 기능 (방 하나 더)</td><td><span class="w">🔌 배선</span> + <span class="r">📘 룰</span> 한 벌, 그리고 <span class="w">🧠 뇌</span>에 켜는 줄 하나</td></tr>
-    <tr><td>두 번째 팀이 같은 장비를 쓰기 시작함</td><td><span class="e">⚙️ 그 장비</span>를 공용 자리(<code>shared/</code>)로 — 바꾸는 주인은 한 팀 그대로</td></tr>
-  </table></div>
-  <p>코드를 읽을 때: <b>흐름</b>이 궁금하면 배선 → <b>왜 이 값</b>은 룰 → <b>어떻게 읽고 그리나</b>는 장비.</p>
-  <p style="margin-top:10px"><b>읽는 법:</b> 기능 하나에서 값 하나(예: 포트 숫자)를 들고, 몸 → 배선 → 룰 → 몸을 줄마다 "부르기 · 센서 · 묻기"라고 말하며 따라간다.</p>
-</div>
-</details>
-<details>
-  <summary><span class="no">10</span>경계가 무너지는 여섯 가지 신호<span class="why">코드에서 이게 보이면 꼬이는 중</span></summary>
-  <div class="in">
-  <p class="key">코드를 볼 때 여섯 중 하나가 보이면 "경계가 무너지는 중"이다.</p>
+  <p>요즘 장비는 작은 배선을 달고 나온다. 세 가지만 지키면 괜찮다.</p>
+  <ul class="good">
+    <li>① 기준 · 숫자는 <b>룰에 묻는다</b>.</li>
+    <li>② <b>남의 팀 장비</b>는 안 움직인다.</li>
+    <li>③ 길어지거나 다른 데서도 쓰면 <code>.wiring</code> 으로 <b>뗀다</b>.</li>
+  </ul>
+  <p class="sub">그리고 파일 맨 위에 한 줄 적어 둔다: <code>// 장비 · 배선 섞임</code></p>
+</div></details>
+
+<details class="more"><summary><span class="no">7</span>꼬이기 시작했다는 여섯 가지 신호<span class="why">하나라도 보이면 고칠 때</span></summary><div class="in">
+  <p class="mach">🔧 선이 엉키기 시작하면 뚜껑을 열었을 때 바로 보인다.</p>
   <div class="fig"><svg viewBox="0 0 680 210" role="img" aria-label="여섯 신호 중 앞의 셋: 뇌에 if가 는다, 남의 팀 안쪽을 import 한다, 화면 안에 전화 판단 이동이 다 있다">
     <rect class="g-room" x="10" y="6" width="208" height="198" rx="12" style="stroke:var(--bad)"/>
     <text class="b" x="114" y="24" style="fill:var(--bad)">① 뇌에 if 가 는다</text>
@@ -548,17 +587,178 @@ onPressed: () async {
   </svg></div>
   <p class="swipe">↔ 그림을 옆으로 밀어 보세요</p>
   <div class="tbl"><table class="sig">
-    <tr><th>신호</th><th>이렇게 찾는다</th><th>이렇게 고친다</th></tr>
-    <tr><td>① 뇌에 <code>if</code> 가 는다</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code> 에 기능 이름 · 기준 숫자가 보인다</td><td>그 기능의 룰로 (앱 전체 판단이면 앱 전체 룰로)</td></tr>
-    <tr><td>② 남의 팀 속을 <code>import</code></td><td>A 팀 파일이 B 팀의 <code>.mech</code> · <code>.rules</code> 를 직접 가져온다</td><td>B 가 보관함에 담고 A 는 그 보관함에 센서를 단다</td></tr>
-    <tr><td>③ 화면에 전화 · 판단 · 이동</td><td>화면 파일 안에 서버 호출 · <code>if</code> · 화면 이동이 같이 있다</td><td>그 팀 <code>.wiring</code> 의 함수 하나로 옮기고, 화면엔 거는 한 줄만</td></tr>
-    <tr><td>④ 여러 팀이 같은 장비를 바꾼다</td><td>두 팀 파일이 같은 보관함에 쓰거나 같은 화면을 그린다</td><td>바꾸는 주인을 한 팀으로 — 나머지는 센서 · 읽기만 (6번)</td></tr>
-    <tr><td>⑤ 뇌가 팀 장비를 직접 깨운다</td><td>뇌 파일(<code>main</code>)에 팀의 <code>.mech</code> 이름이 보인다</td><td>그 팀 배선의 켜는 손잡이 안으로 (3번)</td></tr>
-    <tr><td>⑥ 장비가 배선을 <code>import</code></td><td><code>.mech</code> 파일이 <code>.wiring</code> 을 가져온다 (화면에 거는 한 줄은 빼고)</td><td>켤 때 배선이 콜백을 건네고, 장비는 받은 콜백만 부른다 (4번)</td></tr>
+    <tr><th>신호</th><th>이렇게 고친다</th></tr>
+    <tr><td>① 뇌에 <code>if</code> 가 는다</td><td>그 기능의 룰로 옮긴다</td></tr>
+    <tr><td>② 남의 팀 파일을 <code>import</code></td><td>보관함에서 만난다 (펼쳐 보기 3번)</td></tr>
+    <tr><td>③ 화면에 통신 · 판단 · 이동이 다 있다</td><td>배선으로 옮기고 화면엔 한 줄만 (펼쳐 보기 5번)</td></tr>
+    <tr><td>④ 여러 팀이 같은 장비를 바꾼다</td><td>바꾸는 팀을 하나로 (펼쳐 보기 4번)</td></tr>
+    <tr><td>⑤ 뇌가 장비를 직접 깨운다</td><td>그 팀 배선이 깨우게 (펼쳐 보기 1번)</td></tr>
+    <tr><td>⑥ 장비가 배선을 <code>import</code></td><td>배선이 장비에 선을 잇게 (펼쳐 보기 2번)</td></tr>
   </table></div>
-  <p class="sub">한꺼번에 뜯지 않는다 — 새 코드부터 지키고, 이미 있는 코드는 그 파일을 고칠 일이 생겼을 때 나눈다.</p>
-</div>
-</details>
+  <p>배선의 <code>if</code> 도 본다 — <code>if (shouldLight(lux))</code> 처럼 룰의 답대로 잇는 것은 괜찮고, <code>if (lux &lt; 100)</code> 처럼 기준이 박혀 있으면 룰로 옮긴다.</p>
+  <p class="sub">한꺼번에 뜯지 않는다. 그 파일을 고칠 일이 생겼을 때 나눈다.</p>
+</div></details>
 
+<details class="more"><summary><span class="no">8</span>개발자 말로는<span class="why">이 페이지의 말 ↔ 흔히 쓰는 말</span></summary><div class="in">
+  <div class="tbl"><table class="sig">
+    <tr><th>이 페이지</th><th>개발자 말</th><th>코드에서</th></tr>
+    <tr><td>🧠 뇌</td><td>진입점 · composition root</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code></td></tr>
+    <tr><td>팀 (방)</td><td>기능 모듈 · feature folder</td><td><code>config/</code> · <code>header/</code></td></tr>
+    <tr><td class="w">🔌 배선</td><td>연결 코드 · glue code</td><td><code>○○.wiring</code></td></tr>
+    <tr><td class="r">📘 룰</td><td>순수 함수 · 정책</td><td><code>○○.rules</code></td></tr>
+    <tr><td class="e">⚙️ 장비 (몸)</td><td>adapter · UI 컴포넌트 · 라이브러리</td><td><code>○○.mech</code> · <code>○○.vue</code></td></tr>
+    <tr><td class="e">🗄️ 보관함</td><td>store</td><td>Pinia · Rx</td></tr>
+    <tr><td>🚪 창구</td><td>preload · IPC 다리</td><td><code>preload.js</code></td></tr>
+    <tr><td>선을 잇는다 🔔</td><td>이벤트 리스너에 콜백 등록</td><td><code>on(…)</code> · <code>watch</code> · <code>@click</code></td></tr>
+  </table></div>
+</div></details>
+
+<script>
+(()=>{
+const $ = (i) => document.getElementById(i);
+const LIT = new Set();   // 켜 둔 장비 — on() 은 한 번 부르면 끝, 장비는 켜진 채
+const S = { st:0, t:'22', c:'0', s:'0' };
+const CARDS = [[28,15],[20,5]], WAYS = ['더움','적당','추움'], Y = [225,285,345];
+const DEV = [['fan','선풍기'],['light','표시등'],['heater','난로']];
+const NAMES = ['가져오기','잇기','① 눌림','② 룰에 묻기','③ 룰의 답','④ 답대로 잇기','⑤ 움직임','다시 기다림'];
+const tx = (x,y,s,a='middle',f='',b=0,m=0) => `<text x="${x}" y="${y}" style="font-size:13px;text-anchor:${a};dominant-baseline:auto;${f?`fill:${f};`:''}${b?'font-weight:700;':''}${m?'font-family:Consolas,monospace;':''}">${s}</text>`;
+const bx = (x,y,w,h,f,s,r=6,k=2,e='') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${f}" stroke="${s}" stroke-width="${k}" ${e}/>`;
+const ln = (d,on,c='var(--off)') => `<path d="${d}" fill="none" stroke="var(--sea)" stroke-width="9"/><path d="${d}" fill="none" stroke="${on?'var(--hot)':c}" stroke-width="${on?5:4}" stroke-linejoin="round"${on?' class="flow"':''}/>`;
+const sc = (x,y) => `<circle cx="${x}" cy="${y}" r="9" fill="var(--metal)" stroke="var(--off)"/><path d="M${x-5} ${y-5}L${x+5} ${y+5}" stroke="#333" stroke-width="2"/>`;
+const ar = (d,c) => `<path d="${d}" fill="none" stroke="${c}" stroke-width="3" marker-end="url(#ah)"/>`;
+function icon(i,x,y,on) {
+  const c = on?'var(--hot)':'var(--mech)';
+  if (i===0) return `<circle cx="${x}" cy="${y}" r="17" fill="none" stroke="${c}" stroke-width="2"/>` + [0,120,240].map(a=>`<ellipse cx="${x}" cy="${y-8}" rx="4" ry="8" fill="${c}" transform="rotate(${a+(on?40:0)} ${x} ${y})"/>`).join('');
+  if (i===1) return `<circle cx="${x}" cy="${y-3}" r="13" fill="${on?'#ffd24d':'none'}" stroke="${c}" stroke-width="2"/><rect x="${x-6}" y="${y+10}" width="12" height="7" fill="${c}"/>`;
+  return `<rect x="${x-17}" y="${y-14}" width="34" height="28" rx="3" fill="none" stroke="${c}" stroke-width="2"/>` + [-8,0,8].map(d=>`<path d="M${x+d} ${y-9}V${y+9}" stroke="${on?'#e8421a':c}" stroke-width="${on?4:2}"/>`).join('');
+}
+function draw() {
+  const n = S.st-1, plug = n>=0, t = +S.t, [hi,lo] = CARDS[S.c], w = t>=hi?0:t<lo?2:1, map = S.s==='1'?[2,1,0]:[0,1,2], dev = map[w];
+  if (n>=5) LIT.add(dev);
+  let h = '';
+  h += bx(6,12,668,400,'none','var(--line)',14,2,'stroke-dasharray="7 5"') + tx(20,36,'한 팀 = 배선 + 룰 + 자기 장비','start','var(--muted)');
+  // 룰 카드
+  const c = n===2||n===3;
+  h += `<path d="M236 48 H424 L440 64 V148 H220 V48 Z" fill="var(--rule-bg)" stroke="${c?'var(--hot)':'var(--rule)'}" stroke-width="${c?3:2}"/>` + [0,1,2,3,4,5].map(i=>`<rect x="${302+i*10}" y="140" width="5" height="8" fill="var(--metal)"/>`).join('');
+  h += tx(330,70,'📘 룰 — 물으면 답만','middle','var(--rule)',1);
+  [`${hi}° 이상 → 더움`,'그 사이 → 적당',`${lo}° 미만 → 추움`].forEach((s,i)=>{ if(n===3&&i===w) h+=bx(258,77+i*20,144,19,'var(--hi)','none',3,0); h+=tx(330,91+i*20,s,'middle','',n===3&&i===w); });
+  // 릴레이
+  h += bx(220,196,240,184,'var(--wire-bg)','var(--wire)',10,2.5) + tx(336,402,'🔌 배선 — 묻고, 답대로 잇는다','middle','var(--wire)',1);
+  if (n!==2) h += ar('M290 196V153','var(--off)'); if (n!==3) h += ar('M372 153V191','var(--off)');
+  if (n===2) h += ar('M290 196V153','var(--hot)'); if (n===3) h += ar('M372 153V191','var(--hot)');
+  h += tx(280,178,n>=2&&n<6?`물음: ${t}°는?`:'물음','end',n===2?'var(--hot)':'var(--muted)',n===2) + tx(384,178,n>=3&&n<6?`답: "${WAYS[w]}"`:'답','start',n===3?'var(--hot)':'var(--muted)',n===3);
+  // 들어오는 선
+  h += (plug?ln('M108 230 H182',n===1):'') + `<path d="M182 230 H246 V285 H286" fill="none" stroke="${n>=1&&n<6?'var(--hot)':'var(--off)'}" stroke-width="4"${n===1?' class="flow"':''}/>` + sc(182,230) + tx(184,212,'잇는 자리');
+  h += (plug?ln('M108 345 H224',n===2):'') + `<path d="M224 345 H250" stroke="${n===2?'var(--hot)':'var(--off)'}" stroke-width="4"/><circle cx="254" cy="345" r="5" fill="var(--off)"/>` + tx(264,350,'온도 읽기','start','var(--muted)');
+  // 쇠막대 + 접점
+  const on4 = n===4||n===5, ex = on4?396:322, ey = on4?Y[w]:232;
+  Y.forEach((y,i)=>{ const go=n===5&&i===w, hit=on4&&i===w; h += `<path d="M402 ${y} H488" stroke="${go?'var(--hot)':'var(--off)'}" stroke-width="4"${go?' class="flow"':''}/><circle cx="402" cy="${y}" r="8" fill="${hit?'var(--hot)':'var(--card)'}" stroke="${hit?'var(--hot)':'var(--off)'}" stroke-width="2.5"/>` + tx(416,y-8,WAYS[i],'start',hit?'var(--hot)':'',hit); });
+  h += `<path d="M290 285 L${ex} ${ey}" stroke="${on4?'var(--hot)':'var(--fg)'}" stroke-width="7" stroke-linecap="round"/><circle cx="290" cy="285" r="9" fill="var(--metal)" stroke="var(--off)" stroke-width="2"/>`;
+  h += tx(on4?300:310,322,on4?'딸깍! 이어짐':'이음쇠 (떨어져 있음)','middle',on4?'var(--hot)':'var(--muted)',on4);
+  // 나가는 선 + 장비
+  if (plug) [0,1,2].sort((a,b)=>(a===w)-(b===w)).forEach(i=>{ const y=Y[i], y2=Y[map[i]]; h += ln(y===y2?`M488 ${y} H562`:`M488 ${y} H508 L546 ${y2} H562`, n===5&&i===w); });
+  Y.forEach(y=>{ h += sc(488,y); });
+  DEV.forEach(([,k],i)=>{ const on=LIT.has(i); h += bx(562,Y[i]-26,108,52,on?'var(--hi)':'var(--mech-bg)',on?'var(--hot)':'var(--mech)',6,on?3:2) + icon(i,586,Y[i],on) + tx(637,Y[i]+5,k,'middle','',1); });
+  h += tx(62,172,'⚙️ 장비','middle','var(--mech)',1);
+  if (!plug) h += tx(148,262,'선 없음','middle','var(--hot)',1) + tx(526,390,'선 없음','middle','var(--hot)',1);
+  h += tx(616,186,'⚙️ 장비','middle','var(--mech)',1);
+  // 버튼 · 온도계
+  const pr=n===1;
+  h += bx(16,184,92,92,'var(--mech-bg)',pr?'var(--hot)':'var(--mech)',8,pr?3:2) + `<circle cx="62" cy="222" r="25" fill="var(--metal)"/><circle cx="62" cy="222" r="${pr?17:21}" fill="${pr?'#a8330a':'#d9480f'}"/>` + tx(62,268,pr?'👇 눌림':'버튼','middle','',1);
+  h += bx(16,306,92,78,'var(--mech-bg)',n===2?'var(--hot)':'var(--mech)',8,n===2?3:2) + `<rect x="35" y="316" width="10" height="42" rx="5" fill="var(--card)" stroke="var(--off)"/><rect x="38" y="${348-t}" width="4" height="${t+6}" fill="#e8421a"/><circle cx="40" cy="358" r="8" fill="#e8421a"/>` + tx(78,344,t+'°','middle','',1) + tx(68,378,'온도계','middle','',1);
+  h += [[16,184,92,92,2],[16,306,92,78,3],[220,48,220,100,4],[220,196,240,184,5],[562,199,108,172,6]].map(([x,y,a,c,k])=>`<rect class="hit" data-go="${k}" x="${x}" y="${y}" width="${a}" height="${c}" fill="transparent"><title>이 부품의 걸음 보기</title></rect>`).join('');
+  $('rg').innerHTML = h;
+  // 코드
+  map.forEach((d,i)=>$('d'+i).textContent=DEV[d][0]);
+  $('r1').textContent=`  if (temp >= ${hi}) return '더움';`; $('r2').textContent=`  if (temp < ${lo}) return '추움';`;
+  const on = { [-1]:['q0','q1'], 0:['q2','l0','l6'], 6:[], 1:['l0'], 2:['l1','l2','r0'], 3:['l2',['r1','r3','r2'][w]], 4:['l'+(3+w)], 5:['l'+(3+w)] }[n];
+  document.querySelectorAll('.trycode span').forEach(e=>e.classList.toggle('on',on.includes(e.id)));
+  $('trysay').innerHTML = [
+    ['부품과 기준을 상자에 넣었다. 선이 없어서 눌러도 조용하다.','<code>require</code> 로 장비와 룰을 가져왔다.'],
+    ['버튼 선을 이음쇠에 꽂았다. 전기는 아직 안 흐른다.','<code>startRoom()</code> 이 <code>onPress(</code> 로 이었다. <code>{ … }</code> 안쪽은 아직 안 돈다.'],
+    ['버튼을 눌렀다. 꽂아 둔 선으로 전기가 온다.','이어 둔 <code>() =&gt; { … }</code> 안쪽이 돌기 시작한다.'],
+    [`이음쇠가 온도계를 읽고 기준에 묻는다. "${t}° 는 어떤 온도야?"`,`배선이 <code>feelOf(${t})</code> 를 부른다.`],
+    [`기준이 "${WAYS[w]}" 이라고 답한다. 손이 없어서 켜지는 못한다.`,`룰이 <code>'${WAYS[w]}'</code> 을 돌려준다. 무엇을 켤지는 모른다.`],
+    [`이음쇠가 ${WAYS[w]} 자리에 딸깍 붙는다.`,`배선의 <code>if (feel === '${WAYS[w]}')</code> 가 맞았다.`],
+    [`그 선 끝의 <b>${DEV[dev][1]}</b>${['가','이','가'][dev]} 켜진다.`,`<code>${DEV[dev][0]}.on()</code> 을 부른다. 이 팀 안에서 끝났다.`],
+    [`이음쇠가 떨어졌다. 선은 꽂힌 채, ${DEV[dev][1]}${['는','은','는'][dev]} 켜진 채다.`,'<code>{ … }</code> 가 끝났다. 또 눌리면 <b>①</b> 부터 다시.']][S.st].map((x,i)=>`<span class="pair"><i>${i?'💻 코드':'🔧 기계'}</i>${x}</span>`).join('');
+  $('trynext').textContent = n===6?'또 누르기 ① ↺':'다음 걸음 ▶';
+  document.querySelectorAll('#try button[data-k]').forEach(b=>b.setAttribute('aria-pressed',String(S[b.dataset.k])===b.dataset.v));
+}
+NAMES.forEach((s,i)=>$(i<2?'stepW':'stepR').insertAdjacentHTML('beforeend',`<button data-k="st" data-v="${i}">${s}</button>`));
+document.querySelectorAll('#try button[data-k]').forEach(b=>b.onclick=()=>{ const k=b.dataset.k; LIT.clear(); if(k==='st') S.st=+b.dataset.v; else { S[k]=b.dataset.v; S.st=6; } draw(); });
+const GO={q0:0,q1:0,q2:1,l0:1,l1:3,l2:3,l3:5,l4:5,l5:5,l6:7,r0:4,r1:4,r2:4,r3:4};
+document.querySelector('#try').addEventListener('click',(ev)=>{ const g=ev.target.closest('.hit'), c=ev.target.closest('.trycode span'); const k=g?+g.dataset.go:c?GO[c.id]:undefined; if(k!==undefined){ LIT.clear(); S.st=k; draw(); } });
+$('trynext').onclick=()=>{ S.st=S.st===7?2:S.st+1; draw(); };
+draw();
+
+})();
+</script>
+
+
+
+<script>
+(()=>{
+const S={coil:'0',dev:'lan',step:'0'}, $=(i)=>document.getElementById(i);
+const T=(x,y,s,c='s',a='middle',f='')=>`<text x="${x}" y="${y}" style="text-anchor:${a};dominant-baseline:auto;${c==='t'?'font-weight:700;font-size:12px;fill:var(--fg);':c==='m'?'font-family:Consolas,monospace;font-size:11px;fill:var(--fg);':'font-size:11px;fill:var(--muted);'}${f?`fill:${f}`:''}">${s}</text>`;
+const R = (x,y,w,h,f,st='var(--line)',r=4,sw=1.2,x2='') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${f}" stroke="${st}" stroke-width="${sw}" ${x2}/>`;
+const C = (x,y,r,f,st='none',sw=1) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${f}" stroke="${st}" stroke-width="${sw}"/>`;
+const W = (d,on,col,bg='var(--inner)') => `<path d="${d}" fill="none" stroke="${bg}" stroke-width="7"/><path d="${d}" fill="none" stroke="${on?'var(--hot)':col}" stroke-width="3" stroke-linejoin="round"${on?' class="flow"':''}/>`;
+function fig1() {
+  const on = S.coil==='1', ey = on?140:104, hot='var(--hot)', cu='var(--copper)';
+  let h = R(90,30,500,200,'var(--card)','var(--wire)',12,2.5) + T(340,52,'릴레이 속 (옆에서 본 모양)','t');
+  // 코일 + 철심
+  if (on) h += `<path d="M215 146 Q190 180 215 214 M345 146 Q370 180 345 214 M205 140 Q170 180 205 220 M355 140 Q390 180 355 220" fill="none" stroke="${hot}" stroke-width="1.6" stroke-dasharray="4 4"/>`;
+  h += R(262,128,36,96,'var(--metal)','var(--off)',2,1.5) + R(230,146,100,66,'var(--inner)','var(--off)',3);
+  for (let i=0;i<8;i++) h += `<path d="M230 ${151+i*8} L330 ${154+i*8}" stroke="${on?hot:cu}" stroke-width="4"/>`;
+  h += T(376,196,on?'🧲 전자석이 됨':'코일 (감은 구리선)','s','start');
+  // 쇠막대 + 스프링
+  h += `<path d="M150 112 L470 ${ey}" stroke="${on?hot:'var(--fg)'}" stroke-width="9" stroke-linecap="round"/>` + C(150,112,8,'var(--metal)','var(--off)',2);
+  let sp='M190 '+(on?116:111); for(let i=1;i<=6;i++) sp+=` L${i%2?198:182} ${(on?116:111)-i*(on?8.2:7)}`;
+  h += `<path d="${sp}" fill="none" stroke="var(--off)" stroke-width="2"/>` + R(172,60,36,6,'var(--off)','none',1) + T(228,76,'스프링','s','start') + T(330,104,'쇠막대','t');
+  // 접점
+  h += C(470,ey,6,'var(--gold)') + R(456,86,28,9,'var(--gold)','none',3) + R(456,150,28,9,'var(--gold)','none',3);
+  h += T(496,82,on?'12 — 떨어짐':'12 — 붙어 있음','s','start') + T(496,150,on?'14 — 붙음!':'14 — 떨어짐','s','start',on?hot:'');
+  // 핀
+  const pin=(x,n,l,d,o)=>`<path d="${d}" fill="none" stroke="${o?hot:cu}" stroke-width="3"/>`+R(x-5,230,10,34,'var(--metal)','var(--off)',2)+T(x,282,n,'m')+T(x,300,l);
+  h += pin(120,'11','들어오는 선','M150 112 L120 112 L120 230',on) + pin(245,'A1','신호 들어옴','M245 212 L245 230',on) + pin(315,'A2','0V','M315 212 L315 230',on);
+  h += pin(470,'14','나가는 선','M470 159 L470 230',on) + pin(570,'12','쉴 때 닿는 쪽','M484 90 L570 90 L570 230',false);
+  $('f1').innerHTML = h;
+  $('say1').innerHTML = on ? '코일이 전자석이 되어 쇠막대를 <b>딸깍</b> 당겼다. <b>11 → 14</b> 가 이어진다 — 이어 둔 곳이 돌아 다음 장비를 부른 순간.'
+    : '코일에 전류가 없으면 스프링이 쇠막대를 위로 당겨 14 와 떨어져 있다. <b>이어 두었지만 아직 안 울린 것.</b> 릴레이는 왜 붙어야 하는지 모른다.';
+}
+function fig2() {
+  const st=+S.step, lan=S.dev==='lan', num=lan?44:51, fn=lan?'onPacket()':'onKey()', hot='var(--hot)';
+  const chip=(x,y,w,hh,a,b,on)=>{ let o=''; for(let i=x+12;i<x+w-6;i+=12) o+=R(i,y-6,5,6,'var(--metal)','none',0)+R(i,y+hh,5,6,'var(--metal)','none',0); return o+R(x,y,w,hh,'var(--chip)',on?hot:'var(--off)',4,on?3:1.2)+C(x+9,y+9,2.5,'var(--metal)')+T(x+w/2,y+hh/2-2,a,'t','middle','var(--chiptx)')+T(x+w/2,y+hh/2+16,b,'s','middle','var(--chiptx)'); };
+  const tr=(d,on)=>W(d,on,'var(--gold)','var(--pcb)');
+  let h='';
+  h += tr('M60 90 L84 90',st===1&&lan)+tr('M60 240 L84 240',st===1&&!lan);
+  h += tr('M184 90 L216 90 L216 148 L252 148',st===1&&lan)+tr('M184 240 L216 240 L216 182 L252 182',st===1&&!lan);
+  h += tr('M352 165 L396 165',st===2) + tr('M496 150 L524 150',st===3) + tr('M496 182 L510 182 L510 262 L524 262',st===4);
+  // 구멍
+  h += R(8,66,54,48,'var(--metal)','var(--off)',3,1.5)+R(16,76,36,28,'#222','none',2); for(let i=0;i<8;i++) h+=R(19+i*4,78,2,9,'var(--gold)','none',0); h+=T(35,132,'랜 포트');
+  h += R(8,224,54,32,'var(--metal)','var(--off)',3,1.5)+R(14,230,42,20,'#222','none',2)+R(18,240,34,6,'#e8e6df','none',1)+T(35,274,'USB 구멍');
+  h += chip(84,64,100,52,'랜 칩','⚙️ 장비',st===1&&lan)+chip(84,214,100,52,'USB 칩','⚙️ 장비',st===1&&!lan);
+  h += chip(252,130,100,70,'인터럽트','컨트롤러',st===1||st===2) + T(302,226,'🔔 받는 가운데 자리','t','middle','var(--wire)');
+  h += R(392,104,108,122,'var(--gold)','none',4)+R(400,112,92,106,'var(--metal)',st>=2?hot:'var(--off)',6,st>=2?3:1.5)+T(446,160,'CPU','t')+T(446,180,st===0?'표를 채움':st===1?'하던 일 중':st===2?`번호 ${num}!`:st===3?'표를 봄':'함수를 돎');
+  // 메모리
+  h += R(524,30,146,282,'var(--card)','var(--mech)',6,2)+T(597,50,'메모리 (RAM)','t'); for(let i=0;i<11;i++) h+=R(532+i*12,304,7,12,'var(--gold)','none',1);
+  h += T(597,78,'벡터 표','t','middle','var(--wire)');
+  [[44,'onPacket'],[51,'onKey']].forEach(([n,f],i)=>{ const o=(st===0)||(st===3&&n===num); h+=R(536,90+i*34,122,28,o?'var(--hi)':'var(--inner)',o?hot:'var(--line)',4,o?2:1)+T(597,108+i*34,`${n} → ${f}`,'m'); });
+  h += T(597,196,'함수 (= 콜백)','t','middle','var(--wire)')+R(536,208,122,84,st===4?'var(--hi)':'var(--inner)',st===4?hot:'var(--line)',4,st===4?2:1)+T(597,236,fn,'m')+T(597,258,lan?'받은 조각을 꺼냄':'누른 글쇠를 꺼냄')+T(597,278,'끝나면 하던 일로');
+  if(st===0) h+=tr('M496 134 L536 104',true);
+  $('f2').innerHTML=h;
+  const d=lan?'랜 칩':'USB 칩';
+  $('say2').innerHTML=['<b>켤 때</b> 운영체제가 "44번이면 이 함수, 51번이면 저 함수"를 표에 적어 둔다 — <b>선을 꽂아 두는 일</b>과 같다.',
+    `<b>①</b> ${lan?'랜선으로 데이터가 도착':'키보드를 누름'} → ${d}이 인터럽트 컨트롤러를 <b>울린다</b>. ${d}은 그다음에 어떤 함수가 도는지 모른다.`,
+    `<b>②</b> 컨트롤러가 CPU 에게 "<b>${num}번이 울렸다</b>"고 알린다. CPU 는 하던 일을 잠깐 멈춘다.`,
+    `<b>③</b> CPU 가 표에서 ${num}번 줄을 찾는다 → <b>${fn}</b>. 길은 켤 때 적어 둔 표가 정한다.`,
+    `<b>④</b> <b>${fn}</b> 이 돈다. 끝나면 CPU 는 하던 일로 돌아가고, 다음 울림을 기다린다.`][st];
+}
+function draw(){ fig1(); fig2(); document.querySelectorAll('#real button[data-h]').forEach(b=>b.setAttribute('aria-pressed',S[b.dataset.h]===b.dataset.v)); }
+document.querySelectorAll('#real button[data-h]').forEach(b=>b.onclick=()=>{ S[b.dataset.h]=b.dataset.v; draw(); });
+draw();
+})();
+</script>
 </body>
 </html>
