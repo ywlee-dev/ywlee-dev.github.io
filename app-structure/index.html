@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>앱 구조 기초 — 그림 하나로</title>
+<title>앱 구조 기초 — 코드 지도를 읽는 법</title>
 <style>
   :root { --bg:#15171c; --fg:#e8e6df; --muted:#a09e95; --line:#3a3d45; --card:#1c1f25; --sea:#101216; --off:#77746c; --metal:#8a877d; --hot:#f0a040; --bad:#f0605c; --hi:#57491c;
     --wire:#c9974d; --wire-bg:#2a2117; --rule:#5aa7ec; --rule-bg:#142636; --mech:#45bda3; --mech-bg:#12302b; }
@@ -37,85 +37,98 @@
   .flow { stroke-dasharray:8 5; animation:f .7s linear infinite; } @keyframes f { to { stroke-dashoffset:-13; } }
   @media (prefers-reduced-motion:reduce) { .flow { animation:none; } }
   @media (max-width:720px) { body { padding:16px 12px 40px; } .fig svg { min-width:620px; } .all { grid-template-columns:1fr; } .hint { display:block; text-align:center; } }
+  body { max-width:940px; }
+  .man.off, .ln.off { opacity:.5; }
+  .ok { color:var(--mech); font-weight:700; } .no { color:var(--bad); font-weight:700; }
+  .cap2 { color:var(--muted); font-size:14px; margin:12px 0 0; }
+  @media (max-width:720px) { .fig svg { min-width:720px; } .fig svg.rel { min-width:620px; } }
 </style>
 </head>
 <body>
 <p class="sub"><a href="../">← 개념 그림 모음</a></p>
-<h1>앱 구조 기초 — 그림 하나로</h1>
-<p>기계를 뜯어 보나 코드를 뜯어 보나, 안에는 <b>아래 그림</b>이 들어 있다. 이 그림 하나만 알면 된다.</p>
+<h1>앱 구조 기초 — 코드 지도를 읽는 법</h1>
+<p>한 조각씩 쌓는다. <b>부서 하나 → 복도 → 건물 둘 → 뇌</b>. 다 쌓으면 그것이 <b>코드 지도</b>다.</p>
 
 <section id="try">
-  <h2><i>1</i>이 그림 하나</h2>
-  <p>더우면 선풍기, 추우면 난로를 켜는 상자다. <b>다음 걸음</b>만 눌러 보자.</p>
-  <div class="fig"><svg viewBox="0 0 680 400" id="s1" role="img" aria-label="버튼이 울리면 배선이 룰에 묻고 답대로 선풍기 표시등 난로 중 하나에 잇는다"></svg></div>
+  <h2><i>1</i>부서 하나 — 기계로 보고, 지도로 보고, 코드로 본다</h2>
+  <p>더우면 선풍기를 켜는 방 부서다. <b>다음 걸음</b>을 누르면 셋이 같이 켜진다.</p>
+  <p class="cap2">🔧 기계로 보면</p>
+  <div class="fig"><svg class="rel" viewBox="0 0 680 400" id="r1" role="img" aria-label="버튼이 눌리면 배선이 룰에 묻고 답대로 선풍기에 잇는 기계 그림"></svg></div>
+  <p class="cap2">🗺️ 지도에서는 이렇게 줄여 그린다 — 칸 하나 = 파일 하나</p>
+  <div class="fig"><svg id="s1" role="img" aria-label="방 부서 지도"></svg></div>
   <p class="sub hint">↔ 그림은 옆으로 밀 수 있어요</p>
   <div class="now"><pre id="c1"></pre><p id="m1" aria-live="polite"></p></div>
   <div class="row"><button class="go" id="n1">다음 걸음 ▶</button><button id="b1">◀ 앞</button><span class="dots" id="d1"></span></div>
-  <div class="all" id="a1"></div>
   <p class="motto"><b class="r">룰</b>이 정하고, <b class="w">배선</b>이 잇고, <b class="e">장비</b>가 움직인다.</p>
 </section>
 
 <section>
-  <h2><i>2</i>다른 것도 다 이 그림</h2>
-  <p>울리는 것, 묻는 것, 움직이는 것만 바뀐다. 골라서 눌러 보자.</p>
-  <div class="row" id="pick"></div>
-  <div class="fig"><svg viewBox="0 0 680 400" id="s2" role="img" aria-label="고른 예를 같은 상자 그림으로 보여 준다"></svg></div>
-  <p class="sub hint">↔ 그림은 옆으로 밀 수 있어요</p>
+  <h2><i>2</i>복도 — 부서는 복도로만 이어진다</h2>
+  <p>"지금: 선풍기"를 보여 주는 화면 부서를 더한다. 방 부서는 <b class="e">복도</b>에 <b>내려놓고 끝</b>, 화면 부서는 <b>복도가 바뀌면 시작</b>. 서로 모른다.</p>
+  <div class="fig"><svg id="s2" role="img" aria-label="방 부서, 보관함 복도, 화면 부서"></svg></div>
   <div class="now"><pre id="c2"></pre><p id="m2" aria-live="polite"></p></div>
   <div class="row"><button class="go" id="n2">다음 걸음 ▶</button><button id="b2">◀ 앞</button><span class="dots" id="d2"></span></div>
-  <div class="all" id="a2"></div>
+  <p class="motto">복도에는 <b class="e">장비</b>만 둔다. <span class="sub">(두 부서가 똑같은 기준을 쓸 때만 공용 <b class="r">룰</b>도) </span><b class="w">배선</b>은 절대 아님.</p>
+  <p class="sub">복도에 게시판과 전화기는 있어도, 일을 시키는 사람은 없다. 배선이 복도에 있으면 두 부서를 다 알게 되어 섞인다.</p>
 </section>
 
 <section>
-  <h2><i>3</i>상자를 이어 붙이면 앱</h2>
-  <p>상자끼리는 속에 손대지 않는다. 앞 상자가 <b class="e">보관함</b>에 내려놓으면, 그것이 다음 상자의 <b>울림</b>이 된다.</p>
-  <div class="fig"><svg viewBox="0 0 680 884" id="s3" role="img" aria-label="방 상자가 보관함에 넣으면 화면 상자가 울려 화면을 그린다"></svg></div>
-  <p class="sub hint">↔ 그림은 옆으로 밀 수 있어요</p>
+  <h2><i>3</i>건물이 둘이면 — 창구라는 복도</h2>
+  <p>Electron 앱은 건물이 둘이다(main · 화면). 두 건물 사이에는 <b class="e">창구</b>라는 전화 복도가 있다. 물으면 <b>같은 길로 답이 돌아온다.</b></p>
+  <div class="fig"><svg id="s3" role="img" aria-label="main 건물의 설정 부서, 창구 복도, 화면 건물의 펌프 부서"></svg></div>
   <div class="now"><pre id="c3"></pre><p id="m3" aria-live="polite"></p></div>
   <div class="row"><button class="go" id="n3">다음 걸음 ▶</button><button id="b3">◀ 앞</button><span class="dots" id="d3"></span></div>
+  <p class="sub">건물이 하나인 앱(Flutter · 웹)이면 창구 복도 없이 보관함 복도만 있다.</p>
 </section>
 
 <section>
-  <h2><i>4</i>고칠 때는 한 곳만</h2>
-  <p>무엇을 바꾸고 싶은지 눌러 보자. 밝아지는 곳만 열면 된다.</p>
-  <div class="row" id="fix"></div>
-  <div class="fig"><svg viewBox="0 0 680 400" id="s4" role="img" aria-label="바꾸고 싶은 것에 따라 룰, 배선, 장비, 보관함 중 고칠 곳이 밝아진다"></svg></div>
-  <div class="now"><pre id="c4"></pre><p id="m4"></p></div>
+  <h2><i>4</i>뇌를 얹으면 — 지도 한 장</h2>
+  <p>켤 때 <b>🧠 뇌</b>가 부서를 하나씩 깨우고 쉰다. 1 · 2 · 3번을 다 쌓으면 이렇게 된다. 숫자 하나(19505)가 파일에서 화면까지 간다.</p>
+  <div class="fig"><svg id="s4" role="img" aria-label="뇌 둘, 부서 셋, 복도 둘이 이어진 지도 한 장"></svg></div>
+  <div class="now"><pre id="c4"></pre><p id="m4" aria-live="polite"></p></div>
+  <div class="row"><button class="go" id="n4">다음 걸음 ▶</button><button id="b4">◀ 앞</button><span class="dots" id="d4"></span></div>
 </section>
 
 <section>
-  <h2><i>5</i>그림이 이렇게 되면 꼬인 것</h2>
+  <h2><i>5</i>이런 선이 보이면 섞인 것</h2>
   <div class="row" id="bad"></div>
-  <div class="fig"><svg viewBox="0 0 680 400" id="s5" role="img" aria-label="잘못 이은 네 가지 모양과 고친 모양"></svg></div>
+  <div class="fig"><svg id="s5" role="img" aria-label="섞인 선과 고친 선"></svg></div>
   <div class="now"><pre id="c5"></pre><p id="m5"></p></div>
   <div class="row"><button class="go" id="n5">고친 모양 보기</button></div>
 </section>
 
 <section>
-  <h2><i>6</i>그래서 코드를 열면 네 가지만 묻는다</h2>
+  <h2><i>6</i>어떤 지도든 이 순서로 읽는다</h2>
   <ol class="q">
-    <li>뭐가 <b>울리지?</b> <span class="sub">— 버튼 · 보관함 · 전화</span></li>
-    <li>어디에 <b>이어져 있지?</b> <span class="sub">— <b class="w">.wiring</b></span></li>
-    <li>누구한테 <b>묻지?</b> <span class="sub">— <b class="r">.rules</b> (없으면 건너뜀)</span></li>
-    <li>뭐가 <b>움직이지?</b> <span class="sub">— <b class="e">.mech</b></span></li>
+    <li><b>부서</b>를 센다 <span class="sub">— 갈색 상자. 이 기능에 부서가 몇 개?</span></li>
+    <li><b>복도</b>를 본다 <span class="sub">— 청록 띠. 부서끼리 어디서 만나나?</span></li>
+    <li>부서 하나를 골라 <b>배선부터</b> ①②③ <span class="sub">— 뭐가 울리나 → 누구한테 묻나 → 뭐가 움직이나</span></li>
+    <li>복도를 건너 <b>다음 부서</b>로 <span class="sub">— 같은 것을 되풀이</span></li>
   </ol>
-  <p class="sub">처음부터 완벽히 나누지 않아도 된다. 섞여 있으면 고칠 일이 생겼을 때 나눈다.</p>
+  <table>
+    <tr><th>고칠 때</th><th>여는 곳</th></tr>
+    <tr><td>기준 · 숫자가 바뀜</td><td class="r">📘 룰</td></tr>
+    <tr><td>상대 · 순서가 바뀜</td><td class="w">🔌 배선</td></tr>
+    <tr><td>모양 · 방식이 바뀜</td><td class="e">⚙️ 장비</td></tr>
+    <tr><td>쓰는 사람이 바꾸는 숫자</td><td>🗄️ 복도의 보관함 <span class="sub">(판단은 그대로 룰)</span></td></tr>
+    <tr><td>새 기능</td><td>부서 하나 더 + 🧠 뇌에 한 줄</td></tr>
+  </table>
   <details><summary>개발자 말로는</summary>
     <table>
-      <tr><th>그림</th><th>개발자 말</th><th>코드에서</th></tr>
+      <tr><th>지도</th><th>개발자 말</th><th>코드에서</th></tr>
+      <tr><td>부서</td><td>기능 폴더 · 모듈</td><td><code>room/</code> · <code>config/</code></td></tr>
       <tr><td class="w">🔌 배선</td><td>연결 코드(glue)</td><td><code>○○.wiring</code></td></tr>
       <tr><td class="r">📘 룰</td><td>순수 함수</td><td><code>○○.rules</code></td></tr>
       <tr><td class="e">⚙️ 장비</td><td>adapter · 컴포넌트 · 라이브러리</td><td><code>○○.mech</code> · <code>○○.vue</code></td></tr>
       <tr><td class="e">🗄️ 보관함</td><td>store</td><td>Pinia · Rx</td></tr>
-      <tr><td>선을 꽂는다</td><td>콜백 등록</td><td><code>on(…)</code> · <code>watch</code> · <code>@click</code></td></tr>
-      <tr><td>🧠 뇌</td><td>진입점</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code></td></tr>
-      <tr><td>상자 = 팀</td><td>기능 폴더</td><td><code>room/</code> · <code>login/</code></td></tr>
+      <tr><td class="e">🚪 창구</td><td>IPC</td><td><code>ipcMain</code> · <code>preload</code></td></tr>
+      <tr><td>🧠 뇌</td><td>진입점 · composition root</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code></td></tr>
+      <tr><td>선을 꽂는다 · 울린다</td><td>콜백 등록 · 이벤트</td><td><code>on(…)</code> · <code>watch</code> · <code>@click</code></td></tr>
     </table>
-    <p class="sub"><code>.mech</code> · <code>.rules</code> · <code>.wiring</code> 은 이 페이지가 정한 이름이다.</p>
+    <p class="sub"><code>.mech</code> · <code>.rules</code> · <code>.wiring</code> 은 이 페이지가 정한 이름이다. 처음부터 완벽히 나누지 않아도 된다. 섞여 있으면 고칠 일이 생겼을 때 나눈다.</p>
   </details>
-  <details><summary>진짜 기계 · 컴퓨터와 다른 점</summary>
-    <p>전기는 붙어 있는 동안 계속 흐르지만, 코드의 <code>fan.on()</code> 은 한 번 부르고 끝난다. 흔한 릴레이는 갈래가 둘이고 기준이 없다. 기준은 다이얼이나 PLC 프로그램처럼 따로 있다.</p>
-    <p>컴퓨터 예는 큰 걸음만 그렸다. 번호와 함수 이름은 그림용이고, 글쇠가 우리 앱에 닿기까지는 운영체제와 실행 환경(Electron · 브라우저)의 상자가 사이에 더 있다. 모두 같은 모양으로 이어진다.</p>
+  <details><summary>진짜 기계와 다른 점</summary>
+    <p>전기는 붙어 있는 동안 계속 흐르지만, 코드의 <code>fan.on()</code> 은 한 번 부르고 끝난다. 흔한 릴레이는 갈래가 둘이고 기준이 없다. 기준은 다이얼이나 PLC 프로그램처럼 따로 있다. 그림과 파일 이름은 설명용이다.</p>
   </details>
 </section>
 
@@ -185,77 +198,101 @@ function box(c, ph, o={}) {
   if (c.back && n===7) h += `<path d="M556 ${ys[0]+16}H112" fill="none" stroke="var(--hot)" stroke-width="4" class="flow" marker-end="url(#ah)"/>` + tx(340,ys[0]+40,c.back,{f:'var(--hot)',b:1});
   return h;
 }
-
-// 예 — 같은 그림에 끼울 내용
-const EX = {
-  room:{ tab:'🌀 방', team:'방 상자', in:['button','버튼'], extra:['thermo','32°'], rule:['28° 이상 → 더움','그 사이 → 적당','15° 미만 → 추움'], q:'32° 는?', a:'"더움"', ways:['더움','적당','추움'], outs:[['fan','선풍기'],['lamp','표시등'],['heater','난로']], pick:0,
-    wiring:[["const { button, fan, … } = require('./room.mech');",'load'],["const { feelOf } = require('./room.rules');",'load'],['button.onPress(() => {','plug ring'],['  const feel = feelOf(thermo.read());','ask'],["  if (feel === '더움') fan.on();",'join move'],["  if (feel === '적당') lamp.on();",''],["  if (feel === '추움') heater.on();",''],['});','']],
-    rules:[['const feelOf = (t) =>',''],["  t >= 28 ? '더움'",'ans'],["  : t < 15 ? '추움'",''],["  : '적당';",'']],
-    steps:[['load',"require('./room.mech')",'부품과 룰을 상자에 넣었다. 아직 선이 없다.'],['plug','button.onPress( … )','버튼에 선을 꽂았다. 전기는 아직 안 흐른다.'],['ring','() => { … }','버튼이 눌렸다. 꽂아 둔 선으로 전기가 온다.'],['ask','feelOf(32)','배선이 룰에 묻는다. "32° 는?"'],['ans',"return '더움'",'룰이 답한다. 무엇을 켤지는 모른다.'],['join',"if (feel === '더움')",'배선이 답대로 잇는다. 딸깍!'],['move','fan.on()','선풍기가 돈다.'],['wait','// 다시 기다림','선은 꽂힌 채다. 또 눌리면 울림부터.']] },
-  login:{ tab:'🔑 로그인', team:'로그인 상자', in:['button','로그인 버튼'], extra:['input','비밀번호'], rule:['8자 이상 → 됨','그 밖 → 짧음'], q:'6자는?', a:'"짧음"', ways:['됨','짧음'], outs:[['phone','서버 전화'],['screen','안내 글']], pick:1,
-    wiring:[['// 화면에는 이 한 줄만','plug'],['<button @click="login.submit()">','plug ring'],['submit() {',''],['  const r = canLogin(password);','ask'],["  if (r === '됨')   server.signIn();",''],["  if (r === '짧음') screen.warn();",'join move'],['}','']],
-    rules:[['const canLogin = (pw) =>',''],["  pw.length >= 8 ? '됨'",''],["  : '짧음';",'ans']],
-    steps:[['plug','@click="login.submit()"','화면의 버튼에 선 하나만 꽂았다.'],['ring','submit() { … }','버튼이 눌렸다.'],['ask','canLogin(password)','배선이 룰에 묻는다. "6자는?"'],['ans',"return '짧음'",'룰이 답한다. 화면에 손대지 않는다.'],['join',"if (r === '짧음')",'배선이 답대로 잇는다.'],['move','screen.warn()','화면에 안내 글이 뜬다.'],['wait','// 다시 기다림','다시 눌리기를 기다린다.']] },
-  view:{ tab:'🖥 화면', team:'화면 상자', in:['store','보관함'], rule:['선풍기 → "지금: 선풍기"','없음 → "쉬는 중"'], q:'"선풍기"는?', a:'"지금: …"', ways:['글자'], outs:[['screen','화면']], pick:0, ruleOn:0,
-    wiring:[['store.onChange((now) => {','plug ring'],['  const text = labelOf(now);','ask'],['  screen.draw(text);','join move'],['});','']],
-    rules:[['const labelOf = (now) =>',''],["  now ? '지금: ' + now",'ans'],["  : '쉬는 중';",'']],
-    steps:[['plug','store.onChange( … )','버튼 대신 보관함에 선을 꽂았다.'],['ring','(now) => { … }','보관함 값이 바뀌어 울린다.'],['ask','labelOf(now)','배선이 룰에 묻는다. "무슨 글자로?"'],['ans',"return '지금: 선풍기'",'룰이 글자를 답한다.'],['join','screen.draw(text)','배선이 화면에 잇는다.'],['move','화면이 그린다','화면은 받은 글자를 그리기만 한다.'],['wait','// 다시 기다림','또 바뀌면 울림부터.']] },
-  call:{ tab:'☎️ 전화(답이 옴)', team:'설정 상자', in:['phone','전화기'], rule:null, ways:['값'], outs:[['paper','8080']], pick:0, back:'답 8080 이 같은 선으로 돌아옴',
-    wiring:[["ipcMain.handle('get-config',",'plug ring'],['  () => configRoom.get()','join move wait'],[');',''],['// 건 쪽',''],["await ipcRenderer.invoke('get-config')",'ring wait']], rules:null,
-    steps:[['plug',"ipcMain.handle('get-config', … )",'전화기에 선을 꽂았다.'],['ring','() => { … }','전화가 왔다. "설정 줘"'],['join','configRoom.get()','물을 것이 없어 룰은 건너뛰고 바로 잇는다.'],['move','8080','들고 있던 값을 꺼낸다.'],['wait','return 8080','버튼과 다른 점 하나 — 답이 되돌아간다.']] },
-  pc:{ tab:'💻 컴퓨터 속', team:'컴퓨터 상자', in:['key','키보드'], rule:null, ways:['51번','44번'], outs:[['func','onKey'],['func','onPacket']], pick:0,
-    wiring:[['// 켤 때 적어 둔 목록',''],['51번 → onKey','plug join'],['44번 → onPacket','plug'],['onKey() { … }','move']], rules:null,
-    steps:[['plug','51번 → onKey','켤 때 "51번이면 onKey"를 목록에 적어 둔다. 선을 꽂는 일이다.'],['ring','51번!','키를 눌렀다. 컨트롤러가 51번이라고 알린다.'],['join','목록[51]','CPU 가 목록에서 51번 자리를 찾아 잇는다.'],['move','onKey()','거기 적힌 함수가 돈다.'],['wait','→ 다음 상자의 울림','이 움직임이 다음 상자(우리 앱의 버튼)를 울린다.']] },
-};
-function codeHTML(c, ph) {
-  const f=(t,cls,ls)=>`<pre><b class="${cls}">${t}</b>${ls.map(([s,p])=>`<span class="${p.split(' ').includes(ph)?'on':''}">${esc(s)}</span>`).join('')}</pre>`;
-  return f('🔌 배선','w',c.wiring) + (c.rules?f('📘 룰','r',c.rules):'');
+// ── 지도 모양 (코드 지도와 같다) ──
+const K = { b:['🧠 뇌','var(--card)','var(--fg)',10], w:['🔌 배선','var(--wire-bg)','var(--wire)',8], r:['📘 룰','var(--rule-bg)','var(--rule)',22], m:['⚙️ 장비','var(--mech-bg)','var(--mech)',4] };
+const CL = { in:'var(--hot)', rule:'var(--rule)', hall:'var(--mech)', bad:'var(--bad)' };
+// men: 이름 → [종류, x, 가운데 y, 하는 일] · lines: 이름 → [길, 글, x, y, 맞춤, 종류, 양쪽?]
+function scene(el, S, on) {
+  const all = !on, L = new Set(on && on.l || []), none = on && on.l === null, M = new Set(on ? on.m : []);
+  let h = DEFS.replace('orient="auto"','orient="auto-start-reverse"').replace('id="ah"','id="am"');
+  S.frames.forEach(([k,x,y,w,g,name,does]) => {
+    const s = { bld:['none','var(--line)',18,'stroke-dasharray="8 6"',1.5], dept:['var(--card)','var(--wire)',14,'',2], hall:['var(--mech-bg)','none',0,'fill-opacity=".5"',0] }[k];
+    h += `<rect x="${x}" y="${y}" width="${w}" height="${g}" rx="${s[2]}" fill="${s[0]}" stroke="${s[1]}" stroke-width="${s[4]}" ${s[3]}/>` + (k==='hall'?`<path d="M${x} ${y}H${x+w}M${x} ${y+g}H${x+w}" stroke="var(--mech)" stroke-width="3"/>`:'');
+    h += tx(x+18,y+28,name,{a:'start',b:1,z:16.5,f:k==='hall'?'var(--mech)':''}) + (does?tx(x+18,y+50,does,{a:'start',f:'var(--muted)'}):'');
+  });
+  Object.entries(S.lines).forEach(([k,[d,t,x,y,a,c,two]]) => { if (none || (c==='bad' && !L.has(k))) return; const lit = L.has(k), dim = !all && !lit;
+    h += `<g class="ln ${dim?'off':''}">` + (d?`<path d="${d}" fill="none" stroke="${CL[c]}" stroke-width="${lit?5:3.5}" stroke-linejoin="round" marker-end="url(#am)" ${two?'marker-start="url(#am)"':''} ${lit?'class="flow"':''}/>`:'') + (t?tx(x,y,t,{a,f:CL[c],b:1,z:13.5}):'') + '</g>'; });
+  Object.entries(S.men).forEach(([id,[k,x,cy,job]]) => { const q=K[k], g=job?74:54, y=cy-g/2, lit=M.has(id), dim=!all&&!lit;
+    h += `<g class="man ${dim?'off':''}"><rect x="${x}" y="${y}" width="178" height="${g}" rx="${q[3]}" fill="${lit?'var(--hi)':q[1]}" stroke="${lit?'var(--hot)':q[2]}" stroke-width="${lit?4:2}"/>` + tx(x+89,y+20,q[0],{f:q[2],z:12}) + tx(x+89,y+41,id,{b:1,m:1,z:15}) + (job?tx(x+89,y+61,job,{z:12.5,f:'var(--muted)'}):'') + '</g>'; });
+  el.setAttribute('viewBox',`0 0 ${S.vb[0]} ${S.vb[1]}`); el.innerHTML = h;
 }
-const scroll=(svg,ph)=>{ const g=svg.closest('.fig'); g.scrollLeft=(g.scrollWidth-g.clientWidth)*({load:0,plug:0,ring:0,ask:.4,ans:.5,join:.8,move:1,wait:1}[ph]); };
-function player(k, get) {
-  let i=0;
-  const draw=()=>{ const c=get(), [ph,code,say]=c.steps[i]; $('s'+k).innerHTML=DEFS+box(c,ph); $('c'+k).textContent=code; $('m'+k).textContent=say; $('a'+k).innerHTML=codeHTML(c,ph); $('d'+k).textContent=`${i+1} / ${c.steps.length}`; $('n'+k).textContent=i===c.steps.length-1?'처음부터 ↺':'다음 걸음 ▶'; scroll($('s'+k),ph); };
-  $('n'+k).onclick=()=>{ i=(i+1)%get().steps.length; draw(); };
-  $('b'+k).onclick=()=>{ i=Math.max(0,i-1); draw(); };
-  draw(); return ()=>{ i=0; draw(); };
+const slide = (el,ms,S) => { const g=el.closest('.fig'), x=ms.length?S.men[ms[ms.length-1]][1]:0; g.scrollLeft=(g.scrollWidth-g.clientWidth)*(x<250?0:x<500?.5:1); };
+function play(k, S, steps, extra) {
+  let i=0; const draw=()=>{ const [l,m,code,say,ex]=steps[i]; scene($('s'+k),S,{l,m}); $('c'+k).textContent=code; $('m'+k).innerHTML=say; $('d'+k).textContent=`${i+1} / ${steps.length}`; $('n'+k).textContent=i===steps.length-1?'처음부터 ↺':'다음 걸음 ▶'; slide($('s'+k),m,S); if(extra) extra(ex); };
+  $('n'+k).onclick=()=>{ i=(i+1)%steps.length; draw(); }; $('b'+k).onclick=()=>{ i=Math.max(0,i-1); draw(); }; draw();
 }
-player(1,()=>EX.room);
-// 2 다른 예
-let cur='login';
-const reset2=player(2,()=>EX[cur]);
-['login','view','call','pc'].forEach(k=>{ const b=document.createElement('button'); b.textContent=EX[k].tab; b.dataset.k=k; b.setAttribute('aria-pressed',k===cur); b.onclick=()=>{ cur=k; document.querySelectorAll('#pick button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.k===k)); reset2(); }; $('pick').append(b); });
-// 3 이어 붙이기
-const A={...EX.room, ways:['더움','추움','적기'], outs:[['fan','선풍기'],['heater','난로'],['store','보관함']], rule:['28° 이상 → 더움','그 밖 → 추움'], also:2};
-const B={...EX.view};
-const S3=[['plug','plug','startRoom();\nstartScreen();','🧠 뇌가 상자 둘을 깨운다. 상자마다 자기 선을 꽂는다. 뇌는 쉰다.'],['ring','plug','button.onPress','방 상자의 버튼이 울린다.'],['ans','plug','feelOf(32)','방 상자 안에서 묻고 답한다.'],['move','plug',"fan.on();\nstore.set('선풍기');",'선풍기를 켜고, 보관함에 "선풍기"를 내려놓는다. 누가 볼지는 모른다.'],['wait','ring','store.onChange','보관함이 바뀌어 화면 상자가 울린다. 다시 같은 그림이다.'],['wait','ans','labelOf(now)','화면 상자 안에서 묻고 답한다.'],['wait','move','screen.draw(text)','화면이 그린다. 버튼이 있는 줄도 모른다.']];
-let i3=0;
-function draw3(){ const [a,b,c,m]=S3[i3], on=i3===0, t=i3===4;
-  $('s3').innerHTML=DEFS+bx(240,8,200,38,'var(--wire-bg)',on?'var(--hot)':'var(--wire)',10,on?3:2)+tx(340,32,on?'🧠 뇌 — "일어나!"':'🧠 뇌 💤 쉼',{b:1})+ln('M340 46V58',on?2:0)
-   +`<g transform="translate(0,54)">${box(A,a)}</g><g transform="translate(0,484)">${box(B,b)}</g>`
-   +`<path d="M612 420V465H150V738H114" fill="none" stroke="${t?'var(--hot)':'var(--off)'}" stroke-width="${t?5:3}" ${t?'class="flow"':'stroke-dasharray="3 5"'} marker-end="url(#ah)"/>`+tx(340,459,'같은 보관함',{f:t?'var(--hot)':'var(--muted)',b:t});
-  $('c3').textContent=c; $('m3').textContent=m; $('d3').textContent=`${i3+1} / ${S3.length}`; $('n3').textContent=i3===S3.length-1?'처음부터 ↺':'다음 걸음 ▶'; scroll($('s3'),i3===4?'ring':i3>4?b:a); }
-$('n3').onclick=()=>{ i3=(i3+1)%S3.length; draw3(); }; $('b3').onclick=()=>{ i3=Math.max(0,i3-1); draw3(); }; draw3();
-// 4 고칠 때
-const tabs=(id,list,fn)=>list.forEach((x,i)=>{ const b=document.createElement('button'); b.textContent=x.tab; b.setAttribute('aria-pressed',i===0); b.onclick=()=>{ [...$(id).children].forEach(y=>y.setAttribute('aria-pressed',y===b)); fn(x); }; $(id).append(b); });
-const FIX=[
-  {tab:'28° 를 30° 로',hl:['rule'],c:{...EX.room,rule:['30° 이상 → 더움','그 사이 → 적당','15° 미만 → 추움']},code:'room.rules   28 → 30',say:'기준이 바뀌면 룰만 연다.'},
-  {tab:'선풍기 대신 에어컨',hl:['wire'],c:{...EX.room,outs:[['fan','에어컨'],['lamp','표시등'],['heater','난로']]},code:"room.wiring   if (feel === '더움') aircon.on();",say:'상대가 바뀌면 배선을 연다. (에어컨 부품이 없으면 장비도 하나 더한다)'},
-  {tab:'버튼 모양',hl:['mech'],c:EX.room,code:'room.mech   버튼의 크기 · 색',say:'모양이나 움직이는 방식이 바뀌면 장비만 연다.'},
-  {tab:'쓰는 사람이 기준을 바꾸게',hl:['rule','wire'],dial:1,c:{...EX.room,rule:['그 숫자 이상 → 더움','그 사이 → 적당','15° 미만 → 추움'],q:'32°, 기준 30'},code:"const limit = store.get('limit');\nfeelOf(thermo.read(), limit);",say:'바뀌는 숫자는 보관함으로 옮긴다. 배선이 꺼내 건네고, 판단은 그대로 룰에 남는다.'},
+// 1 부서 하나
+const ROOM = { team:'방 부서', in:['button','버튼'], extra:['thermo','32°'], rule:['28° 이상 → 더움','그 사이 → 적당','15° 미만 → 추움'], q:'32° 는?', a:'"더움"', ways:['더움','적당','추움'], outs:[['fan','선풍기'],['lamp','표시등'],['heater','난로']], pick:0 };
+const S1 = { vb:[900,352], frames:[['dept',16,10,868,332,'방 부서']],
+  men:{ 'button.mech':['m',40,168,'버튼'], 'thermo.mech':['m',40,274,'온도계'], 'room.rules':['r',362,84,'28° 이상이면 더움'], 'room.wiring':['w',362,220,'잇는다'], 'fan.mech':['m',684,94,'선풍기'], 'lamp.mech':['m',684,182,'표시등'], 'heater.mech':['m',684,270,'난로'] },
+  lines:{ ring:['M218 168H290V206H357','① 눌림',296,196,'start','in'], read:['M362 236H290V274H223','② 읽어',296,266,'start','in'], ask:['M420 183V126','③ 32° 는?',410,158,'end','rule'], ans:['M482 121V178','더움',492,158,'start','rule'],
+    go:['M540 206H612V94H679','④ 켜',604,128,'end','in'], x1:['M540 220H640V182H679','',0,0,'','in'], x2:['M540 234H612V270H679','',0,0,'','in'] } };
+play(1,S1,[
+  [null,['button.mech','thermo.mech','room.rules','room.wiring','fan.mech','lamp.mech','heater.mech'],"require('./room.mech')\nrequire('./room.rules')",'부서 칸에 <b>자기 것</b>을 다 놓았다. 아직 선이 없다.','load'],
+  [['ring'],['room.wiring','button.mech'],'button.onPress( … )','<b>배선</b>이 버튼에 선을 꽂는다. 전기는 아직 안 흐른다.','plug'],
+  [['ring'],['button.mech','room.wiring'],'() => { … }','버튼이 <b>울린다.</b> 꽂아 둔 선으로 배선에 온다.','ring'],
+  [['read','ask'],['room.wiring','thermo.mech','room.rules'],'feelOf(thermo.read())','배선이 온도를 읽어 <b>룰</b>에 묻는다.','ask'],
+  [['ans'],['room.rules','room.wiring'],"return '더움'",'룰이 답한다. 무엇을 켤지는 모른다.','ans'],
+  [['go'],['room.wiring'],"if (feel === '더움')",'배선이 답대로 <b>잇는다.</b> 딸깍!','join'],
+  [['go'],['room.wiring','fan.mech'],'fan.on()','<b>장비</b>가 움직인다. 이 부서 안에서 끝났다.','move'],
+  [[],['room.wiring'],'// 다시 기다림','선은 꽂힌 채 기다린다. 또 눌리면 ①부터.','wait'],
+],(ph)=>{ $('r1').innerHTML=DEFS+box(ROOM,ph); const g=$('r1').closest('.fig'); g.scrollLeft=(g.scrollWidth-g.clientWidth)*({load:0,plug:0,ring:0,ask:.4,ans:.5,join:.8,move:1,wait:1}[ph]); });
+// 2 복도
+const S2 = { vb:[900,592], frames:[['dept',16,10,868,240,'방 부서'],['hall',16,284,868,100,'복도 🗄️ 보관함','방 부서만 넣는다'],['dept',16,418,868,164,'화면 부서']],
+  men:{ 'button.mech':['m',40,196,'버튼'], 'room.rules':['r',362,70,'28° 이상이면 더움'], 'room.wiring':['w',362,196,'잇는다'], 'fan.mech':['m',684,196,'선풍기'], 'store.mech':['m',362,334,'담기만 한다'], 'screen.rules':['r',40,514,'무슨 글자로?'], 'screen.wiring':['w',362,514,'잇는다'], 'screen.vue':['m',684,514,'화면'] },
+  lines:{ a1:['M218 196H357','① 눌림',288,186,'middle','in'], a2:['M420 159V112','② 더워?',410,140,'end','rule'], a3:['M482 107V154','더움',492,140,'start','rule'], a4:['M540 196H679','③ 켜',610,186,'middle','in'], put:['M451 233V292','④ 내려놓음 "선풍기"',461,270,'start','hall'],
+    b1:['M451 371V472','① 바뀌면 울림',461,408,'start','hall'], b2:['M362 500H223','② 글자는?',290,490,'middle','rule'], b3:['M218 528H357','"지금: 선풍기"',288,548,'middle','rule'], b4:['M540 514H679','③ 그려',610,504,'middle','in'],
+    x1:['M540 224H640V470H684','',0,0,'','bad'], x2:['M540 70H773V154','',0,0,'','bad'], x3:['M773 8V154','',0,0,'','bad'] } };
+play(2,S2,[
+  [['a1'],['button.mech','room.wiring'],'button.onPress','방 부서의 버튼이 울린다.'],
+  [['a2','a3'],['room.wiring','room.rules'],"feelOf(32) → '더움'",'방 부서 <b>안에서</b> 묻고 답한다.'],
+  [['a4'],['room.wiring','fan.mech'],'fan.on()','방 부서 <b>안에서</b> 선풍기를 켠다.'],
+  [['put'],['room.wiring','store.mech'],"store.set('선풍기')",'복도에 <b>내려놓고 끝.</b> 누가 볼지는 모른다.'],
+  [['b1'],['store.mech','screen.wiring'],'store.onChange( … )','복도가 바뀌어 화면 부서가 울린다. <b>다시 ①부터.</b>'],
+  [['b2','b3'],['screen.wiring','screen.rules'],"labelOf('선풍기')",'화면 부서 <b>안에서</b> 묻고 답한다.'],
+  [['b4'],['screen.wiring','screen.vue'],'screen.draw(text)','화면이 그린다. 버튼이 있는 줄도 모른다.'],
+]);
+// 3 건물 둘
+const S3 = { vb:[900,566], frames:[['bld',4,4,892,186,'🏢 main 건물'],['dept',16,40,420,138,'설정 부서','19505 를 들고 있다'],['hall',16,220,868,132,'복도 🚪 창구','전화 한 대의 세 조각'],['bld',4,382,892,178,'🖥 화면 건물'],['dept',464,400,420,148,'펌프 부서','물어보고 옮긴다']],
+  men:{ 'config.wiring':['w',230,118,'잇는다'], 'ipcMain':['m',230,294,'main 쪽 전화기'], 'preload.js':['m',462,294,'전화선'], 'electronAPI':['m',694,294,'화면 쪽 전화기'], 'pump.wiring':['w',694,484,'잇는다'] },
+  lines:{ p1:['M820 447V336','① 설정 줘',810,376,'end','hall'], w1:['M694 280H645','',0,0,'','hall'], w2:['M462 280H413','',0,0,'','hall'], r1:['M290 257V160','① 전화 옴',280,212,'end','hall'], r2:['M352 155V252','② 답 19505',362,212,'start','hall'], w3:['M408 308H457','',0,0,'','hall'], w4:['M640 308H689','',0,0,'','hall'], p2:['M856 331V442','② 답 도착',850,466,'end','hall'] } };
+S3.lines.p2=['M848 331V442','',0,0,'','hall'];
+play(3,S3,[
+  [['p1'],['pump.wiring','electronAPI'],'electronAPI.getConfig()','펌프 부서가 복도의 전화기를 든다. "설정 줘"'],
+  [['w1','w2'],['electronAPI','preload.js','ipcMain'],"ipcRenderer.invoke('get-config')",'전화선을 타고 건물을 건넌다.'],
+  [['r1'],['ipcMain','config.wiring'],"ipcMain.handle('get-config', …)",'main 쪽 전화기가 울려 <b>설정 부서</b>가 받는다.'],
+  [['r2'],['config.wiring','ipcMain'],'() => config','들고 있던 값을 답한다. 누가 물었는지는 모른다.'],
+  [['w3','w4'],['ipcMain','preload.js','electronAPI'],'return 19505','답이 <b>같은 길로</b> 돌아온다.'],
+  [['p2'],['electronAPI','pump.wiring'],'.then(raw => …)','펌프 부서가 답을 받는다. 설정 부서를 직접 부르지 않았다.'],
+]);
+// 4 지도 한 장
+const S4 = { vb:[900,1164], frames:[['bld',4,4,892,356,'🏢 main 건물'],['dept',16,78,868,268,'설정 부서','포트를 정해 들고 있는다'],['hall',16,382,868,196,'복도 🚪 창구','두 건물을 잇는 전화'],['bld',4,600,892,560,'🖥 화면 건물'],['dept',16,676,868,126,'펌프 부서','물어보고, 답을 옮긴다'],['hall',16,836,868,100,'복도 🗄️ 보관함','펌프만 넣는다'],['dept',16,970,868,172,'화면 부서','포트를 보여 준다']],
+  men:{ 'main.js':['b',150,42], 'App.vue':['b',150,638], 'config.rules':['r',300,150,'1~65535 만'], 'config.wiring':['w',300,276,'잇는다'], 'config-file.mech':['m',40,276,'파일 읽기'], 'ipcMain':['m',300,432,'main 쪽 전화기'], 'preload.js':['m',644,480,'전화선'], 'electronAPI':['m',300,530,'화면 쪽 전화기'], 'pump.wiring':['w',300,744,'잇는다'], 'store.mech':['m',300,886,'담기만 한다'], 'screen.rules':['r',40,1068,'아직이면 기본값'], 'screen.wiring':['w',300,1068,'잇는다'], 'screen.vue':['m',644,1068,'화면'] },
+  lines:{ k1:['','① 설정 부서 깨움 · 그 뒤 쉼',348,47,'start','in'], k2:['','① 펌프 부서 깨움 · ② 화면 부서 깨움 · 그 뒤 쉼',486,643,'start','in'],
+    a1:['M300 262H223','① 읽어',262,254,'middle','in'], a2:['M218 290H295','19505',258,308,'middle','in'], a3:['M358 239V192','② 괜찮아?',348,220,'end','rule'], a4:['M422 187V234','그대로',432,216,'start','rule'],
+    q1:['M422 707V572','① 설정 줘',432,606,'start','hall'], q2:['M478 530H560V494H640','',0,0,'','hall',1], q3:['M478 432H560V466H640','',0,0,'','hall',1], q4:['M358 395V318','③ 물음',348,364,'end','hall'], q5:['M422 313V390','④ 답 19505',432,366,'start','hall'], q6:['M358 567V702','② 답 도착',348,606,'end','hall'],
+    s1:['M389 781V844','③ 담아 19505',399,824,'start','hall'], s2:['M389 923V1026','① 바뀌면 울림',399,958,'start','hall'], b1:['M300 1054H223','② 뭘 보여 줘?',262,1022,'middle','rule'], b2:['M218 1082H295','19505',258,1100,'middle','rule'], b3:['M478 1068H639','③ 그려',558,1058,'middle','in'] } };
+play(4,S4,[
+  [['k1'],['main.js','config.wiring'],'startConfigRoom()','🧠 main 의 뇌가 <b>설정 부서</b>를 깨운다. 그리고 쉰다.'],
+  [['a1','a2','a3','a4'],['config.wiring','config-file.mech','config.rules'],'readConfigFile()\nvalidateConfig()','설정 부서 안에서 읽고, 묻고, <b>19505 를 들고 있는다.</b>'],
+  [['k2'],['App.vue','pump.wiring','screen.wiring'],'startPump()\nstartScreen()','🧠 화면 건물의 뇌가 <b>펌프 · 화면 부서</b>를 깨운다. 그리고 쉰다.'],
+  [['q1','q2','q3'],['pump.wiring','electronAPI','preload.js','ipcMain'],'electronAPI.getConfig()','펌프 부서가 창구 복도로 전화를 건다.'],
+  [['q4','q5'],['ipcMain','config.wiring'],'() => config','설정 부서가 받아 19505 라고 답한다.'],
+  [['q3','q2','q6'],['ipcMain','preload.js','electronAPI','pump.wiring'],'.then(raw => …)','답이 같은 길로 돌아온다.'],
+  [['s1'],['pump.wiring','store.mech'],'store.setRaw(raw)','펌프 부서가 보관함 복도에 내려놓는다.'],
+  [['s2'],['store.mech','screen.wiring'],'computed( … )','복도가 바뀌어 화면 부서가 울린다.'],
+  [['b1','b2','b3'],['screen.wiring','screen.rules','screen.vue'],'portToShow(raw)','화면 부서 안에서 묻고 그린다. <b>수신 포트: 19505</b>'],
+]);
+// 5 섞인 선
+const BAD = [
+  { tab:'복도를 안 거침', l:['x1'], m:['room.wiring','screen.vue'], code:"screen.draw('선풍기')   // 방 부서에서", say:'방 부서가 화면 부서의 장비를 직접 움직인다. 한쪽을 고치면 다른 쪽이 깨진다.', ok:['put','b1','b4'], om:['room.wiring','store.mech','screen.wiring','screen.vue'], oc:"store.set('선풍기')", os:'복도에 내려놓는다. 화면 부서가 알아서 울린다.' },
+  { tab:'룰이 장비를 움직임', l:['x2'], m:['room.rules','fan.mech'], code:'if (t >= 28) fan.on()   // room.rules', say:'룰이 선풍기에 선을 꽂았다. 룰만 따로 시험할 수 없다.', ok:['a2','a3','a4'], om:['room.rules','room.wiring','fan.mech'], oc:"return '더움'", os:'룰은 답만 한다. 잇는 일은 배선이.' },
+  { tab:'뇌가 장비를 만짐', l:['x3'], m:['fan.mech'], code:'fan.on()   // main.js', say:'뇌가 부서를 건너뛰고 장비를 직접 만진다. 켤 때 할 일이 뇌에 쌓인다.', ok:['a4'], om:['room.wiring','fan.mech'], oc:'startRoom()', os:'뇌는 부서의 배선만 깨운다. 장비는 배선이 부른다.' },
 ];
-function draw4(x){ let h=DEFS+box(x.c,"plug",{hl:x.hl}).replace(/var\(--hi\)/g,'var(--mech-bg)'); if(x.dial) h+=bx(20,52,124,82,'var(--mech-bg)','var(--hot)',7,3)+tx(82,72,'🗄️ 보관함',{b:1})+`<circle cx="60" cy="104" r="18" fill="var(--metal)" stroke="var(--off)"/><path d="M60 104L71 92" stroke="var(--fg)" stroke-width="3"/>`+tx(108,110,'30°',{b:1,z:15})+`<path d="M144 112H206V210H220" fill="none" stroke="var(--hot)" stroke-width="4" marker-end="url(#ah)"/>`; $('s4').innerHTML=h; $('c4').textContent=x.code; $('m4').textContent=x.say; }
-tabs('fix',FIX,draw4); draw4(FIX[0]);
-// 5 꼬인 모양
-const red=(d)=>`<path d="${d}" fill="none" stroke="var(--bad)" stroke-width="5" stroke-dasharray="9 5" marker-end="url(#ah)"/>`, X=(x,y)=>tx(x,y,'✕',{f:'var(--bad)',b:1,z:26});
-const BAD=[
-  {tab:'배선에 기준',c:{...EX.room,rule:null},over:()=>bx(228,196,150,30,'var(--bg)','var(--bad)',5,2.5)+tx(303,216,'if (t >= 28) …',{f:'var(--bad)',b:1,m:1})+X(392,216),code:"if (t >= 28) fan.on();",say:'기준이 배선에 박혀 있다. 숫자를 고치려고 선을 뜯어야 한다.',ok:"if (feelOf(t) === '더움') fan.on();",okSay:'기준은 룰로. 배선은 답대로 잇기만.'},
-  {tab:'룰이 장비를 움직임',c:EX.room,over:()=>red('M442 92H612V186')+X(612,84),code:"// room.rules\nif (t >= 28) fan.on();",say:'룰이 선풍기에 직접 선을 꽂았다. 룰만 따로 시험할 수 없다.',ok:"return '더움';",okSay:'룰은 답만 한다. 잇는 일은 배선이.'},
-  {tab:'남의 상자에 손댐',c:EX.room,over:()=>bx(470,20,196,104,'var(--card)','var(--bad)',10,2.5,'stroke-dasharray="6 5"')+tx(568,42,'화면 상자',{f:'var(--bad)',b:1})+IC.screen(568,84,false)+red('M462 200H506V100H534')+X(506,152),code:"screen.draw('선풍기');   // 방 상자 안에서",say:'방 상자가 화면 상자의 장비에 직접 선을 꽂았다. 한쪽을 고치면 다른 쪽이 깨진다.',ok:"store.set('선풍기');",okSay:'보관함에 내려놓는다. 화면 상자가 알아서 울린다.'},
-  {tab:'화면에 다 있음',c:EX.login,over:()=>bx(12,38,452,342,'none','var(--bad)',12,4,'stroke-dasharray="10 6"')+tx(118,62,'화면 파일 하나에 다 들어 있음',{f:'var(--bad)',b:1}),code:"onClick() { if (pw.length < 8) …; server.signIn(); go('/home'); }",say:'버튼 속에 배선과 룰이 들어갔다. 화면을 바꾸면 흐름까지 잃는다.',ok:'@click="login.submit()"',okSay:'화면에는 선 하나만. 나머지는 배선과 룰로.'},
-];
-let bad=BAD[0], good=false;
-function draw5(){ $('s5').innerHTML=DEFS+box(good&&bad===BAD[0]?EX.room:bad.c,'plug')+(good?'':bad.over()); $('c5').textContent=good?'✅ '+bad.ok:'✕ '+bad.code; $('m5').textContent=good?bad.okSay:bad.say; $('n5').textContent=good?'꼬인 모양 보기':'고친 모양 보기'; }
-tabs('bad',BAD,(x)=>{ bad=x; good=false; draw5(); }); $('n5').onclick=()=>{ good=!good; draw5(); }; draw5();
+let cur=BAD[0], good=false;
+const draw5=()=>{ scene($('s5'),S2,good?{l:cur.ok,m:cur.om}:{l:cur.l,m:cur.m}); $('c5').textContent=(good?'✅ ':'✕ ')+(good?cur.oc:cur.code); $('m5').textContent=good?cur.os:cur.say; $('n5').textContent=good?'섞인 모양 보기':'고친 모양 보기'; };
+BAD.forEach((x,i)=>{ const b=document.createElement('button'); b.textContent=x.tab; b.setAttribute('aria-pressed',i===0); b.onclick=()=>{ [...$('bad').children].forEach(y=>y.setAttribute('aria-pressed',y===b)); cur=x; good=false; draw5(); }; $('bad').append(b); });
+$('n5').onclick=()=>{ good=!good; draw5(); }; draw5();
 })();
 </script>
 </body>
