@@ -3,296 +3,485 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>앱 구조 기초 — 코드 지도를 읽는 법</title>
+<title>앱 구조 기초 — 뚜껑을 열고 보는 코드</title>
 <style>
-  :root { --bg:#15171c; --fg:#e8e6df; --muted:#a09e95; --line:#3a3d45; --card:#1c1f25; --sea:#101216; --off:#77746c; --metal:#8a877d; --hot:#f0a040; --bad:#f0605c; --hi:#57491c;
-    --wire:#c9974d; --wire-bg:#2a2117; --rule:#5aa7ec; --rule-bg:#142636; --mech:#45bda3; --mech-bg:#12302b; }
+  :root { --bg:#15171c; --fg:#e8e6df; --muted:#a09e95; --line:#3a3d45; --card:#1c1f25; --sea:#101216; --off:#6f6c65; --metal:#8a877d; --hot:#f0a040; --bad:#f0605c; --hi:#57491c;
+    --wire:#c9974d; --wire-bg:#2a2117; --rule:#5aa7ec; --rule-bg:#142636; --mech:#45bda3; --mech-bg:#12302b; --var:#e0b13a;
+    --pcb:#132a20; --pcb-line:#1d3d2f; --chip:#0e0f12; --lamp:#ffd24d; }
   @media (prefers-color-scheme: light) { :root { --bg:#f7f6f2; --fg:#2a2a28; --muted:#6b6a64; --line:#cfcdc4; --card:#fff; --sea:#eef1f3; --off:#a5a299; --metal:#b8b4a8; --hot:#c25e00; --bad:#c0392b; --hi:#ffe9a8;
-    --wire:#8a5a14; --wire-bg:#fbf3e6; --rule:#185fa5; --rule-bg:#e6f1fb; --mech:#0f6e56; --mech-bg:#e1f5ee; } }
+    --wire:#8a5a14; --wire-bg:#fbf3e6; --rule:#185fa5; --rule-bg:#e6f1fb; --mech:#0f6e56; --mech-bg:#e1f5ee; --var:#a8760c;
+    --pcb:#e3f1e8; --pcb-line:#cbe3d4; --chip:#fbfaf6; --lamp:#f2b705; } }
   * { box-sizing:border-box; }
-  body { margin:0 auto; padding:24px 20px 60px; max-width:860px; background:var(--bg); color:var(--fg); font:17px/1.7 "Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
+  body { margin:0 auto; padding:24px 20px 60px; max-width:940px; background:var(--bg); color:var(--fg); font:17px/1.7 "Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif; }
   h1 { font-size:24px; margin:0 0 4px; } h2 { font-size:20px; margin:0 0 4px; } h2 i { font-style:normal; color:var(--hot); margin-right:8px; }
   p { margin:6px 0; } a { color:inherit; } .sub { color:var(--muted); font-size:14px; }
   section { margin:34px 0 0; }
   code, pre { font:14px/1.65 Consolas,"D2Coding",monospace; }
-  .w { color:var(--wire); } .r { color:var(--rule); } .e { color:var(--mech); } b.w, b.r, b.e { font-weight:700; }
+  .w { color:var(--wire); } .r { color:var(--rule); } .e { color:var(--mech); } .v { color:var(--var); } b.w, b.r, b.e, b.v { font-weight:700; }
   .fig { overflow-x:auto; border-radius:12px; background:var(--sea); margin:10px 0 0; } .fig svg { display:block; width:100%; height:auto; }
   svg text { font-family:inherit; }
   .now { margin:8px 0 0; padding:10px 14px; border:2px solid var(--hot); border-radius:10px; background:var(--card); }
-  .now pre { margin:0; font-size:16px; font-weight:700; white-space:pre-wrap; overflow-wrap:anywhere; } .now p { margin:2px 0 0; }
+  .now .t { font-weight:700; } .now pre { margin:6px 0 0; font-size:15px; font-weight:700; white-space:pre-wrap; overflow-wrap:anywhere; } .now p { margin:2px 0 0; }
   .row { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; align-items:center; }
-  button { font:inherit; font-size:15px; padding:6px 14px; border:1px solid var(--line); border-radius:9px; background:var(--card); color:var(--fg); cursor:pointer; }
+  button { font:inherit; font-size:15px; padding:6px 12px; border:1px solid var(--line); border-radius:9px; background:var(--card); color:var(--fg); cursor:pointer; }
   button[aria-pressed="true"] { border-color:var(--hot); background:var(--hi); font-weight:700; }
   button.go { border-color:var(--hot); color:var(--hot); font-weight:700; padding:8px 20px; }
   .dots { color:var(--muted); font-size:14px; }
-  .motto { text-align:center; font-size:19px; border:2px solid var(--hot); border-radius:12px; padding:10px; margin:14px 0 0; }
-  .all { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:10px; margin-top:8px; }
-  .all pre { margin:0; padding:10px; border:1px solid var(--line); border-radius:10px; background:var(--card); white-space:pre-wrap; overflow-wrap:anywhere; font-size:13.5px; }
-  .all span { display:block; padding:0 4px; border-radius:4px; } .all span.on { background:var(--hi); }
+  .motto { text-align:center; font-size:18px; border:2px solid var(--hot); border-radius:12px; padding:10px; margin:14px 0 0; }
+  table { border-collapse:collapse; width:100%; font-size:15.5px; } td,th { text-align:left; padding:7px 10px 7px 0; border-bottom:1px solid var(--line); vertical-align:top; } th { color:var(--muted); font-weight:400; }
+  .hint { display:none; }
+  .ok { color:var(--mech); } .no { color:var(--bad); }
   ol.q { padding-left:0; list-style:none; counter-reset:q; } ol.q li { counter-increment:q; padding:6px 0 6px 40px; position:relative; }
   ol.q li::before { content:counter(q); position:absolute; left:0; top:8px; width:27px; height:27px; line-height:27px; text-align:center; border-radius:14px; background:var(--hot); color:var(--bg); font-weight:700; }
-  table { border-collapse:collapse; width:100%; font-size:15.5px; } td,th { text-align:left; padding:7px 10px 7px 0; border-bottom:1px solid var(--line); vertical-align:top; } th { color:var(--muted); font-weight:400; }
   details { border:1px solid var(--line); border-radius:12px; background:var(--card); margin-top:12px; padding:0 16px; } summary { cursor:pointer; padding:12px 0; font-weight:700; } details[open] { padding-bottom:12px; }
-  .hint { display:none; }
   .flow { stroke-dasharray:8 5; animation:f .7s linear infinite; } @keyframes f { to { stroke-dashoffset:-13; } }
   @media (prefers-reduced-motion:reduce) { .flow { animation:none; } }
-  @media (max-width:720px) { body { padding:16px 12px 40px; } .fig svg { min-width:620px; } .all { grid-template-columns:1fr; } .hint { display:block; text-align:center; } }
-  body { max-width:940px; }
-  .man.off, .ln.off { opacity:.5; }
-  .ok { color:var(--mech); font-weight:700; } .no { color:var(--bad); font-weight:700; }
-  .cap2 { color:var(--muted); font-size:14px; margin:12px 0 0; }
-  @media (max-width:720px) { .fig svg { min-width:720px; } .fig svg.rel { min-width:620px; } }
+  @media (max-width:720px) { body { padding:16px 12px 40px; } .fig svg { min-width:640px; } .hint { display:block; text-align:center; } }
 </style>
 </head>
 <body>
 <p class="sub"><a href="../">← 개념 그림 모음</a></p>
-<h1>앱 구조 기초 — 코드 지도를 읽는 법</h1>
-<p>한 조각씩 쌓는다. <b>부서 하나 → 복도 → 건물 둘 → 뇌</b>. 다 쌓으면 그것이 <b>코드 지도</b>다.</p>
+<h1>앱 구조 기초 — 뚜껑을 열고 보는 코드</h1>
+<p>더우면 선풍기를 켜는 <b>방 부서</b> 하나를 기판처럼 뜯어 본다. 칩은 다섯 종류, 칩을 잇는 선도 다섯 종류뿐이다. 그다음 기판을 <b>지도</b>로 줄이고, 부서 둘 · 복도 · 뇌를 얹으면 그것이 <b>코드 지도</b>다.</p>
 
-<section id="try">
-  <h2><i>1</i>부서 하나 — 기계로 보고, 지도로 보고, 코드로 본다</h2>
-  <p>더우면 선풍기를 켜는 방 부서다. <b>다음 걸음</b>을 누르면 셋이 같이 켜진다.</p>
-  <p class="cap2">🔧 기계로 보면</p>
-  <div class="fig"><svg class="rel" viewBox="0 0 680 400" id="r1" role="img" aria-label="버튼이 눌리면 배선이 룰에 묻고 답대로 선풍기에 잇는 기계 그림"></svg></div>
-  <p class="cap2">🗺️ 지도에서는 이렇게 줄여 그린다 — 칸 하나 = 파일 하나</p>
-  <div class="fig"><svg id="s1" role="img" aria-label="방 부서 지도"></svg></div>
+<!-- 1 -->
+<section>
+  <h2><i>1</i>뚜껑 연 기판 — 칩 둘러보기</h2>
+  <p>칩 이름을 눌러 보세요. 그 칩만 빛나고, 하는 일 · 하드웨어로는 · 코드 한 줄이 나와요.</p>
+  <div class="fig"><svg id="b1" viewBox="0 0 680 440" role="img" aria-label="방 부서 기판 — 버튼 · 온도계, 규칙서 칩, 반응형 변수 칩, 표시판, 배선 릴레이 보드(쓰는 손 · 레버 모터 · 레버), 선풍기 · 표시등 · 난로"></svg></div>
   <p class="sub hint">↔ 그림은 옆으로 밀 수 있어요</p>
-  <div class="now"><pre id="c1"></pre><p id="m1" aria-live="polite"></p></div>
-  <div class="row"><button class="go" id="n1">다음 걸음 ▶</button><button id="b1">◀ 앞</button><span class="dots" id="d1"></span></div>
-  <p class="motto"><b class="r">룰</b>이 정하고, <b class="w">배선</b>이 잇고, <b class="e">장비</b>가 움직인다.</p>
+  <div class="row" id="parts"></div>
+  <div class="now" id="p1"></div>
 </section>
 
+<!-- 2 -->
 <section>
-  <h2><i>2</i>복도 — 부서는 복도로만 이어진다</h2>
-  <p>"지금: 선풍기"를 보여 주는 화면 부서를 더한다. 방 부서는 <b class="e">복도</b>에 <b>내려놓고 끝</b>, 화면 부서는 <b>복도가 바뀌면 시작</b>. 서로 모른다.</p>
-  <div class="fig"><svg id="s2" role="img" aria-label="방 부서, 보관함 복도, 화면 부서"></svg></div>
-  <div class="now"><pre id="c2"></pre><p id="m2" aria-live="polite"></p></div>
-  <div class="row"><button class="go" id="n2">다음 걸음 ▶</button><button id="b2">◀ 앞</button><span class="dots" id="d2"></span></div>
-  <p class="motto">복도에는 <b class="e">장비</b>만 둔다. <span class="sub">(두 부서가 똑같은 기준을 쓸 때만 공용 <b class="r">룰</b>도) </span><b class="w">배선</b>은 절대 아님.</p>
-  <p class="sub">복도에 게시판과 전화기는 있어도, 일을 시키는 사람은 없다. 배선이 복도에 있으면 두 부서를 다 알게 되어 섞인다.</p>
+  <h2><i>2</i>선은 다섯 종류뿐</h2>
+  <p>칩끼리 잇는 선을 종류별로 켜 보세요. 어떤 코드 한 줄이든 이 다섯 가지 중 하나다 — <b>울림 · 부름 · 물음 · 씀 · 지켜봄</b>.</p>
+  <p class="sub">코드 지도에서 ①②③ 은 <b>순서</b>에만 쓴다. 선 종류는 이 이름으로 부른다.</p>
+  <div class="fig"><svg id="b2" viewBox="0 0 680 440" role="img" aria-label="같은 기판에서 고른 종류의 선만 빛남"></svg></div>
+  <div class="row" id="kinds"></div>
+  <div class="now" id="p2"></div>
 </section>
 
+<!-- 3 -->
 <section>
-  <h2><i>3</i>건물이 둘이면 — 창구라는 복도</h2>
-  <p>Electron 앱은 건물이 둘이다(main · 화면). 두 건물 사이에는 <b class="e">창구</b>라는 전화 복도가 있다. 물으면 <b>같은 길로 답이 돌아온다.</b></p>
-  <div class="fig"><svg id="s3" role="img" aria-label="main 건물의 설정 부서, 창구 복도, 화면 건물의 펌프 부서"></svg></div>
-  <div class="now"><pre id="c3"></pre><p id="m3" aria-live="polite"></p></div>
-  <div class="row"><button class="go" id="n3">다음 걸음 ▶</button><button id="b3">◀ 앞</button><span class="dots" id="d3"></span></div>
-  <p class="sub">건물이 하나인 앱(Flutter · 웹)이면 창구 복도 없이 보관함 복도만 있다.</p>
+  <h2><i>3</i>한 번 돌려 보기</h2>
+  <p>버튼을 누르고 선풍기가 돌기까지. 걸음마다 지금 켜진 선이 <b>어느 종류</b>인지 같이 나온다.</p>
+  <div class="fig"><svg id="b3" viewBox="0 0 680 440" role="img" aria-label="한 걸음씩 신호가 흐르는 기판"></svg></div>
+  <div class="now" id="p3"></div>
+  <div class="row"><button class="go" id="n3">다음 걸음 ▶</button><button id="k3">◀ 앞</button><span class="dots" id="d3"></span></div>
+  <p class="motto"><b class="r">규칙서</b>가 계산하고, <b class="v">반응형 변수</b>가 기억하고 울리고, <b class="w">배선</b>이 읽고 · 묻고 · 쓰고 · 시키고, <b class="e">장비</b>가 울리거나 움직인다.</p>
 </section>
 
+<!-- 4 -->
 <section>
-  <h2><i>4</i>뇌를 얹으면 — 지도 한 장</h2>
-  <p>켤 때 <b>🧠 뇌</b>가 부서를 하나씩 깨우고 쉰다. 1 · 2 · 3번을 다 쌓으면 이렇게 된다. 숫자 하나(19505)가 파일에서 화면까지 간다.</p>
-  <div class="fig"><svg id="s4" role="img" aria-label="뇌 둘, 부서 셋, 복도 둘이 이어진 지도 한 장"></svg></div>
-  <div class="now"><pre id="c4"></pre><p id="m4" aria-live="polite"></p></div>
-  <div class="row"><button class="go" id="n4">다음 걸음 ▶</button><button id="b4">◀ 앞</button><span class="dots" id="d4"></span></div>
+  <h2><i>4</i>레버를 꺾는 두 길</h2>
+  <p>기준은 둘 다 <b class="r">규칙서</b>다. 다른 건 <b>답을 칩에 남기느냐</b>뿐. 바꿔 보세요.</p>
+  <div class="fig"><svg id="b4" viewBox="0 0 680 440" role="img" aria-label="규칙서 답을 칩에 쓰고 레버가 칩을 보는 길과, 답으로 바로 레버를 꺾는 길"></svg></div>
+  <div class="row" id="ways"></div>
+  <div class="now" id="p4"></div>
+  <table style="margin-top:10px">
+    <tr><th>이럴 때</th><th>길</th></tr>
+    <tr><td>지금 이 자리에서 한 번 쓰고, 아무도 다시 볼 일이 없음</td><td><b>A 바로 꺾기</b></td></tr>
+    <tr><td>화면 · 다른 곳도 알아야 함 · 다음에도 기억해야 함 · 값이 여러 데서 바뀜</td><td><b>B 칩 거쳐 꺾기</b></td></tr>
+  </table>
 </section>
 
+<!-- 5 -->
 <section>
-  <h2><i>5</i>이런 선이 보이면 섞인 것</h2>
-  <div class="row" id="bad"></div>
-  <div class="fig"><svg id="s5" role="img" aria-label="섞인 선과 고친 선"></svg></div>
-  <div class="now"><pre id="c5"></pre><p id="m5"></p></div>
-  <div class="row"><button class="go" id="n5">고친 모양 보기</button></div>
+  <h2><i>5</i>지도로 줄이기 — 칸 하나 = 파일 하나</h2>
+  <p>기판의 칩을 누르면 아래 지도에서 <b>그 칩이 들어 있는 파일</b>이 같이 빛난다. 쓰는 손 · 레버 모터 · 레버 · 💡 칩은 모두 <code>room.wiring</code> 한 파일 안이다.</p>
+  <div class="fig"><svg id="b5" viewBox="0 0 680 440" role="img" aria-label="뚜껑 연 기판"></svg></div>
+  <div class="row" id="parts5"></div>
+  <p class="sub" style="margin-top:12px">🗺️ 지도에서는 이렇게 줄여 그린다</p>
+  <div class="fig"><svg id="m5" viewBox="0 0 900 330" role="img" aria-label="방 부서 지도 — 버튼 · 온도계 · 규칙서 · 배선 · 선풍기 · 표시등 · 난로 칸"></svg></div>
+  <div class="now" id="p5"></div>
 </section>
 
+<!-- 6 -->
 <section>
-  <h2><i>6</i>어떤 지도든 이 순서로 읽는다</h2>
+  <h2><i>6</i>부서 둘과 복도 — 반응형 변수는 어디 있나</h2>
+  <p>표시판을 <b>화면 부서</b>로 떼어 낸다. 두 부서는 <b>복도</b>로만 만난다. 복도에 무엇이 있는지는 앱마다 다르다 — 바꿔 보세요.</p>
+  <div class="fig"><svg id="m6" viewBox="0 0 900 560" role="img" aria-label="방 부서, 복도, 화면 부서"></svg></div>
+  <div class="row" id="halls"></div>
+  <div class="now" id="p6"></div>
+  <details><summary>건물이 둘이면 (Electron 앱)</summary>
+    <p>Electron 앱은 건물이 둘(main · 화면)이고, 두 건물 사이에 <b>🚪 창구</b>라는 전화 복도가 하나 더 있다(<code>ipcMain</code> · <code>preload.js</code> · <code>electronAPI</code>). 물으면 같은 길로 답이 돌아온다(②번 선 — 부름 · 돌려받음). SeaMap(Flutter)은 건물이 하나라 창구 복도가 없다. 휴대폰 본체로 가는 길만 <code>common/native.mech</code>(MethodChannel) 하나.</p>
+  </details>
+</section>
+
+<!-- 7 -->
+<section>
+  <h2><i>7</i>뇌 — 켤 때 깨우고 쉰다</h2>
+  <p>🧠 뇌는 켤 때 부서 배선을 <b>깨우기만</b> 하고 쉰다. 장비를 직접 만지지 않는다. 깨어난 배선이 자기 장비에 선을 꽂는다(울림 선이 준비됨).</p>
+  <div class="fig"><svg id="m7" viewBox="0 0 900 300" role="img" aria-label="뇌가 방 부서와 화면 부서를 깨움"></svg></div>
+  <div class="now" id="p7"></div>
+  <div class="row"><button class="go" id="n7">다음 걸음 ▶</button><button id="k7">◀ 앞</button><span class="dots" id="d7"></span></div>
+</section>
+
+<!-- 8 -->
+<section>
+  <h2><i>8</i>이런 선이 보이면 섞인 것</h2>
+  <p>빨간 선은 칩이 <b>자기 일 아닌 것</b>을 하는 곳이다. 고르면 그 선이 보이고, [고친 모양]을 누르면 제자리로 돌린 모양이 보인다.</p>
+  <div class="fig"><svg id="m8" viewBox="0 0 900 330" role="img" aria-label="섞인 선과 고친 모양"></svg></div>
+  <div class="row" id="bads"></div>
+  <div class="row"><button id="fix8" aria-pressed="false">고친 모양 보기</button></div>
+  <div class="now" id="p8"></div>
+</section>
+
+<!-- 9 -->
+<section>
+  <h2><i>9</i>어떤 지도든 이 순서로 읽는다</h2>
   <ol class="q">
     <li><b>부서</b>를 센다 <span class="sub">— 갈색 상자. 이 기능에 부서가 몇 개?</span></li>
-    <li><b>복도</b>를 본다 <span class="sub">— 청록 띠. 부서끼리 어디서 만나나?</span></li>
-    <li>부서 하나를 골라 <b>배선부터</b> ①②③ <span class="sub">— 뭐가 울리나 → 누구한테 묻나 → 뭐가 움직이나</span></li>
+    <li><b>복도</b>를 본다 <span class="sub">— 청록 띠. 부서끼리 어디서 만나나? 보관함인가, 번호부인가?</span></li>
+    <li>부서 하나를 골라 <b>배선부터</b> <span class="sub">— 선마다 다섯 종류 중 무엇인지 묻는다: 뭐가 울리나(울림) · 누구를 부르나(부름) · 규칙서에 묻나(물음) · 칩에 쓰나(씀) · 누가 칩을 지켜보나(지켜봄). ①②③ 은 그 순서</span></li>
     <li>복도를 건너 <b>다음 부서</b>로 <span class="sub">— 같은 것을 되풀이</span></li>
   </ol>
   <table>
     <tr><th>고칠 때</th><th>여는 곳</th></tr>
-    <tr><td>기준 · 숫자가 바뀜</td><td class="r">📘 룰</td></tr>
-    <tr><td>상대 · 순서가 바뀜</td><td class="w">🔌 배선</td></tr>
-    <tr><td>모양 · 방식이 바뀜</td><td class="e">⚙️ 장비</td></tr>
-    <tr><td>쓰는 사람이 바꾸는 숫자</td><td>🗄️ 복도의 보관함 <span class="sub">(판단은 그대로 룰)</span></td></tr>
+    <tr><td>기준 · 숫자 · 공식이 바뀜</td><td class="r">📘 규칙서 <code>.rules</code></td></tr>
+    <tr><td>누구를 부를지 · 순서 · 레버가 바뀜</td><td class="w">🔌 배선 <code>.wiring</code></td></tr>
+    <tr><td>기억해 둘 값 · 그 값을 누가 지켜볼지</td><td class="v">💡 반응형 변수 <span class="sub">(SeaMap 은 배선 파일 안)</span></td></tr>
+    <tr><td>모양 · 방식 · 바깥과 닿는 법이 바뀜</td><td class="e">⚙️ 장비 <code>.mech</code></td></tr>
     <tr><td>새 기능</td><td>부서 하나 더 + 🧠 뇌에 한 줄</td></tr>
   </table>
   <details><summary>개발자 말로는</summary>
     <table>
       <tr><th>지도</th><th>개발자 말</th><th>코드에서</th></tr>
-      <tr><td>부서</td><td>기능 폴더 · 모듈</td><td><code>room/</code> · <code>config/</code></td></tr>
-      <tr><td class="w">🔌 배선</td><td>연결 코드(glue)</td><td><code>○○.wiring</code></td></tr>
-      <tr><td class="r">📘 룰</td><td>순수 함수</td><td><code>○○.rules</code></td></tr>
-      <tr><td class="e">⚙️ 장비</td><td>adapter · 컴포넌트 · 라이브러리</td><td><code>○○.mech</code> · <code>○○.vue</code></td></tr>
-      <tr><td class="e">🗄️ 보관함</td><td>store</td><td>Pinia · Rx</td></tr>
-      <tr><td class="e">🚪 창구</td><td>IPC</td><td><code>ipcMain</code> · <code>preload</code></td></tr>
-      <tr><td>🧠 뇌</td><td>진입점 · composition root</td><td><code>main.js</code> · <code>App.vue</code> · <code>main.dart</code></td></tr>
-      <tr><td>선을 꽂는다 · 울린다</td><td>콜백 등록 · 이벤트</td><td><code>on(…)</code> · <code>watch</code> · <code>@click</code></td></tr>
+      <tr><td>부서</td><td>기능 폴더 · 모듈</td><td><code>room/</code> · <code>lib/track/</code></td></tr>
+      <tr><td class="w">🔌 배선</td><td>연결 코드(glue) · 컨트롤러</td><td><code>○○.wiring</code></td></tr>
+      <tr><td class="r">📘 규칙서</td><td>순수 함수</td><td><code>○○.rules</code></td></tr>
+      <tr><td class="v">💡 반응형 변수</td><td>reactive state · observable</td><td>GetX <code>.obs</code> · Vue <code>ref</code> · <code>computed</code></td></tr>
+      <tr><td>🗄️ 보관함</td><td>store</td><td>Pinia (SeaMap 에는 없음)</td></tr>
+      <tr><td>📇 번호부</td><td>DI 컨테이너 · 서비스 로케이터</td><td><code>Get.put</code> · <code>Get.find</code></td></tr>
+      <tr><td class="e">⚙️ 장비</td><td>adapter · 위젯 · 라이브러리</td><td><code>○○.mech</code> · <code>.vue</code></td></tr>
+      <tr><td>🧠 뇌</td><td>진입점 · composition root</td><td><code>main.dart</code> · <code>main.js</code> · <code>App.vue</code></td></tr>
+      <tr><td>울림</td><td>이벤트 · 콜백 등록</td><td><code>onPress</code> · <code>listen</code> · <code>@click</code></td></tr>
+      <tr><td>부름</td><td>호출 · 리턴</td><td><code>thermo.read()</code> · <code>fan.on()</code></td></tr>
+      <tr><td>물음</td><td>순수 함수 호출</td><td><code>feelOf(32)</code> · <code>isStationary(…)</code></td></tr>
+      <tr><td>씀</td><td>상태 바꾸기</td><td><code>feel.value = …</code></td></tr>
+      <tr><td>지켜봄</td><td>반응형 구독</td><td><code>ever</code> · <code>Obx</code> · <code>watch</code></td></tr>
     </table>
-    <p class="sub"><code>.mech</code> · <code>.rules</code> · <code>.wiring</code> 은 이 페이지가 정한 이름이다. 처음부터 완벽히 나누지 않아도 된다. 섞여 있으면 고칠 일이 생겼을 때 나눈다.</p>
   </details>
-  <details><summary>진짜 기계와 다른 점</summary>
-    <p>전기는 붙어 있는 동안 계속 흐르지만, 코드의 <code>fan.on()</code> 은 한 번 부르고 끝난다. 흔한 릴레이는 갈래가 둘이고 기준이 없다. 기준은 다이얼이나 PLC 프로그램처럼 따로 있다. 그림과 파일 이름은 설명용이다.</p>
-  </details>
+</section>
+
+<section>
+  <h2><i>·</i>말 정리</h2>
+  <table>
+    <tr><th>칩</th><th>하는 일 하나</th><th>코드에서</th></tr>
+    <tr><td class="e">⚙️ 장비</td><td>울리거나(버튼 · 센서) 움직이거나(선풍기 · 화면) · 부르면 값을 돌려줌(온도계)</td><td><code>.mech</code> · 위젯 · 라이브러리</td></tr>
+    <tr><td class="r">📘 규칙서</td><td>값을 넣으면 계산해서 답만. 상태 없음 — 같은 값이면 늘 같은 답 (순수 함수)</td><td><code>.rules</code></td></tr>
+    <tr><td class="v">💡 반응형 변수</td><td>기억하고, 바뀌면 울림. 스스로 안 바뀜 — 쓰는 건 배선뿐</td><td>GetX <code>.obs</code> · Vue <code>ref</code></td></tr>
+    <tr><td class="w">🔌 배선</td><td>릴레이. 깨어나서 읽고 · 묻고 · 칩에 쓰고 · 장비에 시킴. 판단 공식은 없음 — 레버(칩 값)를 보거나 규칙서에 물어서 꺾음</td><td><code>.wiring</code></td></tr>
+    <tr><td>🗄️ 보관함</td><td>반응형 변수를 모아 둔 따로 된 장비 (Vue Pinia store). SeaMap 에는 없음 — 반응형 변수가 배선 안에 있음</td><td>store</td></tr>
+  </table>
+  <p class="sub">설명을 돕기 위한 단순한 그림이다. 진짜 기계와 달리 코드의 <code>fan.on()</code> 은 한 번 부르고 끝난다. </p>
 </section>
 
 <script>
 (() => {
 const $ = (i) => document.getElementById(i);
-const esc = (s) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const tx = (x,y,s,o={}) => `<text x="${x}" y="${y}" style="font-size:${o.z||13}px;text-anchor:${o.a||'middle'};fill:${o.f||'var(--fg)'};${o.b?'font-weight:700;':''}${o.m?'font-family:Consolas,monospace;':''}">${esc(s)}</text>`;
+const esc = (s) => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const tx = (x,y,s,o={}) => `<text x="${x}" y="${y}" style="font-size:${o.z||12.5}px;text-anchor:${o.a||'middle'};fill:${o.f||'var(--fg)'};${o.b?'font-weight:700;':''}${o.m?'font-family:Consolas,monospace;':''}">${esc(s)}</text>`;
 const bx = (x,y,w,h,f,s,r=6,k=2,e='') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${f}" stroke="${s}" stroke-width="${k}" ${e}/>`;
-const ln = (d,on,o={}) => `<path d="${d}" fill="none" stroke="${o.c||(on?'var(--hot)':'var(--off)')}" stroke-width="${on?5:4}" stroke-linejoin="round"${on===2?' class="flow"':''} ${o.e||''}/>`;
-const sc = (x,y) => `<circle cx="${x}" cy="${y}" r="9" fill="var(--metal)" stroke="var(--off)"/><path d="M${x-5} ${y-5}L${x+5} ${y+5}" stroke="#333" stroke-width="2"/>`;
-const DEFS = '<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1L9 5L1 9z" fill="context-stroke"/></marker></defs>';
-// 장비 그림
+const DEFS = '<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M1 1L9 5L1 9z" fill="context-stroke"/></marker></defs>';
+const sc = (x,y) => `<circle cx="${x}" cy="${y}" r="8" fill="var(--metal)" stroke="var(--off)"/><path d="M${x-4} ${y-4}L${x+4} ${y+4}" stroke="#333" stroke-width="2"/>`;
+const pins = (x,y,w,h) => { let s=''; for (let px=x+12; px<x+w-6; px+=14) s+=`<path d="M${px} ${y}v-6M${px} ${y+h}v6" stroke="var(--metal)" stroke-width="2"/>`; return s; };
 const IC = {
-  button:(x,y,on)=>`<circle cx="${x}" cy="${y}" r="20" fill="var(--metal)"/><circle cx="${x}" cy="${y}" r="${on?13:16}" fill="${on?'#a8330a':'#d9480f'}"/>`,
-  thermo:(x,y)=>`<rect x="${x-5}" y="${y-20}" width="10" height="28" rx="5" fill="var(--card)" stroke="var(--off)"/><rect x="${x-2}" y="${y-8}" width="4" height="16" fill="#e8421a"/><circle cx="${x}" cy="${y+12}" r="8" fill="#e8421a"/>`,
-  fan:(x,y,on)=>`<circle cx="${x}" cy="${y}" r="18" fill="none" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/>`+[0,120,240].map(a=>`<ellipse cx="${x}" cy="${y-8}" rx="4" ry="8" fill="${on?'var(--hot)':'var(--mech)'}" transform="rotate(${a+(on?40:0)} ${x} ${y})"/>`).join(''),
-  lamp:(x,y,on)=>`<circle cx="${x}" cy="${y-4}" r="13" fill="${on?'#ffd24d':'none'}" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/><rect x="${x-6}" y="${y+9}" width="12" height="8" fill="${on?'var(--hot)':'var(--mech)'}"/>`,
-  heater:(x,y,on)=>`<rect x="${x-18}" y="${y-15}" width="36" height="30" rx="3" fill="none" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/>`+[-9,0,9].map(d=>`<path d="M${x+d} ${y-9}V${y+9}" stroke="${on?'#e8421a':'var(--mech)'}" stroke-width="${on?4:2}"/>`).join(''),
-  screen:(x,y,on)=>`<rect x="${x-20}" y="${y-16}" width="40" height="26" rx="3" fill="${on?'#ffd24d55':'none'}" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/><path d="M${x-9} ${y+17}H${x+9}M${x} ${y+10}V${y+17}" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/><path d="M${x-12} ${y-7}H${x+10}M${x-12} ${y}H${x+3}" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/>`,
-  phone:(x,y,on)=>`<path d="M${x-18} ${y-4}Q${x} ${y-24} ${x+18} ${y-4}L${x+11} ${y+1}L${x+8} ${y-6}Q${x} ${y-10} ${x-8} ${y-6}L${x-11} ${y+1}Z" fill="${on?'var(--hot)':'var(--mech)'}"/><rect x="${x-13}" y="${y}" width="26" height="17" rx="3" fill="none" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/>`,
-  key:(x,y,on)=>`<rect x="${x-24}" y="${y-13}" width="48" height="26" rx="4" fill="none" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/>`+[-16,-6,4,14].map(d=>`<rect x="${x+d-2}" y="${y-8}" width="7" height="6" fill="${on?'var(--hot)':'var(--mech)'}"/>`).join('')+`<rect x="${x-12}" y="${y+3}" width="24" height="5" fill="${on?'var(--hot)':'var(--mech)'}"/>`,
-  store:(x,y,on)=>[-14,-1,12].map(d=>`<rect x="${x-18}" y="${y+d-5}" width="36" height="11" rx="2" fill="${on?'#ffd24d55':'none'}" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/><path d="M${x-4} ${y+d}H${x+4}" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/>`).join(''),
-  paper:(x,y,on)=>`<path d="M${x-13} ${y-18}H${x+6}L${x+13} ${y-11}V${y+18}H${x-13}Z" fill="${on?'#ffd24d55':'none'}" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/><path d="M${x-7} ${y-5}H${x+7}M${x-7} ${y+2}H${x+7}M${x-7} ${y+9}H${x+2}" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/>`,
-  func:(x,y,on)=>`<text x="${x}" y="${y+8}" style="font:700 24px Consolas,monospace;text-anchor:middle;fill:${on?'var(--hot)':'var(--mech)'}">{ }</text>`,
-  input:(x,y,on)=>`<rect x="${x-24}" y="${y-11}" width="48" height="22" rx="4" fill="none" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/><text x="${x}" y="${y+6}" style="font:700 14px monospace;text-anchor:middle;fill:${on?'var(--hot)':'var(--mech)'}">••••</text>`,
+  button:(x,y,on)=>`<circle cx="${x}" cy="${y}" r="17" fill="var(--metal)"/><circle cx="${x}" cy="${y}" r="${on?11:14}" fill="${on?'#a8330a':'#d9480f'}"/>`,
+  thermo:(x,y)=>`<rect x="${x-5}" y="${y-18}" width="10" height="26" rx="5" fill="var(--card)" stroke="var(--off)"/><rect x="${x-2}" y="${y-7}" width="4" height="15" fill="#e8421a"/><circle cx="${x}" cy="${y+11}" r="7" fill="#e8421a"/>`,
+  fan:(x,y,on)=>`<circle cx="${x}" cy="${y}" r="14" fill="none" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/>`+[0,120,240].map(a=>`<ellipse cx="${x}" cy="${y-6}" rx="3.5" ry="7" fill="${on?'var(--hot)':'var(--mech)'}" transform="rotate(${a+(on?40:0)} ${x} ${y})"/>`).join(''),
+  lamp:(x,y,on)=>`<circle cx="${x}" cy="${y-3}" r="10" fill="${on?'var(--lamp)':'none'}" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/><rect x="${x-5}" y="${y+7}" width="10" height="6" fill="${on?'var(--hot)':'var(--mech)'}"/>`,
+  heater:(x,y,on)=>`<rect x="${x-14}" y="${y-12}" width="28" height="24" rx="3" fill="none" stroke="${on?'var(--hot)':'var(--mech)'}" stroke-width="2"/>`+[-7,0,7].map(d=>`<path d="M${x+d} ${y-7}V${y+7}" stroke="${on?'#e8421a':'var(--mech)'}" stroke-width="2"/>`).join(''),
 };
-const PH = ['load','plug','ring','ask','ans','join','move','wait'];
-const YS = { 1:[278], 2:[238,318], 3:[218,278,338] };
 
-// 상자 하나 그리기 — 모든 그림이 이 함수 하나로 나온다
-function box(c, ph, o={}) {
-  const n = PH.indexOf(ph), plug = n>=1, ys = YS[c.ways.length], p = c.pick, inY = c.extra?226:278, hl = o.hl||[], L = o.hl;
-  const dimmed = (k) => L && !hl.includes(k) ? 'opacity=".28"' : '';
-  const joined = n===5||n===6, live = n>=2&&n<=6;
-  let h = bx(6,8,668,384,'none','var(--line)',14,2,'stroke-dasharray="7 5"') + tx(20,32,c.team,{a:'start',f:'var(--muted)'});
-  // 룰
-  h += `<g ${dimmed('rule')}>`;
-  const ra = n===3||n===4;
-  if (c.rule) {
-    h += `<path d="M236 44H424L440 60V142H220V44Z" fill="var(--rule-bg)" stroke="${ra||hl.includes('rule')?'var(--hot)':'var(--rule)'}" stroke-width="${ra||hl.includes('rule')?3:2}"/>` + tx(330,64,'📘 룰',{f:'var(--rule)',b:1});
-    c.rule.forEach((s,i)=>{ const y=85+i*20+(3-c.rule.length)*10, on=n===4&&(c.ruleOn??p)===i; if(on) h+=bx(236,y-14,188,19,'var(--hi)','none',3,0); h+=tx(330,y,s,{b:on}); });
-    h += `<path d="M290 188V148" stroke="${n===3?'var(--hot)':'var(--off)'}" stroke-width="3" marker-end="url(#ah)"/><path d="M372 148V182" stroke="${n===4?'var(--hot)':'var(--off)'}" stroke-width="3" marker-end="url(#ah)"/>`;
-    h += tx(280,172,n>=3&&n<7?c.q:'묻기',{a:'end',f:n===3?'var(--hot)':'var(--muted)',b:n===3}) + tx(384,172,n>=4&&n<7?c.a:'답',{a:'start',f:n===4?'var(--hot)':'var(--muted)',b:n===4});
-  } else h += bx(220,44,220,98,'none','var(--line)',6,2,'stroke-dasharray="5 5"') + tx(330,88,'📘 룰',{f:'var(--muted)'}) + tx(330,110,'물을 것이 없어 건너뜀',{f:'var(--muted)'});
-  h += '</g>';
-  // 배선
-  h += `<g ${dimmed('wire')}>` + bx(220,186,240,186,'var(--wire-bg)',hl.includes('wire')?'var(--hot)':'var(--wire)',10,hl.includes('wire')?3.5:2.5) + tx(296,362,'🔌 배선',{f:'var(--wire)',b:1});
-  if (plug) h += ln(`M110 ${inY}H186`, n===2?2:0);
-  h += ln(`M186 ${inY}H246V278H286`, n===2?2:live?1:0) + sc(186,inY);
-  if (c.extra) { if (plug) h += ln('M110 338H224', n===3?2:0); h += `<path d="M224 338H246" stroke="${n===3?'var(--hot)':'var(--off)'}" stroke-width="4"/><circle cx="250" cy="338" r="5" fill="var(--off)"/>` + tx(260,343,'읽기',{a:'start',f:'var(--muted)'}); }
-  ys.forEach((y,i)=>{ const go=n===6&&(i===p||c.also===i), hit=joined&&(i===p||(n===6&&c.also===i)); h += ln(`M402 ${y}H488`,go?2:0) + `<circle cx="402" cy="${y}" r="8" fill="${hit?'var(--hot)':'var(--card)'}" stroke="${hit?'var(--hot)':'var(--off)'}" stroke-width="2.5"/>` + tx(414,y-9,c.ways[i],{a:'start',f:hit?'var(--hot)':'',b:hit}); });
-  h += `<path d="M286 278L${joined?`394 ${ys[p]}`:'322 222'}" stroke="${joined?'var(--hot)':'var(--fg)'}" stroke-width="7" stroke-linecap="round"/><circle cx="286" cy="278" r="9" fill="var(--metal)" stroke="var(--off)" stroke-width="2"/>`;
-  if (c.also!=null && n===6) h += `<path d="M286 278L394 ${ys[c.also]}" stroke="var(--hot)" stroke-width="4" stroke-dasharray="4 4"/>`;
-  if (plug) ys.forEach((y,i)=>{ const go=n===6&&(i===p||c.also===i); h += ln(`M488 ${y}H556`,go?2:0); });
-  ys.forEach(y=>{ h+=sc(488,y); });
-  h += '</g>';
-  // 장비
-  h += `<g ${dimmed('mech')}>`;
-  const dev=(x,y,w,hh,ic,name,on,f)=>bx(x,y,w,hh,on?'var(--hi)':'var(--mech-bg)',on||f?'var(--hot)':'var(--mech)',7,on||f?3:2)+(w>100?IC[ic](x+28,y+hh/2,on)+tx(x+(w+50)/2,y+hh/2+5,name,{b:1,z:12.5}):IC[ic](x+w/2,y+hh/2-12,on)+tx(x+w/2,y+hh-9,name,{b:1,z:12.5}));
-  const hm=hl.includes('mech');
-  h += dev(16,inY-43,94,86,c.in[0],c.in[1],n===2,hm);
-  if (c.extra) h += dev(16,298,94,80,c.extra[0],c.extra[1],n===3,hm);
-  ys.forEach((y,i)=>{ const on=(n===6||n===7)&&(i===p||c.also===i); h += dev(556,y-27,112,54,c.outs[i][0],c.outs[i][1],on,hm); });
-  h += tx(63,inY-53,'⚙️ 장비',{f:'var(--mech)',b:1}) + tx(612,ys[0]-38,'⚙️ 장비',{f:'var(--mech)',b:1}) + '</g>';
-  if (!plug) h += tx(146,inY+24,'선 없음',{f:'var(--hot)',b:1}) + tx(522,ys[ys.length-1]+24,'선 없음',{f:'var(--hot)',b:1});
-  if (c.back && n===7) h += `<path d="M556 ${ys[0]+16}H112" fill="none" stroke="var(--hot)" stroke-width="4" class="flow" marker-end="url(#ah)"/>` + tx(340,ys[0]+40,c.back,{f:'var(--hot)',b:1});
+// 선 종류(이름): 1 울림(→콜백) · 2 부름(시킴·돌려받음) · 3 물음(규칙서) · 4 씀(칩에) · 5 지켜봄(칩이 울리면) — ①②③ 은 순서에만 쓴다
+const LINES = {
+  L1:  { k:1, d:'M112 214H230', t:'울림', x:171, y:204 },
+  L2a: { k:2, d:'M150 304H116', t:'부름', x:133, y:296, z:11 },
+  L2b: { k:2, d:'M116 330H146', t:'32', x:131, y:349, z:11 },
+  L2c: { k:2, d:'M411 272H516', t:'부름: 켜', x:463, y:262 },
+  L3a: { k:3, d:'M205 168V144', t:'물음', x:198, y:160, a:'end' },
+  L3b: { k:3, d:'M265 144V176', t:'답', x:272, y:160, a:'start' },
+  L4:  { k:4, d:'M392 178V144', t:'씀', x:385, y:160, a:'end' },
+  LA:  { k:3, d:'M225 144V237H236', t:'물음 답 → 바로 레버', x:156, y:268, a:'start', only:'direct' },
+  L5a: { k:5, d:'M520 118H540V237H354', t:'지켜봄', x:546, y:180, a:'start', dash:1 },
+  L5b: { k:5, d:'M520 84H544', t:'지켜봄', x:604, y:134, dash:1 },
+};
+const KC = { 1:'var(--hot)', 2:'var(--mech)', 3:'var(--rule)', 4:'var(--var)', 5:'var(--lamp)' };
+
+// 기판 하나 — o: hl 빛낼 칩 · ln 빛낼 선 · feel 칩 값 · press 버튼 눌림 · temp 온도 보임 · ans 규칙서 답 줄 · flip 레버 꺾임 · fan 선풍기 돎 · show 표시판 값
+function board(o = {}) {
+  const hl = new Set(o.hl || []), ln = new Set(o.ln || []), H = (k) => hl.has(k), hot = 'var(--hot)', off = 'var(--off)';
+  const edge = (k, c) => H(k) ? hot : c, ew = (k, w = 2) => H(k) ? 4 : w;
+  let h = DEFS;
+  h += `<rect x="8" y="8" width="664" height="424" rx="14" fill="var(--pcb)" stroke="var(--line)" stroke-width="2"/>`;
+  for (let i = 0; i < 8; i++) h += `<path d="M20 ${58 + i * 48}H660" stroke="var(--pcb-line)" stroke-width="1"/>`;
+  [[20,20],[660,20],[20,420],[660,420]].forEach(([x,y]) => h += `<circle cx="${x}" cy="${y}" r="5" fill="var(--metal)"/>`);
+  h += tx(26, 34, '방 부서 — 뚜껑 연 기판', { a:'start', b:1, z:14 });
+
+  // 📘 규칙서
+  h += pins(150,52,170,86) + bx(150,52,170,86,'var(--chip)',edge('rules','var(--rule)'),5,ew('rules'));
+  h += tx(162,70,'📘 규칙서 · 순수 함수',{a:'start',f:'var(--rule)',z:11.5,b:1});
+  ['28° 이상 → 더움','그 사이 → 적당','15° 미만 → 추움'].forEach((s,i) => { const lit = o.ans && i === 0; if (lit) h += bx(158,78+i*18,154,17,'var(--hi)','none',3,0); h += tx(235,91+i*18,s,{z:12,b:lit}); });
+  // 💡 반응형 변수
+  const feel = o.feel || '—', lamp = feel !== '—';
+  h += pins(350,52,170,86) + bx(350,52,170,86,'var(--chip)',edge('var','var(--var)'),5,ew('var'));
+  h += tx(362,70,'💡 반응형 변수',{a:'start',f:'var(--var)',z:11.5,b:1}) + tx(362,100,`feel = ${feel}`,{a:'start',z:15,b:1,m:1});
+  h += tx(362,124,lamp?'기억 중 · 바뀌면 울림':'기억만 한다',{a:'start',z:11,f:'var(--muted)'});
+  h += `<circle cx="495" cy="95" r="10" fill="${lamp?'var(--lamp)':'var(--off)'}" stroke="var(--metal)"/>` + (o.ring5 ? `<circle cx="495" cy="95" r="17" fill="none" stroke="var(--lamp)" stroke-width="2"/>` : '');
+  // ⚙️ 표시판 (화면 장비 — 칩을 직접 지켜봄)
+  h += bx(548,52,112,66,'var(--mech-bg)',edge('display','var(--mech)'),7,ew('display')) + tx(604,70,'⚙️ 표시판',{f:'var(--mech)',z:11.5,b:1}) + tx(604,100,o.show?`지금: ${o.show}`:'지금: —',{z:13.5,b:1});
+
+  // 🔌 배선 · 릴레이
+  h += bx(150,168,272,214,'var(--wire-bg)',edge('relay','var(--wire)'),10,H('relay')?4:2.5) + tx(166,372,'🔌 배선 · 릴레이',{a:'start',f:'var(--wire)',b:1});
+  h += `<circle cx="236" cy="214" r="7" fill="${o.press?hot:'var(--card)'}" stroke="var(--off)" stroke-width="2"/>` + tx(246,219,o.press?'깨어남':'입력',{a:'start',z:11.5,f:'var(--muted)'});
+  h += bx(238,178,170,24,'var(--card)',edge('hand',off),4,ew('hand')) + tx(323,195,'쓰는 손: 답 → 칩',{z:11.5,f:H('hand')?hot:'var(--muted)',b:H('hand')});
+  h += bx(240,226,110,22,'var(--card)',edge('motor',off),4,ew('motor')) + tx(295,242,o.direct?'레버 모터: 답대로':'레버 모터: 칩만 봄',{z:11,f:H('motor')?hot:'var(--muted)',b:H('motor')});
+  h += `<path d="M295 248V306" stroke="${o.flip?'var(--lamp)':off}" stroke-width="2" stroke-dasharray="3 3"/>`;
+  const ys = [272,318,364], px = 300, py = 318;
+  ys.forEach((y,i) => { const hit = o.flip && i === 0; h += `<circle cx="404" cy="${y}" r="7" fill="${hit?hot:'var(--card)'}" stroke="${hit?hot:off}" stroke-width="2.5"/>` + tx(396,y-10,['더움','적당','추움'][i],{a:'end',z:11.5,f:hit?hot:'var(--muted)',b:hit}); });
+  h += `<path d="M${px} ${py}L${o.flip?'397 272':'352 286'}" stroke="${o.flip?hot:'var(--fg)'}" stroke-width="7" stroke-linecap="round"/><circle cx="${px}" cy="${py}" r="9" fill="var(--metal)" stroke="${edge('lever','var(--off)')}" stroke-width="${H('lever')?4:2}"/>`;
+  h += tx(px,py+30,'레버',{z:11.5,f:H('lever')?hot:'var(--muted)',b:H('lever')});
+  h += `<path d="M160 316H190" stroke="${off}" stroke-width="3"/><circle cx="194" cy="316" r="5" fill="${off}"/>` + tx(204,321,'읽기',{a:'start',z:11.5,f:'var(--muted)'});
+  ys.forEach(y => { h += `<path d="M411 ${y}H516" stroke="${off}" stroke-width="3"/>` + sc(470,y); });
+
+  // ⚙️ 장비
+  const dev = (k,x,y,w,hh,ic,name,on) => bx(x,y,w,hh,on?'var(--hi)':'var(--mech-bg)',edge(k,on?hot:'var(--mech)'),7,H(k)||on?3:2) + IC[ic](x+24,y+hh/2,on) + tx(x+46,y+hh/2+5,name,{a:'start',b:1,z:12.5});
+  h += tx(64,154,'⚙️ 장비',{f:'var(--mech)',b:1,z:12}) + tx(64,172,'울리는 · 돌려주는 쪽',{f:'var(--muted)',z:10.5});
+  h += dev('button',16,186,96,56,'button','버튼',o.press) + dev('thermo',16,288,96,56,'thermo',o.temp?'32°':'온도계',false);
+  h += tx(590,232,'⚙️ 장비',{f:'var(--mech)',b:1,z:12}) + tx(590,249,'움직이는 쪽',{f:'var(--muted)',z:10.5});
+  ['fan:선풍기','lamp:표시등','heater:난로'].forEach((s,i) => { const [ic,nm] = s.split(':'); h += dev(ic,520,ys[i]-20,140,40,ic,nm,o.fan && i===0); });
+
+  // 선 (빛나는 것만 색)
+  Object.entries(LINES).forEach(([id,L]) => {
+    if (L.only && !o[L.only]) return;
+    const lit = ln.has(id), c = lit ? KC[L.k] : off;
+    h += `<path d="${L.d}" fill="none" stroke="${c}" stroke-width="${lit?4.5:2.5}" stroke-linejoin="round" marker-end="url(#ah)" ${L.dash&&!lit?'stroke-dasharray="6 4"':''} ${lit?'class="flow"':''}/>`;
+    if (lit) h += tx(L.x,L.y,L.t,{a:L.a||'middle',f:c,b:1,z:L.z||12});
+  });
+  h += tx(26,418,'기준 = 📘 규칙서 · 칩에 쓰기 = 🔌 배선 · 기억 · 울림 = 💡 칩 · 꺾기 = 레버 모터(칩만 봄)',{a:'start',z:11,f:'var(--muted)'});
   return h;
 }
-// ── 지도 모양 (코드 지도와 같다) ──
-const K = { b:['🧠 뇌','var(--card)','var(--fg)',10], w:['🔌 배선','var(--wire-bg)','var(--wire)',8], r:['📘 룰','var(--rule-bg)','var(--rule)',22], m:['⚙️ 장비','var(--mech-bg)','var(--mech)',4] };
-const CL = { in:'var(--hot)', rule:'var(--rule)', hall:'var(--mech)', bad:'var(--bad)' };
-// men: 이름 → [종류, x, 가운데 y, 하는 일] · lines: 이름 → [길, 글, x, y, 맞춤, 종류, 양쪽?]
-function scene(el, S, on) {
-  const all = !on, L = new Set(on && on.l || []), none = on && on.l === null, M = new Set(on ? on.m : []);
-  let h = DEFS.replace('orient="auto"','orient="auto-start-reverse"').replace('id="ah"','id="am"');
-  S.frames.forEach(([k,x,y,w,g,name,does]) => {
-    const s = { bld:['none','var(--line)',18,'stroke-dasharray="8 6"',1.5], dept:['var(--card)','var(--wire)',14,'',2], hall:['var(--mech-bg)','none',0,'fill-opacity=".5"',0] }[k];
-    h += `<rect x="${x}" y="${y}" width="${w}" height="${g}" rx="${s[2]}" fill="${s[0]}" stroke="${s[1]}" stroke-width="${s[4]}" ${s[3]}/>` + (k==='hall'?`<path d="M${x} ${y}H${x+w}M${x} ${y+g}H${x+w}" stroke="var(--mech)" stroke-width="3"/>`:'');
-    h += tx(x+18,y+28,name,{a:'start',b:1,z:16.5,f:k==='hall'?'var(--mech)':''}) + (does?tx(x+18,y+50,does,{a:'start',f:'var(--muted)'}):'');
-  });
-  Object.entries(S.lines).forEach(([k,[d,t,x,y,a,c,two]]) => { if (none || (c==='bad' && !L.has(k))) return; const lit = L.has(k), dim = !all && !lit;
-    h += `<g class="ln ${dim?'off':''}">` + (d?`<path d="${d}" fill="none" stroke="${CL[c]}" stroke-width="${lit?5:3.5}" stroke-linejoin="round" marker-end="url(#am)" ${two?'marker-start="url(#am)"':''} ${lit?'class="flow"':''}/>`:'') + (t?tx(x,y,t,{a,f:CL[c],b:1,z:13.5}):'') + '</g>'; });
-  Object.entries(S.men).forEach(([id,[k,x,cy,job]]) => { const q=K[k], g=job?74:54, y=cy-g/2, lit=M.has(id), dim=!all&&!lit;
-    h += `<g class="man ${dim?'off':''}"><rect x="${x}" y="${y}" width="178" height="${g}" rx="${q[3]}" fill="${lit?'var(--hi)':q[1]}" stroke="${lit?'var(--hot)':q[2]}" stroke-width="${lit?4:2}"/>` + tx(x+89,y+20,q[0],{f:q[2],z:12}) + tx(x+89,y+41,id,{b:1,m:1,z:15}) + (job?tx(x+89,y+61,job,{z:12.5,f:'var(--muted)'}):'') + '</g>'; });
-  el.setAttribute('viewBox',`0 0 ${S.vb[0]} ${S.vb[1]}`); el.innerHTML = h;
-}
-const slide = (el,ms,S) => { const g=el.closest('.fig'), x=ms.length?S.men[ms[ms.length-1]][1]:0; g.scrollLeft=(g.scrollWidth-g.clientWidth)*(x<250?0:x<500?.5:1); };
-function play(k, S, steps, extra) {
-  let i=0; const draw=()=>{ const [l,m,code,say,ex]=steps[i]; scene($('s'+k),S,{l,m}); $('c'+k).textContent=code; $('m'+k).innerHTML=say; $('d'+k).textContent=`${i+1} / ${steps.length}`; $('n'+k).textContent=i===steps.length-1?'처음부터 ↺':'다음 걸음 ▶'; slide($('s'+k),m,S); if(extra) extra(ex); };
-  $('n'+k).onclick=()=>{ i=(i+1)%steps.length; draw(); }; $('b'+k).onclick=()=>{ i=Math.max(0,i-1); draw(); }; draw();
-}
-// 1 부서 하나
-const ROOM = { team:'방 부서', in:['button','버튼'], extra:['thermo','32°'], rule:['28° 이상 → 더움','그 사이 → 적당','15° 미만 → 추움'], q:'32° 는?', a:'"더움"', ways:['더움','적당','추움'], outs:[['fan','선풍기'],['lamp','표시등'],['heater','난로']], pick:0 };
-const S1 = { vb:[900,352], frames:[['dept',16,10,868,332,'방 부서']],
-  men:{ 'button.mech':['m',40,168,'버튼'], 'thermo.mech':['m',40,274,'온도계'], 'room.rules':['r',362,84,'28° 이상이면 더움'], 'room.wiring':['w',362,220,'잇는다'], 'fan.mech':['m',684,94,'선풍기'], 'lamp.mech':['m',684,182,'표시등'], 'heater.mech':['m',684,270,'난로'] },
-  lines:{ ring:['M218 168H290V206H357','① 눌림',296,196,'start','in'], read:['M362 236H290V274H223','② 읽어',296,266,'start','in'], ask:['M420 183V126','③ 32° 는?',410,158,'end','rule'], ans:['M482 121V178','더움',492,158,'start','rule'],
-    go:['M540 206H612V94H679','④ 켜',604,128,'end','in'], x1:['M540 220H640V182H679','',0,0,'','in'], x2:['M540 234H612V270H679','',0,0,'','in'] } };
-play(1,S1,[
-  [null,['button.mech','thermo.mech','room.rules','room.wiring','fan.mech','lamp.mech','heater.mech'],"require('./room.mech')\nrequire('./room.rules')",'부서 칸에 <b>자기 것</b>을 다 놓았다. 아직 선이 없다.','load'],
-  [['ring'],['room.wiring','button.mech'],'button.onPress( … )','<b>배선</b>이 버튼에 선을 꽂는다. 전기는 아직 안 흐른다.','plug'],
-  [['ring'],['button.mech','room.wiring'],'() => { … }','버튼이 <b>울린다.</b> 꽂아 둔 선으로 배선에 온다.','ring'],
-  [['read','ask'],['room.wiring','thermo.mech','room.rules'],'feelOf(thermo.read())','배선이 온도를 읽어 <b>룰</b>에 묻는다.','ask'],
-  [['ans'],['room.rules','room.wiring'],"return '더움'",'룰이 답한다. 무엇을 켤지는 모른다.','ans'],
-  [['go'],['room.wiring'],"if (feel === '더움')",'배선이 답대로 <b>잇는다.</b> 딸깍!','join'],
-  [['go'],['room.wiring','fan.mech'],'fan.on()','<b>장비</b>가 움직인다. 이 부서 안에서 끝났다.','move'],
-  [[],['room.wiring'],'// 다시 기다림','선은 꽂힌 채 기다린다. 또 눌리면 ①부터.','wait'],
-],(ph)=>{ $('r1').innerHTML=DEFS+box(ROOM,ph); const g=$('r1').closest('.fig'); g.scrollLeft=(g.scrollWidth-g.clientWidth)*({load:0,plug:0,ring:0,ask:.4,ans:.5,join:.8,move:1,wait:1}[ph]); });
-// 2 복도
-const S2 = { vb:[900,592], frames:[['dept',16,10,868,240,'방 부서'],['hall',16,284,868,100,'복도 🗄️ 보관함','방 부서만 넣는다'],['dept',16,418,868,164,'화면 부서']],
-  men:{ 'button.mech':['m',40,196,'버튼'], 'room.rules':['r',362,70,'28° 이상이면 더움'], 'room.wiring':['w',362,196,'잇는다'], 'fan.mech':['m',684,196,'선풍기'], 'store.mech':['m',362,334,'담기만 한다'], 'screen.rules':['r',40,514,'무슨 글자로?'], 'screen.wiring':['w',362,514,'잇는다'], 'screen.vue':['m',684,514,'화면'] },
-  lines:{ a1:['M218 196H357','① 눌림',288,186,'middle','in'], a2:['M420 159V112','② 더워?',410,140,'end','rule'], a3:['M482 107V154','더움',492,140,'start','rule'], a4:['M540 196H679','③ 켜',610,186,'middle','in'], put:['M451 233V292','④ 내려놓음 "선풍기"',461,270,'start','hall'],
-    b1:['M451 371V472','① 바뀌면 울림',461,408,'start','hall'], b2:['M362 500H223','② 글자는?',290,490,'middle','rule'], b3:['M218 528H357','"지금: 선풍기"',288,548,'middle','rule'], b4:['M540 514H679','③ 그려',610,504,'middle','in'],
-    x1:['M540 224H640V470H684','',0,0,'','bad'], x2:['M540 70H773V154','',0,0,'','bad'], x3:['M773 8V154','',0,0,'','bad'] } };
-play(2,S2,[
-  [['a1'],['button.mech','room.wiring'],'button.onPress','방 부서의 버튼이 울린다.'],
-  [['a2','a3'],['room.wiring','room.rules'],"feelOf(32) → '더움'",'방 부서 <b>안에서</b> 묻고 답한다.'],
-  [['a4'],['room.wiring','fan.mech'],'fan.on()','방 부서 <b>안에서</b> 선풍기를 켠다.'],
-  [['put'],['room.wiring','store.mech'],"store.set('선풍기')",'복도에 <b>내려놓고 끝.</b> 누가 볼지는 모른다.'],
-  [['b1'],['store.mech','screen.wiring'],'store.onChange( … )','복도가 바뀌어 화면 부서가 울린다. <b>다시 ①부터.</b>'],
-  [['b2','b3'],['screen.wiring','screen.rules'],"labelOf('선풍기')",'화면 부서 <b>안에서</b> 묻고 답한다.'],
-  [['b4'],['screen.wiring','screen.vue'],'screen.draw(text)','화면이 그린다. 버튼이 있는 줄도 모른다.'],
-]);
-// 3 건물 둘
-const S3 = { vb:[900,566], frames:[['bld',4,4,892,186,'🏢 main 건물'],['dept',16,40,420,138,'설정 부서','19505 를 들고 있다'],['hall',16,220,868,132,'복도 🚪 창구','전화 한 대의 세 조각'],['bld',4,382,892,178,'🖥 화면 건물'],['dept',464,400,420,148,'펌프 부서','물어보고 옮긴다']],
-  men:{ 'config.wiring':['w',230,118,'잇는다'], 'ipcMain':['m',230,294,'main 쪽 전화기'], 'preload.js':['m',462,294,'전화선'], 'electronAPI':['m',694,294,'화면 쪽 전화기'], 'pump.wiring':['w',694,484,'잇는다'] },
-  lines:{ p1:['M820 447V336','① 설정 줘',810,376,'end','hall'], w1:['M694 280H645','',0,0,'','hall'], w2:['M462 280H413','',0,0,'','hall'], r1:['M290 257V160','① 전화 옴',280,212,'end','hall'], r2:['M352 155V252','② 답 19505',362,212,'start','hall'], w3:['M408 308H457','',0,0,'','hall'], w4:['M640 308H689','',0,0,'','hall'], p2:['M856 331V442','② 답 도착',850,466,'end','hall'] } };
-S3.lines.p2=['M848 331V442','',0,0,'','hall'];
-play(3,S3,[
-  [['p1'],['pump.wiring','electronAPI'],'electronAPI.getConfig()','펌프 부서가 복도의 전화기를 든다. "설정 줘"'],
-  [['w1','w2'],['electronAPI','preload.js','ipcMain'],"ipcRenderer.invoke('get-config')",'전화선을 타고 건물을 건넌다.'],
-  [['r1'],['ipcMain','config.wiring'],"ipcMain.handle('get-config', …)",'main 쪽 전화기가 울려 <b>설정 부서</b>가 받는다.'],
-  [['r2'],['config.wiring','ipcMain'],'() => config','들고 있던 값을 답한다. 누가 물었는지는 모른다.'],
-  [['w3','w4'],['ipcMain','preload.js','electronAPI'],'return 19505','답이 <b>같은 길로</b> 돌아온다.'],
-  [['p2'],['electronAPI','pump.wiring'],'.then(raw => …)','펌프 부서가 답을 받는다. 설정 부서를 직접 부르지 않았다.'],
-]);
-// 4 지도 한 장
-const S4 = { vb:[900,1164], frames:[['bld',4,4,892,356,'🏢 main 건물'],['dept',16,78,868,268,'설정 부서','포트를 정해 들고 있는다'],['hall',16,382,868,196,'복도 🚪 창구','두 건물을 잇는 전화'],['bld',4,600,892,560,'🖥 화면 건물'],['dept',16,676,868,126,'펌프 부서','물어보고, 답을 옮긴다'],['hall',16,836,868,100,'복도 🗄️ 보관함','펌프만 넣는다'],['dept',16,970,868,172,'화면 부서','포트를 보여 준다']],
-  men:{ 'main.js':['b',150,42], 'App.vue':['b',150,638], 'config.rules':['r',300,150,'1~65535 만'], 'config.wiring':['w',300,276,'잇는다'], 'config-file.mech':['m',40,276,'파일 읽기'], 'ipcMain':['m',300,432,'main 쪽 전화기'], 'preload.js':['m',644,480,'전화선'], 'electronAPI':['m',300,530,'화면 쪽 전화기'], 'pump.wiring':['w',300,744,'잇는다'], 'store.mech':['m',300,886,'담기만 한다'], 'screen.rules':['r',40,1068,'아직이면 기본값'], 'screen.wiring':['w',300,1068,'잇는다'], 'screen.vue':['m',644,1068,'화면'] },
-  lines:{ k1:['','① 설정 부서 깨움 · 그 뒤 쉼',348,47,'start','in'], k2:['','① 펌프 부서 깨움 · ② 화면 부서 깨움 · 그 뒤 쉼',486,643,'start','in'],
-    a1:['M300 262H223','① 읽어',262,254,'middle','in'], a2:['M218 290H295','19505',258,308,'middle','in'], a3:['M358 239V192','② 괜찮아?',348,220,'end','rule'], a4:['M422 187V234','그대로',432,216,'start','rule'],
-    q1:['M422 707V572','① 설정 줘',432,606,'start','hall'], q2:['M478 530H560V494H640','',0,0,'','hall',1], q3:['M478 432H560V466H640','',0,0,'','hall',1], q4:['M358 395V318','③ 물음',348,364,'end','hall'], q5:['M422 313V390','④ 답 19505',432,366,'start','hall'], q6:['M358 567V702','② 답 도착',348,606,'end','hall'],
-    s1:['M389 781V844','③ 담아 19505',399,824,'start','hall'], s2:['M389 923V1026','① 바뀌면 울림',399,958,'start','hall'], b1:['M300 1054H223','② 뭘 보여 줘?',262,1022,'middle','rule'], b2:['M218 1082H295','19505',258,1100,'middle','rule'], b3:['M478 1068H639','③ 그려',558,1058,'middle','in'] } };
-play(4,S4,[
-  [['k1'],['main.js','config.wiring'],'startConfigRoom()','🧠 main 의 뇌가 <b>설정 부서</b>를 깨운다. 그리고 쉰다.'],
-  [['a1','a2','a3','a4'],['config.wiring','config-file.mech','config.rules'],'readConfigFile()\nvalidateConfig()','설정 부서 안에서 읽고, 묻고, <b>19505 를 들고 있는다.</b>'],
-  [['k2'],['App.vue','pump.wiring','screen.wiring'],'startPump()\nstartScreen()','🧠 화면 건물의 뇌가 <b>펌프 · 화면 부서</b>를 깨운다. 그리고 쉰다.'],
-  [['q1','q2','q3'],['pump.wiring','electronAPI','preload.js','ipcMain'],'electronAPI.getConfig()','펌프 부서가 창구 복도로 전화를 건다.'],
-  [['q4','q5'],['ipcMain','config.wiring'],'() => config','설정 부서가 받아 19505 라고 답한다.'],
-  [['q3','q2','q6'],['ipcMain','preload.js','electronAPI','pump.wiring'],'.then(raw => …)','답이 같은 길로 돌아온다.'],
-  [['s1'],['pump.wiring','store.mech'],'store.setRaw(raw)','펌프 부서가 보관함 복도에 내려놓는다.'],
-  [['s2'],['store.mech','screen.wiring'],'computed( … )','복도가 바뀌어 화면 부서가 울린다.'],
-  [['b1','b2','b3'],['screen.wiring','screen.rules','screen.vue'],'portToShow(raw)','화면 부서 안에서 묻고 그린다. <b>수신 포트: 19505</b>'],
-]);
-// 5 섞인 선
-const BAD = [
-  { tab:'복도를 안 거침', l:['x1'], m:['room.wiring','screen.vue'], code:"screen.draw('선풍기')   // 방 부서에서", say:'방 부서가 화면 부서의 장비를 직접 움직인다. 한쪽을 고치면 다른 쪽이 깨진다.', ok:['put','b1','b4'], om:['room.wiring','store.mech','screen.wiring','screen.vue'], oc:"store.set('선풍기')", os:'복도에 내려놓는다. 화면 부서가 알아서 울린다.' },
-  { tab:'룰이 장비를 움직임', l:['x2'], m:['room.rules','fan.mech'], code:'if (t >= 28) fan.on()   // room.rules', say:'룰이 선풍기에 선을 꽂았다. 룰만 따로 시험할 수 없다.', ok:['a2','a3','a4'], om:['room.rules','room.wiring','fan.mech'], oc:"return '더움'", os:'룰은 답만 한다. 잇는 일은 배선이.' },
-  { tab:'뇌가 장비를 만짐', l:['x3'], m:['fan.mech'], code:'fan.on()   // main.js', say:'뇌가 부서를 건너뛰고 장비를 직접 만진다. 켤 때 할 일이 뇌에 쌓인다.', ok:['a4'], om:['room.wiring','fan.mech'], oc:'startRoom()', os:'뇌는 부서의 배선만 깨운다. 장비는 배선이 부른다.' },
+const slide = (el, x) => { const g = el.closest('.fig'); g.scrollLeft = (g.scrollWidth - g.clientWidth) * x; };
+
+// 1 칩 둘러보기
+const PARTS = [
+  ['button','⚙️ 버튼','울리는 장비. 누르면 신호를 보낸다.','센서 · 스위치','button.onPress( … )',0],
+  ['thermo','⚙️ 온도계','부르면 지금 값을 돌려주는 장비.','측정기','thermo.read()   // → 32',0],
+  ['rules','📘 규칙서','값을 넣으면 계산해서 답만 한다. 안에 상태가 없어서 같은 값이면 늘 같은 답 (순수 함수).','계산 칩 (ROM)',"feelOf(32)   // → '더움'",.3],
+  ['var','💡 반응형 변수','기억하고, 바뀌면 신호선으로 울린다. 스스로는 안 바뀐다 — 쓰는 건 배선뿐.','램프 달린 기억 칩 (래치)',"final feel = '—'.obs;   // GetX\nconst feel = ref('—')    // Vue",.6],
+  ['display','⚙️ 표시판','칩을 직접 지켜보다 바뀌면 다시 그리는 화면 장비.','전광판',"Obx(() => Text(feel.value))   // GetX",1],
+  ['relay','🔌 배선 (릴레이)','깨어나서 읽고 · 묻고 · 칩에 쓰고 · 장비에 시킨다. 판단 공식은 없다.','릴레이 보드','room.wiring',.4],
+  ['hand','🔌 배선의 쓰는 손','규칙서의 답(또는 사건 그대로)을 칩에 쓴다. 칩에 쓰는 건 배선뿐.','기록 헤드',"feel.value = '더움'",.5],
+  ['motor','🔌 배선의 레버 모터','칩만 보고 레버를 꺾는다. 규칙서에 다시 묻지 않는다 — 값 하나가 그대로 스위치.','서보 모터',"ever(feel, (v) => …)   // watch",.5],
+  ['lever','🔌 배선의 레버','지금 어느 장비로 이을지. 레버 모터가 칩 값대로 돌린다.','전철기','if (feel == \'더움\') fan.on()',.5],
+  ['fan','⚙️ 선풍기 · 표시등 · 난로','움직이는 장비. 시키면 한 가지만 한다.','모터 · 램프 · 히터','fan.on()',1],
 ];
-let cur=BAD[0], good=false;
-const draw5=()=>{ scene($('s5'),S2,good?{l:cur.ok,m:cur.om}:{l:cur.l,m:cur.m}); $('c5').textContent=(good?'✅ ':'✕ ')+(good?cur.oc:cur.code); $('m5').textContent=good?cur.os:cur.say; $('n5').textContent=good?'섞인 모양 보기':'고친 모양 보기'; };
-BAD.forEach((x,i)=>{ const b=document.createElement('button'); b.textContent=x.tab; b.setAttribute('aria-pressed',i===0); b.onclick=()=>{ [...$('bad').children].forEach(y=>y.setAttribute('aria-pressed',y===b)); cur=x; good=false; draw5(); }; $('bad').append(b); });
-$('n5').onclick=()=>{ good=!good; draw5(); }; draw5();
+let pick = 'var';
+const drawParts = () => {
+  const P = PARTS.find(p => p[0] === pick);
+  $('b1').innerHTML = board({ hl:[pick, ...(pick==='fan'?['lamp','heater']:[])], feel:'더움', show:'더움', temp:1 });
+  $('p1').innerHTML = `<div class="t">${P[1]}</div><p>${P[2]}</p><p class="sub">하드웨어로는: ${P[3]}</p><pre>${esc(P[4])}</pre>`;
+  document.querySelectorAll('#parts button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === pick));
+  slide($('b1'), P[5]);
+};
+$('parts').innerHTML = PARTS.map(p => `<button data-k="${p[0]}">${p[1]}</button>`).join('');
+document.querySelectorAll('#parts button').forEach(b => b.onclick = () => { pick = b.dataset.k; drawParts(); });
+drawParts();
+
+// 2 선 다섯 종류
+const KINDS = [
+  [1,'울림 → 콜백','장비가 사건을 알리면, 꽂아 둔 배선 함수가 깨어난다.','button.onPress(() => { … })',['L1'],{press:1},0],
+  [2,'부름 — 시킴 · 돌려받음','배선이 장비를 부른다. 값을 돌려받거나(온도계) 일을 시킨다(선풍기).','thermo.read()   // → 32\nfan.on()',['L2a','L2b','L2c'],{temp:1,flip:1,fan:1,feel:'더움'},.5],
+  [3,'물음 — 규칙서에 묻고 답','값을 넣으면 계산해서 답만 돌려준다 (true / false · "더움").',"feelOf(32)   // → '더움'",['L3a','L3b'],{temp:1,ans:1},.3],
+  [4,'씀 — 반응형 변수에','배선이 칩에 쓴다. 쓰는 값은 부름으로 돌려받은 값 · 물음의 답 · 사건 그대로 중 하나.',"feel.value = '더움'",['L4'],{feel:'더움',ans:1,ring5:1},.5],
+  [5,'지켜봄 — 칩이 울리면','칩을 지켜보던 배선(레버 모터 — ever · watch)이나 화면 장비(표시판 — Obx)가 다시 움직인다.',"ever(feel, …)\nObx(() => Text(feel.value))",['L5a','L5b'],{feel:'더움',ring5:1,flip:1,show:'더움'},.8],
+];
+let kind = 1;
+const drawKinds = () => {
+  const K = KINDS.find(q => q[0] === kind);
+  $('b2').innerHTML = board({ ln:K[4], ...K[5] });
+  $('p2').innerHTML = `<div class="t" style="color:${KC[kind]}">${K[1]}</div><p>${K[2]}</p><pre>${esc(K[3])}</pre>`;
+  document.querySelectorAll('#kinds button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.k === kind));
+  slide($('b2'), K[6]);
+};
+$('kinds').innerHTML = KINDS.map(q => `<button data-k="${q[0]}">${q[1]}</button>`).join('');
+document.querySelectorAll('#kinds button').forEach(b => b.onclick = () => { kind = +b.dataset.k; drawKinds(); });
+drawKinds();
+
+// 3 한 번 돌려 보기
+const STEPS = [
+  ['칩만 꽂혀 있다','선이 꽂혀 있지만 아무 일도 없다. 칩은 아무것도 기억하지 않았다.','// 기다림',{},0],
+  ['[울림] 버튼이 울린다','꽂아 둔 선으로 배선이 깨어난다.','button.onPress(() => { … })',{ln:['L1'],press:1,hl:['button','relay']},0],
+  ['[부름] 온도계를 부른다','배선이 온도계를 부르고 32 를 돌려받는다.','thermo.read()   // → 32',{ln:['L2a','L2b'],press:1,temp:1,hl:['thermo']},0],
+  ['[물음] 규칙서에 묻는다','32 를 넣으면 규칙서가 계산해서 "더움" 이라고만 답한다. 무엇을 켤지는 모른다.',"feelOf(32)   // → '더움'",{ln:['L3a','L3b'],press:1,temp:1,ans:1,hl:['rules']},.3],
+  ['[씀] 칩에 쓴다','쓰는 손이 답을 💡 칩에 쓴다. 칩이 "더움" 을 기억하고 램프가 켜진다.',"feel.value = '더움'",{ln:['L4'],press:1,temp:1,ans:1,feel:'더움',ring5:1,hl:['hand','var']},.5],
+  ['[지켜봄] 칩이 울린다','지켜보던 레버 모터가 칩만 보고 레버를 꺾는다(딸깍). 표시판도 칩을 보고 "더움" 을 띄운다.',"ever(feel, …)   ·   Obx(() => Text(feel.value))",{ln:['L5a','L5b'],feel:'더움',ring5:1,flip:1,show:'더움',hl:['motor','display']},.8],
+  ['[부름] 선풍기에 시킨다','꺾인 레버로 선풍기가 돈다.','fan.on()',{ln:['L2c'],feel:'더움',flip:1,fan:1,show:'더움',hl:['fan']},1],
+  ['다시 기다린다','칩은 "더움" 을 기억한 채, 선은 꽂힌 채 기다린다. 또 눌리면 처음부터.','// 기다림',{feel:'더움',flip:1,fan:1,show:'더움'},.5],
+];
+// 4 레버를 꺾는 두 길
+const WAYS = [
+  ['B','B 칩 거쳐 꺾기','규칙서 답(물음)을 칩에 쓰고(씀), 칩이 울리면 레버 모터가 칩을 보고 꺾는다(지켜봄). 답이 남아 있어서 표시판도 같이 본다.',
+   "feel.value = feelOf(thermo.read());   // 물음 → 씀\never(feel, (v) => { if (v == '더움') fan.on(); });   // 지켜봄",
+   'SeaMap 예: 지도 배선이 isRecording(칩)을 보고 "녹화 중이면 넘김" — 2장 길 녹화',
+   {ln:['L3a','L3b','L4','L5a','L5b'],temp:1,ans:1,feel:'더움',ring5:1,flip:1,fan:1,show:'더움',hl:['hand','var','motor']}],
+  ['A','A 바로 꺾기','규칙서 답(물음)으로 그 자리에서 바로 레버를 꺾는다. 칩에 안 남아서 표시판은 모르고, 다음에 다시 물어야 한다.',
+   "if (feelOf(thermo.read()) == '더움') fan.on();   // 물음 → 바로",
+   'SeaMap 예: 녹화 멈출 때 isStationary(점들) 답으로 바로 "지움" — 2장 길 녹화',
+   {ln:['L3a','LA'],temp:1,ans:1,direct:1,flip:1,fan:1,hl:['motor','rules']}],
+];
+let way = 'B';
+const drawWays = () => {
+  const W = WAYS.find(w => w[0] === way);
+  $('b4').innerHTML = board(W[5]);
+  $('p4').innerHTML = `<div class="t">${W[1]}</div><p>${W[2]}</p><pre>${esc(W[3])}</pre><p class="sub">${W[4]}</p>`;
+  document.querySelectorAll('#ways button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === way));
+  slide($('b4'), way === 'B' ? .6 : .3);
+};
+$('ways').innerHTML = WAYS.map(w => `<button data-k="${w[0]}">${w[1]}</button>`).join('');
+document.querySelectorAll('#ways button').forEach(b => b.onclick = () => { way = b.dataset.k; drawWays(); });
+drawWays();
+
+// ── 지도 그림 (코드 지도와 같은 모양) ──
+// S: { frames:[[k,x,y,w,h,name,does]], men:{id:[k,x,cy,job]}, lines:{id:[d,t,x,y,a,kind]} } · kind 1~5 · 'bad' · 'hall'
+// on: { m:[빛낼 칸], l:[빛낼 선], bad:[빨간 칸], hide:[안 그릴 선] }
+const MK = { b:['🧠 뇌','var(--card)','var(--fg)',10], w:['🔌 배선','var(--wire-bg)','var(--wire)',8], r:['📘 규칙서','var(--rule-bg)','var(--rule)',22], m:['⚙️ 장비','var(--mech-bg)','var(--mech)',4], s:['🗄️ 보관함','var(--mech-bg)','var(--var)',4], g:['📇 번호부','var(--mech-bg)','var(--mech)',4] };
+const LC = (k) => k === 'bad' ? 'var(--bad)' : k === 'hall' ? 'var(--mech)' : KC[k];
+function mapSvg(S, on = {}) {
+  const M = new Set(on.m || []), L = new Set(on.l || []), B = new Set(on.bad || []), X = new Set(on.hide || []);
+  let h = DEFS;
+  S.frames.forEach(([k,x,y,w,g,name,does]) => {
+    const s = { dept:['var(--card)','var(--wire)',14,'',2], hall:['var(--mech-bg)','none',0,'fill-opacity=".55"',0], bld:['none','var(--line)',18,'stroke-dasharray="8 6"',1.5] }[k];
+    h += `<rect x="${x}" y="${y}" width="${w}" height="${g}" rx="${s[2]}" fill="${s[0]}" stroke="${s[1]}" stroke-width="${s[4]}" ${s[3]}/>` + (k === 'hall' ? `<path d="M${x} ${y}H${x+w}M${x} ${y+g}H${x+w}" stroke="var(--mech)" stroke-width="3"/>` : '');
+    h += tx(x+16,y+26,name,{a:'start',b:1,z:15.5,f:k==='hall'?'var(--mech)':''}) + (does ? tx(x+16,y+46,does,{a:'start',f:'var(--muted)',z:12.5}) : '');
+  });
+  Object.entries(S.lines).forEach(([id,[d,t,x,y,a,k]]) => {
+    if (X.has(id) || (k === 'bad' && !L.has(id))) return;
+    const lit = L.has(id), c = lit ? LC(k) : 'var(--off)';
+    if (d) h += `<path d="${d}" fill="none" stroke="${c}" stroke-width="${lit?4.5:2.5}" stroke-linejoin="round" marker-end="url(#ah)" ${lit?'class="flow"':''}/>`;
+    if (t && lit) h += tx(x,y,t,{a,f:c,b:1,z:12.5});
+  });
+  Object.entries(S.men).forEach(([id,[k,x,cy,job]]) => {
+    const q = MK[k], gh = job ? 74 : 54, y = cy - gh/2, lit = M.has(id), bad = B.has(id);
+    const st = bad ? 'var(--bad)' : lit ? 'var(--hot)' : q[2];
+    h += `<rect x="${x}" y="${y}" width="178" height="${gh}" rx="${q[3]}" fill="${lit||bad?'var(--hi)':q[1]}" stroke="${st}" stroke-width="${lit||bad?4:2}" ${k==='g'?'stroke-dasharray="6 4"':''}/>`
+      + tx(x+89,y+20,q[0],{f:q[2],z:11.5}) + tx(x+89,y+41,id,{b:1,m:1,z:id.length>18?13:14.5}) + (job ? tx(x+89,y+61,job,{z:12,f:'var(--muted)'}) : '');
+  });
+  return h;
+}
+
+// 5 지도로 줄이기
+const S5 = { frames:[['dept',16,10,868,310,'방 부서','씀 · 지켜봄은 room.wiring 안에서 — 💡 feel 이 배선 파일 안에 있다']],
+  men:{ 'button.mech':['m',40,110,'버튼'], 'thermo.mech':['m',40,240,'온도계'], 'room.rules':['r',361,95,'28° 이상이면 더움'], 'room.wiring':['w',361,240,'잇는다 · 💡 feel 안에'],
+        'fan.mech':['m',682,100,'선풍기'], 'lamp.mech':['m',682,185,'표시등'], 'heater.mech':['m',682,270,'난로'] },
+  lines:{ L1:['M218 110H300V222H356','울림',226,102,'start',1], L2:['M361 250H223','부름: 읽어 · 32',292,268,'middle',2],
+          L3a:['M420 203V137','물음',410,175,'end',3], L3b:['M480 137V198','답',490,175,'start',3],
+          L2f:['M539 222H610V100H677','부름: 켜',604,92,'end',2], x1:['M539 240H640V185H677','',0,0,'',2], x2:['M539 258H610V270H677','',0,0,'',2] } };
+const MAP5 = { button:[['button.mech'],['L1']], thermo:[['thermo.mech'],['L2']], rules:[['room.rules'],['L3a','L3b']], var:[['room.wiring'],[]], hand:[['room.wiring'],[]], motor:[['room.wiring'],[]], lever:[['room.wiring'],['L2f']], relay:[['room.wiring'],['L1','L2','L3a','L3b','L2f']], fan:[['fan.mech','lamp.mech','heater.mech'],['L2f']], display:[[],[]] };
+let pick5 = 'var';
+const draw5 = () => {
+  const P = PARTS.find(p => p[0] === pick5), [ms, ls] = MAP5[pick5];
+  $('b5').innerHTML = board({ hl:[pick5, ...(pick5==='fan'?['lamp','heater']:[])], feel:'더움', show:'더움', temp:1 });
+  $('m5').innerHTML = mapSvg(S5, { m:ms, l:ls });
+  const file = ms.length ? ms.join(' · ') : '— 이 부서에 없음 (6칸: 화면 부서의 screen.mech)';
+  $('p5').innerHTML = `<div class="t">${P[1]} → <code>${esc(file)}</code></div><p>${['var','hand','motor','lever','relay'].includes(pick5) ? '기판에서는 따로 보이는 칩이지만, 코드에서는 <b>배선 파일 하나</b> 안에 같이 들어 있다.' : P[2]}</p>`;
+  document.querySelectorAll('#parts5 button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === pick5));
+};
+$('parts5').innerHTML = PARTS.map(p => `<button data-k="${p[0]}">${p[1]}</button>`).join('');
+document.querySelectorAll('#parts5 button').forEach(b => b.onclick = () => { pick5 = b.dataset.k; draw5(); });
+draw5();
+
+// 6 부서 둘과 복도
+const S6 = (getx) => ({ frames:[['dept',16,10,868,200,'방 부서','온도계 · 규칙서는 5칸과 같아 줄임'], ['hall',16,240,868,90, getx ? '복도 📇 번호부' : '복도 🗄️ 보관함', getx ? '배선을 찾아 주기만' : '반응형 변수를 담아 둠'], ['dept',16,360,868,190,'화면 부서','표시판에 지금 상태를 보인다']],
+  men: Object.assign({ 'button.mech':['m',40,120,'버튼'], 'room.wiring':['w',361,120, getx ? '잇는다 · 💡 feel 안에' : '잇는다'], 'fan.mech':['m',682,120,'선풍기'],
+         'screen.wiring':['w',361,460,'잇는다'], 'screen.mech':['m',682,460,'표시판 "지금: 더움"'] },
+         getx ? { 'GetX':['g',361,285,'"방 부서 배선" 찾기'] } : { 'store.mech':['s',361,285,'💡 feel 을 담음'] }),
+  lines: getx ? {
+      L1:['M218 120H356','울림',287,110,'middle',1], L2f:['M539 120H677','부름: 켜',608,110,'middle',2],
+      F1:['M420 423V327','Get.find',410,385,'end','hall'], F2:['M420 248V162','찾음',410,210,'end','hall'],
+      W5:['M539 445H580V140H544','지켜봄 — 배선째 (값 + 함수)',590,300,'start',5], D2:['M539 460H677','부름: 그려',608,450,'middle',2] }
+    : {
+      L1:['M218 120H356','울림',287,110,'middle',1], L2f:['M539 120H677','부름: 켜',608,110,'middle',2],
+      W4:['M450 157V243','씀',460,205,'start',4], W5:['M450 322V418','지켜봄 (값만)',460,375,'start',5], D2:['M539 460H677','부름: 그려',608,450,'middle',2] } });
+const HALLS = [
+  ['vue','Vue: 🗄️ 보관함 복도','방 부서 배선이 복도의 보관함에 쓰고(씀), 화면 부서는 보관함이 울리면 <b>값만</b> 본다(지켜봄). 두 부서는 서로를 모른다.','store.feel = \'더움\'        // 방 부서 (씀)\nwatch(() => store.feel, …)   // 화면 부서 (지켜봄)'],
+  ['getx','SeaMap (GetX): 📇 번호부 복도','💡 feel 은 방 부서 <b>배선 파일 안</b>에 있다. 화면 부서는 번호부에서 방 부서 배선을 <b>통째로</b> 찾아 그 안의 feel 을 지켜본다 — 값뿐 아니라 그 배선의 함수까지 닿는다.','final room = Get.find<RoomController>();   // 📇 번호부\nObx(() => Text(room.feel.value))            // 지켜봄'],
+];
+let hall6 = 'getx';
+const draw6 = () => {
+  const H6 = HALLS.find(x => x[0] === hall6), S = S6(hall6 === 'getx');
+  $('m6').innerHTML = mapSvg(S, { l:Object.keys(S.lines), m:[] });
+  $('p6').innerHTML = `<div class="t">${H6[1]}</div><p>${H6[2]}</p><pre>${esc(H6[3])}</pre>`;
+  document.querySelectorAll('#halls button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === hall6));
+};
+$('halls').innerHTML = HALLS.map(x => `<button data-k="${x[0]}">${x[1]}</button>`).join('');
+document.querySelectorAll('#halls button').forEach(b => b.onclick = () => { hall6 = b.dataset.k; draw6(); });
+draw6();
+
+// 7 뇌
+const S7 = { frames:[['dept',16,110,420,180,'방 부서',''], ['dept',464,110,420,180,'화면 부서','']],
+  men:{ 'main.dart':['b',361,45,''], 'room.wiring':['w',30,215,'잇는다'], 'button.mech':['m',240,215,'버튼'], 'screen.wiring':['w',478,215,'잇는다'], 'screen.mech':['m',688,215,'표시판'] },
+  lines:{ B1:['M400 72V95H119V173','① 깨움',128,128,'start',1], B2:['M500 72V95H567V173','② 깨움',576,128,'start',1],
+          P1:['M208 215H235','선',221,203,'middle',1], P2:['M656 215H683','선',669,203,'middle',1] } };
+const STEPS7 = [
+  [[],[],'void main() { … }','앱을 켠다. 아직 아무 부서도 깨어 있지 않다.'],
+  [['B1'],['main.dart','room.wiring'],'Get.put(RoomController(), permanent: true);','🧠 뇌가 방 부서 배선을 깨운다(번호부에 넣음).'],
+  [['P1'],['room.wiring','button.mech'],'button.onPress(() => { … })   // onInit 에서','깨어난 배선이 자기 버튼에 선을 꽂는다. 이제 울림이 오면 받을 수 있다.'],
+  [['B2'],['main.dart','screen.wiring'],'Get.put(ScreenController(), permanent: true);','🧠 뇌가 화면 부서 배선을 깨운다.'],
+  [['P2'],['screen.wiring','screen.mech'],'ever(room.feel, …)   // onInit 에서','화면 배선도 자기 장비 · 지켜볼 칩에 선을 꽂는다.'],
+  [[],['main.dart'],'// 뇌는 쉰다','뇌는 여기서 끝. 장비를 직접 만지지 않는다. 그다음은 부서들이 선 다섯 종류(울림 · 부름 · 물음 · 씀 · 지켜봄)로 돌린다.'],
+];
+let s7 = 0;
+const draw7 = () => {
+  const [l, m, code, say] = STEPS7[s7];
+  $('m7').innerHTML = mapSvg(S7, { l, m });
+  $('p7').innerHTML = `<p>${say}</p><pre>${esc(code)}</pre>`;
+  $('d7').textContent = `${s7 + 1} / ${STEPS7.length}`; $('n7').textContent = s7 === STEPS7.length - 1 ? '처음부터 ↺' : '다음 걸음 ▶';
+};
+$('n7').onclick = () => { s7 = (s7 + 1) % STEPS7.length; draw7(); };
+$('k7').onclick = () => { s7 = Math.max(0, s7 - 1); draw7(); };
+draw7();
+
+// 8 섞인 선
+const S8 = { frames:[['dept',16,10,868,310,'방 부서','']], men:S5.men, lines:Object.assign({}, S5.lines, {
+  Ba:['M129 73V34H771V58','✕ 버튼이 직접 판단해 선풍기를 켬',450,28,'middle','bad'],
+  Bb:['M539 95H677','✕ 규칙서가 fan.on()',608,85,'middle','bad'] }) };
+const BADS = [
+  ['a','장비가 판단함',{ l:['Ba'], bad:['button.mech'] },"// button.mech 안\nif (thermo.read() >= 28) fan.on();   ✕",'버튼은 울리기만 해야 한다. 판단은 규칙서, 켜기는 배선.','SeaMap: 녹화 단추(view_tools.mech)가 권한을 묻고 "없으면 멈춤" 을 판단하고 녹화 배선을 직접 부름 — 2장'],
+  ['b','규칙서가 장비를 움직임',{ l:['Bb'], bad:['room.rules'] },"// room.rules 안\nif (t >= 28) { fan.on(); return '더움'; }   ✕",'규칙서는 답만 해야 한다. 장비를 움직이면 같은 값에도 다른 일이 생겨 시험할 수 없다.','SeaMap: 리팩토링에서 .rules 로 뗄 때 장비 부르기는 배선에 남겨 지킴'],
+  ['c','배선이 공식을 들고 있음',{ l:[], bad:['room.wiring'] },"// room.wiring 안\nif (thermo.read() >= 28) …   ✕  숫자 · 공식이 배선에",'배선은 레버(칩 값)를 보거나 규칙서에 물어서 꺾기만. 숫자 · 공식은 규칙서로.','SeaMap: 리팩토링 전 컨트롤러들 — 지금은 .rules 로 뗌'],
+  ['d','복도를 안 거침',{ l:[], bad:[] },"import 'other_room/fan.mech';  fan.on();   ✕",'다른 부서의 장비를 직접 부르면 그 부서를 고칠 때 여기가 깨진다. 복도(보관함 · 번호부)로만 만난다.','SeaMap: 켤 때 타일 창고 · 광고 SDK "바로 부름", 지도 화면이 길 층을 import — 1장 · 2장 지도에 표시'],
+];
+let bad8 = 'a', fix8 = false;
+const draw8 = () => {
+  const Bd = BADS.find(b => b[0] === bad8);
+  const good = { l:['L1','L2','L3a','L3b','L2f'], m:[] };
+  $('m8').innerHTML = mapSvg(S8, fix8 ? good : Bd[2]);
+  $('p8').innerHTML = fix8 ? `<div class="t ok">고친 모양</div><p>${Bd[4]}</p><p class="sub">울림(버튼) → 부름(온도 읽기) → 물음(규칙서) → 부름(선풍기 켜기) — 칩마다 자기 일만.</p>`
+                           : `<div class="t no">✕ ${Bd[1]}</div><pre>${esc(Bd[3])}</pre><p>${Bd[4]}</p><p class="sub">${Bd[5]}</p>`;
+  document.querySelectorAll('#bads button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === bad8));
+  $('fix8').setAttribute('aria-pressed', fix8);
+};
+$('bads').innerHTML = BADS.map(b => `<button data-k="${b[0]}">${b[1]}</button>`).join('');
+document.querySelectorAll('#bads button').forEach(b => b.onclick = () => { bad8 = b.dataset.k; fix8 = false; draw8(); });
+$('fix8').onclick = () => { fix8 = !fix8; draw8(); };
+draw8();
+
+let st = 0;
+const drawSteps = () => {
+  const S = STEPS[st];
+  $('b3').innerHTML = board(S[3]);
+  $('p3').innerHTML = `<div class="t">${S[0]}</div><p>${S[1]}</p><pre>${esc(S[2])}</pre>`;
+  $('d3').textContent = `${st + 1} / ${STEPS.length}`; $('n3').textContent = st === STEPS.length - 1 ? '처음부터 ↺' : '다음 걸음 ▶';
+  slide($('b3'), S[4]);
+};
+$('n3').onclick = () => { st = (st + 1) % STEPS.length; drawSteps(); };
+$('k3').onclick = () => { st = Math.max(0, st - 1); drawSteps(); };
+drawSteps();
 })();
 </script>
 </body>
